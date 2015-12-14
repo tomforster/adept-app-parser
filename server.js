@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 var events = require('events')
 var path = require('path');
@@ -23,25 +25,30 @@ var auth = function (req, res, next) {
   function unauthorized(res) {
     res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
     return res.send(401);
-  };
+  }
 
   var user = basicAuth(req);
 
   if (!user || !user.name || !user.pass) {
     return unauthorized(res);
-  };
+  }
 
   if (user.name === username && user.pass === password) {
     return next();
   } else {
     return unauthorized(res);
-  };
+  }
 };
 
 //routes
 app.get('/parser', function(req, res) {
    console.log('parserreq');
-   res.sendFile('/node/public/parser.html');
+   res.sendFile('parser.html');
+});
+
+app.get('/imagelist',auth, function(req,res) {
+    console.log('imglistrequest');
+    res.send(getImagelist('/home/node/security/'));
 });
 
 app.get('/img/:tagId',auth, function(req,res) {
@@ -55,41 +62,37 @@ app.get('/catimg/:tagId',auth, function(req,res) {
 
 app.get('/catpics/',auth,function(req,res) {
 	console.log('cats');
-	res.sendFile('/node/public/gallery.html');
-})
+	res.sendFile('gallery.html');
+});
 
 app.get('/catpicsold/',auth,function(req,res) {
 	console.log('cats');
 	res.send(getFiles('/home/node/security/'));
-})
+});
 
 app.get('/', function(req, res) {
 	console.log('ZOMG');
 	res.sendFile('/node/public/parser.html');
-})
+});
 
 app.get('/robots.txt',function(req,res){
 	res.type('text/plain');
 	res.send("User-agent: *\nDisallow: /");
-})
+});
 
 function getImagelist (dir){
-    files_ = [];
+    var files_ = [];
     var files = fs.readdirSync(dir);
 	files.sort(function(a, b) {
-               return fs.statSync(dir + b).mtime.getTime() - 
+               return fs.statSync(dir + b).mtime.getTime() -
                       fs.statSync(dir + a).mtime.getTime();
            });
-    for (var i in files){
-        var name = dir + '/' + files[i];
-        if (fs.statSync(name).isDirectory()){
-            continue;
-		} else if (getExtension(files[i]) !== 'jpg'){
-			continue
-        } else {
-            files_.push({url:'catimg/'+files[i],time:getImageTime(files[i]),date:getImageDate(files[i])});
+    files.forEach(function(file){
+        var name = dir + '/' + file;
+        if (!(fs.statSync(name).isDirectory() || getExtension(file) !== 'jpg' || file === 'lastsnap.jpg')) {
+            files_.push({url: 'catimg/' + file, time: getImageTime(file), date: getImageDate(file)});
         }
-    }
+    });
     return files_.slice(0,30);
 }
 
@@ -112,21 +115,19 @@ function getExtension(filename) {
 }
 
 function getFiles (dir){
-    files_ = "<html><body>";
+    var files_ = "<html><body>";
     var files = fs.readdirSync(dir);
 	files.sort(function(a, b) {
                return fs.statSync(dir + b).mtime.getTime() - 
                       fs.statSync(dir + a).mtime.getTime();
            });
-    for (var i in files.slice(0,100)){
-        var name = dir + '/' + files[i];
-        if (fs.statSync(name).isDirectory()){
-            continue;
-        } else {
-            files_ +=("<a href='catimg/"+files[i]+"'>"+files[i]+"</a><br>");
+    files.slice(0,100).forEach(function(file){
+        var name = dir + '/' + file;
+        if (!fs.statSync(name).isDirectory()){
+            files_ +=("<a href='catimg/"+file+"'>"+file+"</a><br>");
         }
-    }
-	files += "</body></html>";
+    });
+	files_ += "</body></html>";
     return files_;
 }
 
@@ -190,6 +191,6 @@ mailin.on('message', function (connection, data, content) {
 });
 
 app.listen(port);
-exports = module.exports = app;
+var exports = module.exports = app;
 
 setInterval(function(){console.log('still alive at '+new Date().toString());},30000);
