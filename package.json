@@ -1,5 +1,5 @@
 {
-  "name": "starter-node-angular",
+  "name": "adept-app-parser",
   "main": "server.js",
   "dependencies": {
     "cheerio": "latest",
