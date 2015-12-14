@@ -7,8 +7,8 @@
     "mailin": "latest",
     "phantom": "^0.7.1",
     "zombie": "latest",
-	"basic-auth": "latest"
-	"bootstrap" : "latest"
+	"basic-auth": "latest",
+	"bootstrap" : "latest",
 	"angular": "latest"
   }
 }
