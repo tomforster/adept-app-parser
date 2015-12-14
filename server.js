@@ -83,6 +83,7 @@ app.get('/robots.txt',function(req,res){
 function getImagelist (dir){
     var files_ = [];
     var files = fs.readdirSync(dir);
+    files = files.filter(function(file){return file !== 'lastsnap.jpg'});
 	files.sort(function(a, b) {
                return fs.statSync(dir + b).mtime.getTime() -
                       fs.statSync(dir + a).mtime.getTime();
