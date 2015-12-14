@@ -99,15 +99,15 @@ function getImagelist (dir){
 
 function getImageTime(str){
 	var splitstr = str.split('-');
-	if(splitstr.length < 9) return "";
-	splitstr = splitstr.slice(4,7);
+	if(splitstr.length < 7) return "";
+	splitstr = splitstr.slice(3,6);
 	return splitstr.join(':');
 }
 
 function getImageDate(str){
 	var splitstr = str.split('-');
-	if(splitstr.length < 9) return "";
-	splitstr = splitstr.slice(1,4);
+	if(splitstr.length < 7) return "";
+	splitstr = splitstr.slice(0,3);
 	return splitstr.join('/');
 }
 
