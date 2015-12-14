@@ -1,0 +1,195 @@
+var express = require('express');
+var events = require('events')
+var path = require('path');
+var mailin = require('mailin');
+var appParser = require('./appParser.js');
+var phantom = require('phantom');
+var fs = require('fs');
+var basicAuth = require('basic-auth');
+
+var env = process.env.NODE_ENV || "development";
+var config = require(__dirname + './config/config.json')[env];
+var port = config.port; // set our port
+var username = config.username;
+var password = config.password;
+
+
+var eventEmitter = new events.EventEmitter();
+var app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+var auth = function (req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    return res.send(401);
+  };
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  };
+
+  if (user.name === username && user.pass === password) {
+    return next();
+  } else {
+    return unauthorized(res);
+  };
+};
+
+//routes
+app.get('/parser', function(req, res) {
+   console.log('parserreq');
+   res.sendFile('/node/public/parser.html');
+});
+
+app.get('/img/:tagId',auth, function(req,res) {
+	console.log('imgrequest');
+	res.sendFile('/home/node/img/'+req.param("tagId"));
+});
+app.get('/catimg/:tagId',auth, function(req,res) {
+	console.log('imgrequest');
+	res.sendFile('/home/node/security/'+req.param("tagId"));
+});
+
+app.get('/catpics/',auth,function(req,res) {
+	console.log('cats');
+	res.sendFile('/node/public/gallery.html');
+})
+
+app.get('/catpicsold/',auth,function(req,res) {
+	console.log('cats');
+	res.send(getFiles('/home/node/security/'));
+})
+
+app.get('/', function(req, res) {
+	console.log('ZOMG');
+	res.sendFile('/node/public/parser.html');
+})
+
+app.get('/robots.txt',function(req,res){
+	res.type('text/plain');
+	res.send("User-agent: *\nDisallow: /");
+})
+
+function getImagelist (dir){
+    files_ = [];
+    var files = fs.readdirSync(dir);
+	files.sort(function(a, b) {
+               return fs.statSync(dir + b).mtime.getTime() - 
+                      fs.statSync(dir + a).mtime.getTime();
+           });
+    for (var i in files){
+        var name = dir + '/' + files[i];
+        if (fs.statSync(name).isDirectory()){
+            continue;
+		} else if (getExtension(files[i]) !== 'jpg'){
+			continue
+        } else {
+            files_.push({url:'catimg/'+files[i],time:getImageTime(files[i]),date:getImageDate(files[i])});
+        }
+    }
+    return files_.slice(0,30);
+}
+
+function getImageTime(str){
+	var splitstr = str.split('-');
+	if(splitstr.length < 9) return "";
+	splitstr = splitstr.slice(4,7);
+	return splitstr.join(':');
+}
+
+function getImageDate(str){
+	var splitstr = str.split('-');
+	if(splitstr.length < 9) return "";
+	splitstr = splitstr.slice(1,4);
+	return splitstr.join('/');
+}
+
+function getExtension(filename) {
+    return filename.split('.').pop();
+}
+
+function getFiles (dir){
+    files_ = "<html><body>";
+    var files = fs.readdirSync(dir);
+	files.sort(function(a, b) {
+               return fs.statSync(dir + b).mtime.getTime() - 
+                      fs.statSync(dir + a).mtime.getTime();
+           });
+    for (var i in files.slice(0,100)){
+        var name = dir + '/' + files[i];
+        if (fs.statSync(name).isDirectory()){
+            continue;
+        } else {
+            files_ +=("<a href='catimg/"+files[i]+"'>"+files[i]+"</a><br>");
+        }
+    }
+	files += "</body></html>";
+    return files_;
+}
+
+mailin.start({
+  port: 25,
+  disableWebhook: true
+});
+
+mailin.on('startMessage', function (connection) {
+  console.log(connection);
+});
+
+mailin.on('message', function (connection, data, content) {
+	if(connection.to != "adeptappmail@mail.tomforster.net"){
+		console.log('bad email');
+		return;
+	}
+	var cheerio = require('cheerio');
+	var $ = cheerio.load(data.html);
+	var str = "";
+	$('table table td').each(function (index, obj) {
+		var li = $(obj).find('li');
+		if (li.length > 0) {
+			$(li).each(function (index, obj) {
+				str += $(obj).text() + '\n';
+			});
+		} else {
+			if ($(obj).text().trim().length !== 0) {
+				str += $(obj).text().trim() + '\n';
+			}
+		}
+	});
+	str = str.replace(/\s{2,}/g, ' ');
+	console.log(str);
+	var mailObj = appParser.parseText(str);
+	console.log('Title:'+mailObj.title);
+	phantom.create(function (ph) {
+		ph.createPage(function (page) {
+			page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
+				console.log("opened page? ", status);
+				page.evaluate(function (mailObj) {
+					document.querySelector('#username').value = 'AppBot';
+					document.querySelector('#password').value = 'excal99';
+					document.querySelector('.button1').click();
+					return mailObj; 
+				}, function (mailObj) {
+				setTimeout(function(){
+					page.evaluate(function(mailObj) {
+						document.querySelector('#subject').value = mailObj.title;
+						document.querySelector('#message').value = mailObj.body;
+						document.querySelector('.default-submit-action').click();
+					}, function(result){
+						console.log('exiting');
+						ph.exit();
+					},mailObj);
+				},10000);
+				},mailObj);
+			});
+		});
+	});
+});
+
+app.listen(port);
+exports = module.exports = app;
+
+setInterval(function(){console.log('still alive at '+new Date().toString());},30000);

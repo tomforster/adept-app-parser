@@ -1,0 +1,14 @@
+{
+  "name": "starter-node-angular",
+  "main": "server.js",
+  "dependencies": {
+    "cheerio": "latest",
+    "express": "latest",
+    "mailin": "latest",
+    "phantom": "^0.7.1",
+    "zombie": "latest",
+	"basic-auth": "latest"
+	"bootstrap" : "latest"
+	"angular": "latest"
+  }
+}
