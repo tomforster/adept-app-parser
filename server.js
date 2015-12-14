@@ -8,7 +8,7 @@ var fs = require('fs');
 var basicAuth = require('basic-auth');
 
 var env = process.env.NODE_ENV || "development";
-var config = require(path.join(__dirname,'config/config.json')[env];
+var config = require(path.join(__dirname,'config/config.json'))[env];
 var port = config.port; // set our port
 var username = config.username;
 var password = config.password;
