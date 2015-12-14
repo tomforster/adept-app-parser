@@ -7,7 +7,7 @@ angular.module('pics',[])
 .directive('pic',[function(){
     return {
             restrict: 'E',
-            template:   "<div class='col-md-2 col-sm-4 col-xs-6 thumb'>" +
+            template:   "<div class='col-md-3 col-sm-4 col-xs-6 thumb'>" +
                             "<a class='thumbnail' ng-href={{image}}> " +
                                 "<img class='img-responsive' ng-src={{image}}  alt=''> " +
                             "</a> " +
