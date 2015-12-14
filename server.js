@@ -99,14 +99,14 @@ function getImagelist (dir){
 
 function getImageTime(str){
     console.log(splitstr);
-	var splitstr = str.split('-');
+	var splitstr = str.split('/[\-\_]/');
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(3,6);
 	return splitstr.join(':');
 }
 
 function getImageDate(str){
-	var splitstr = str.split('-');
+    var splitstr = str.split('/[\-\_]/');
 	console.log(splitstr);
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(0,3);
