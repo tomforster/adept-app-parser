@@ -42,7 +42,7 @@ var auth = function (req, res, next) {
 
 //routes
 app.get('/parser', function(req, res) {
-   console.log('parserreq');
+   console.log('parserReq');
    res.sendFile('parser.html');
 });
 
