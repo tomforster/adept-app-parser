@@ -98,6 +98,7 @@ function getImagelist (dir){
 }
 
 function getImageTime(str){
+    console.log(splitstr);
 	var splitstr = str.split('-');
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(3,6);
@@ -106,6 +107,7 @@ function getImageTime(str){
 
 function getImageDate(str){
 	var splitstr = str.split('-');
+	console.log(splitstr);
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(0,3);
 	return splitstr.join('/');
