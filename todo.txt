@@ -1,1 +1,3 @@
 add NODE_ENV = production
+
+make config.json
