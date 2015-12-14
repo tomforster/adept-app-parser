@@ -43,7 +43,7 @@ var auth = function (req, res, next) {
 //routes
 app.get('/parser', function(req, res) {
    console.log('parserReq');
-   res.sendFile('./public/parser.html');
+    res.sendFile(path.join(__dirname,'/public/parser.html'));
 });
 
 app.get('/imagelist',auth, function(req,res) {
@@ -62,7 +62,7 @@ app.get('/catimg/:tagId',auth, function(req,res) {
 
 app.get('/catpics/',auth,function(req,res) {
 	console.log('cats');
-	res.sendFile('./public/gallery.html');
+    res.sendFile(path.join(__dirname,'/public/gallery.html'));
 });
 
 app.get('/catpicsold/',auth,function(req,res) {
@@ -72,7 +72,7 @@ app.get('/catpicsold/',auth,function(req,res) {
 
 app.get('/', function(req, res) {
 	console.log('ZOMG');
-	res.sendFile('./public/parser.html');
+	res.sendFile(path.join(__dirname,'/public/parser.html'));
 });
 
 app.get('/robots.txt',function(req,res){
