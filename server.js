@@ -20,6 +20,7 @@ var eventEmitter = new events.EventEmitter();
 var app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/libs/", express.static(path.join__dirname,"node_modules")));
 
 var auth = function (req, res, next) {
   function unauthorized(res) {
