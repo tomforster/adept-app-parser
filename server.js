@@ -145,7 +145,7 @@ mailin.on('startMessage', function (connection) {
 
 mailin.on('message', function (connection, data, content) {
 	if(connection.to != "adeptappmail@mail.tomforster.net"){
-		console.log('bad email');
+		console.log('bad email: '+connection.to);
 		return;
 	}
 	var cheerio = require('cheerio');
