@@ -2,7 +2,7 @@
  * Created by Tom on 14/08/14.
  */
 
-var app = angular.module('appParser',['mgcrea.ngStrap']);
+var app = angular.module('appParser',[]);
 
 app.directive("parser",function(){
     return{
