@@ -197,4 +197,4 @@ mailin.on('message', function (connection, data, content) {
 app.listen(port);
 var exports = module.exports = app;
 
-setInterval(function(){console.log('still alive at '+new Date().toString());},30000);
+setInterval(function(){console.log('still alive at '+new Date().toString());},60*60*1000);
