@@ -141,6 +141,7 @@ mailin.start({
 
 mailin.on('startMessage', function (connection) {
   console.log(connection);
+  console.log(JSON.stringify(connection));
 });
 
 mailin.on('message', function (connection, data, content) {
