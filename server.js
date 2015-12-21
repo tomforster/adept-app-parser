@@ -57,17 +57,17 @@ app.get('/img/:tagId',auth, function(req,res) {
 	res.sendFile('/home/node/img/'+req.param("tagId"));
 });
 app.get('/catimg/:tagId',auth, function(req,res) {
-	console.log('imgrequest');
+	console.log('catimgrequest');
 	res.sendFile('/home/node/security/'+req.param("tagId"));
 });
 
 app.get('/catpics/',auth,function(req,res) {
 	console.log('cats');
-    res.sendFile(path.join(__dirname,'/public/gallery.html'));
+    	res.sendFile(path.join(__dirname,'/public/gallery.html'));
 });
 
 app.get('/catpicsold/',auth,function(req,res) {
-	console.log('cats');
+	console.log('catsold');
 	res.send(getFiles('/home/node/security/'));
 });
 
@@ -77,6 +77,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/robots.txt',function(req,res){
+	console.log('robot');
 	res.type('text/plain');
 	res.send("User-agent: *\nDisallow: /");
 });
@@ -100,7 +101,6 @@ function getImagelist (dir){
 
 function getImageTime(str){
 	var splitstr = str.split(/[-_]/);
-    console.log(splitstr);
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(3,6);
 	return splitstr.join(':');
@@ -108,7 +108,6 @@ function getImageTime(str){
 
 function getImageDate(str){
     var splitstr = str.split(/[-_]/);
-	console.log(splitstr);
 	if(splitstr.length < 7) return "";
 	splitstr = splitstr.slice(0,3);
 	return splitstr.join('/');
