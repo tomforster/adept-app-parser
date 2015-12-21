@@ -144,7 +144,7 @@ mailin.on('startMessage', function (connection) {
 });
 
 mailin.on('message', function (connection, data, content) {
-	if(connection.to != "adeptappmail@mail.tomforster.net"){
+	if(connection.to != "adeptapp@mail.tomforster.net"){
 		console.log('bad email: '+connection.to);
 		return;
 	}
