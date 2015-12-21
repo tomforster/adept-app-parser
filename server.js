@@ -140,13 +140,14 @@ mailin.start({
 });
 
 mailin.on('startMessage', function (connection) {
-  console.log(connection);
   console.log(JSON.stringify(connection));
 });
 
 mailin.on('message', function (connection, data, content) {
-	if(connection.to != "adeptapp@mail.tomforster.net"){
-		console.log('bad email: '+connection.to);
+	if(connection.envelope.rcptTo.filter(function(rcpt){
+			return rcpt.address == config.appEmail
+		}).length < 1){
+		console.log('bad email: '+JSON.stringify(connection.envelope.rcptTp));
 		return;
 	}
 	var cheerio = require('cheerio');
