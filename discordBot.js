@@ -9,7 +9,7 @@ mybot.on("message", function(message){
     if(message.mentions.length > 0){
         if(message.mentions[0].username == 'AppBot'){
             console.log(message);
-            mybot.sendMessage(message.channel, "Hi @"+message.author.username);
+            mybot.sendMessage(message.channel, "Hi "+message.author);
         }
     }
 });
