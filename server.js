@@ -186,6 +186,8 @@ mailin.on('message', function (connection, data, content) {
 						document.querySelector('#message').value = mailObj.body;
 						document.querySelector('.default-submit-action').click();
 					}, function(result){
+						console.log(result);
+						discordBot.newAppMessage(mailObj.title);
 						console.log('exiting');
 						ph.exit();
 					},mailObj);
