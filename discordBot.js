@@ -17,3 +17,7 @@ mybot.on("message", function(message){
 mybot.login(config.discordEmail, config.discordPassword).then(function(result){
     console.log(result);
 });
+
+exports.newAppMessage = function(title){
+    mybot.sendMessage(client.channels.get("name","general"),title);
+}
