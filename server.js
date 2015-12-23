@@ -139,7 +139,8 @@ mailin.start({
   port: 25,
   disableWebhook: true,
   verbose: true,
-  debug: true
+  debug: true,
+  host: "localhost"
 },function(err){console.log(err)});
 
 mailin.on('startMessage', function (connection) {
