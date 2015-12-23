@@ -5,7 +5,7 @@ var events = require('events')
 var path = require('path');
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
-//var discordBot = require('./discordBot.js');
+var discordBot = require('./discordBot.js');
 var phantom = require('phantom');
 var fs = require('fs');
 var basicAuth = require('basic-auth');
@@ -137,10 +137,7 @@ function getFiles (dir){
 
 mailin.start({
   port: 25,
-  disableWebhook: true,
-  verbose: true,
-  debug: true,
-  host: "localhost"
+  disableWebhook: true
 },function(err){console.log(err)});
 
 mailin.on('startMessage', function (connection) {
@@ -190,7 +187,7 @@ mailin.on('message', function (connection, data, content) {
 						document.querySelector('.default-submit-action').click();
 					}, function(result){
 						console.log(result);
-						//discordBot.newAppMessage(mailObj.title);
+						discordBot.newAppMessage(mailObj.title);
 						console.log('exiting');
 						ph.exit();
 					},mailObj);
