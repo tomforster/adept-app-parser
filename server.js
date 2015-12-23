@@ -167,35 +167,43 @@ mailin.on('message', function (connection, data, content) {
 		}
 	});
 	str = str.replace(/\s{2,}/g, ' ');
-	console.log(str);
 	var mailObj = appParser.parseText(str);
 	console.log('Title:'+mailObj.title);
 	phantom.create(function (ph) {
 		ph.createPage(function (page) {
 			page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
 				console.log("opened page? ", status);
+				//todo retry on bad status
+				if(status !== success){
+					ph.exit();
+				}
 				page.evaluate(function (mailObj) {
+					var username = document.querySelector('#username');
+					if(!username){
+						console.log('No username detected');
+						ph.exit();
+					}
 					document.querySelector('#username').value = 'AppBot';
 					document.querySelector('#password').value = 'excal99';
 					document.querySelector('.button1').click();
 					return mailObj; 
 				}, function (mailObj) {
-				setTimeout(function(){
-					page.evaluate(function(mailObj) {
-						document.querySelector('#subject').value = mailObj.title;
-						document.querySelector('#message').value = mailObj.body;
-						document.querySelector('.default-submit-action').click();
-					}, function(){
-						setTimeout(function() {
-							page.evaluate(function() { return document.URL},function(url) {
-								console.log(url);
-								discordBot.newAppMessage(mailObj.title,url);
-								console.log('exiting');
-								ph.exit();
-							});
-						},5000);
-					},mailObj);
-				},5000);
+					setTimeout(function(){
+						page.evaluate(function(mailObj) {
+							document.querySelector('#subject').value = mailObj.title;
+							document.querySelector('#message').value = mailObj.body;
+							document.querySelector('.default-submit-action').click();
+						}, function(){
+							setTimeout(function() {
+								page.evaluate(function() { return document.URL},function(url) {
+									console.log(url);
+									discordBot.newAppMessage(mailObj.title,url);
+									console.log('exiting');
+									ph.exit();
+								});
+							},10000);
+						},mailObj);
+					},10000);
 				},mailObj);
 			});
 		});
