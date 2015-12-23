@@ -6,8 +6,7 @@ var config = require(path.join(__dirname,'config/config.json'))[env];
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
-    console.log(message.mentions);
-    if(message.mentions.has('username','AppBot')){
+    if(message.mentions.length > 0 && message.mentions[0].username = 'AppBot')){
         console.log(message);
         mybot.reply(message, "Hi, "+message.author.username);
     }
