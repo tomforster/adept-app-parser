@@ -4,7 +4,7 @@
 	"dependencies": {
 		"cheerio": "latest",
 		"express": "latest",
-		"mailin": "latest",
+		"mailin": "3.0.1",
 		"phantom": "^0.7.1",
 		"zombie": "latest",
 		"basic-auth": "latest",
