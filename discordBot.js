@@ -20,4 +20,4 @@ mybot.login(config.discordEmail, config.discordPassword).then(function(result){
 
 exports.newAppMessage = function(title){
     mybot.sendMessage(mybot.channels.get("name","guild"),"New Application Posted: "+ title);
-}
+};
