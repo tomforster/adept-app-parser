@@ -6,8 +6,11 @@ var config = require(path.join(__dirname,'config/config.json'))[env];
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
+    console.log(message);
     if(message.content === "ping")
         mybot.reply(message, "pong");
 });
 
-mybot.login(config.discordEmail, config.discordPassword);
+var blah = mybot.login(config.discordEmail, config.discordPassword);
+console.log(config.discordEmail);
+console.log(blah);
