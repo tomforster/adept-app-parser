@@ -196,9 +196,13 @@ mailin.on('message', function (connection, data, content) {
 						}, function(){
 							setTimeout(function() {
 								page.evaluate(function() { return document.URL},function(url) {
-									console.log(url);
-									discordBot.newAppMessage(mailObj.title,url);
-									console.log('exiting');
+									if(url.indexOf('t=') > -1){
+										console.log(url);
+										discordBot.newAppMessage(mailObj.title,url);
+									}else{
+										console.log("Possibly did not upload");
+									}
+									console.log('Exiting');
 									ph.exit();
 								});
 							},10000);
