@@ -5,6 +5,7 @@ var events = require('events')
 var path = require('path');
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
+var discordBot = require('./discordBot.js');
 var phantom = require('phantom');
 var fs = require('fs');
 var basicAuth = require('basic-auth');
