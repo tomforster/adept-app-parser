@@ -18,6 +18,6 @@ mybot.login(config.discordEmail, config.discordPassword).then(function(result){
     console.log(result);
 });
 
-exports.newAppMessage = function(title){
-    mybot.sendMessage(mybot.channels.get("name","guild"),"New Application Posted: "+ title);
+exports.newAppMessage = function(title,url){
+    mybot.sendMessage(mybot.channels.get("name","guild"),"New Application Posted: "+ title + " " + url);
 };

@@ -185,13 +185,17 @@ mailin.on('message', function (connection, data, content) {
 						document.querySelector('#subject').value = mailObj.title;
 						document.querySelector('#message').value = mailObj.body;
 						document.querySelector('.default-submit-action').click();
-					}, function(result){
-						console.log(result);
-						discordBot.newAppMessage(mailObj.title);
-						console.log('exiting');
-						ph.exit();
+					}, function(){
+						setTimeout(function() {
+							page.evaluate(function() { return document.URL},function(url) {
+								console.log(url);
+								discordBot.newAppMessage(mailObj.title,url);
+								console.log('exiting');
+								ph.exit();
+							});
+						},5000);
 					},mailObj);
-				},10000);
+				},5000);
 				},mailObj);
 			});
 		});
