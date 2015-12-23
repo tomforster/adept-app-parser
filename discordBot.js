@@ -11,6 +11,6 @@ mybot.on("message", function(message){
         mybot.reply(message, "pong");
 });
 
-var blah = mybot.login(config.discordEmail, config.discordPassword);
-console.log(config.discordEmail);
-console.log(blah);
+mybot.login(config.discordEmail, config.discordPassword).then(function(result){
+    console.log(result);
+});
