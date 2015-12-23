@@ -6,9 +6,10 @@ var config = require(path.join(__dirname,'config/config.json'))[env];
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
-    console.log(message);
-    if(message.content === "ping")
-        mybot.reply(message, "pong");
+    if(message.mentions.has('username','AppBot')){
+        console.log(message);
+        mybot.reply(message, "Hi, "+message.author.username);
+    }
 });
 
 mybot.login(config.discordEmail, config.discordPassword).then(function(result){
