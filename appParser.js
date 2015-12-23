@@ -154,11 +154,7 @@ var parseText = function (text) {
     appInfo.specs = buildRolesString(appInfo,true);
     appInfo.specsSC = buildRolesString(appInfo,false,true);
     appInfo.wol = buildWOLString(appInfo);
-    
-    console.log(JSON.stringify(appInfo, null, 4));
 
-    console.log(buildTitle(appInfo));
-    console.log(buildForm(appInfo));
     return ({title: buildTitle(appInfo), body: buildForm(appInfo)});
 };
 
@@ -330,7 +326,6 @@ function buildForm(appInfo) {
 function QAGenerator(appInfo) {
 
     this.questionAndAnswer = function(field){
-	console.log(field);
         q = questions[field];
         a = appInfo[field];
         if(q.isBoolean && !q.flipBoolean){
