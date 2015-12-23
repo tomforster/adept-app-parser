@@ -137,7 +137,9 @@ function getFiles (dir){
 
 mailin.start({
   port: 25,
-  disableWebhook: true
+  disableWebhook: true,
+  verbose: true,
+  debug: true
 },function(err){console.log(err)});
 
 mailin.on('startMessage', function (connection) {
