@@ -174,7 +174,7 @@ mailin.on('message', function (connection, data, content) {
 			page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
 				console.log("opened page? ", status);
 				//todo retry on bad status
-				if(status !== success){
+				if(status !== 'success'){
 					ph.exit();
 				}
 				page.evaluate(function (mailObj) {
