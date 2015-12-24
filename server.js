@@ -1,23 +1,19 @@
 'use strict';
 
 var express = require('express');
-var events = require('events')
 var path = require('path');
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
 var discordBot = require('./discordBot.js');
-var phantom = require('phantom');
+var phantomScripts = require('./phantomScripts.js');
 var fs = require('fs');
 var basicAuth = require('basic-auth');
-
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var port = config.port; // set our port
 var username = config.username;
 var password = config.password;
 
-
-var eventEmitter = new events.EventEmitter();
 var app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -135,10 +131,10 @@ function getFiles (dir){
     return files_;
 }
 
-mailin.start({
-  port: 25,
-  disableWebhook: true
-},function(err){console.log(err)});
+//mailin.start({
+//  port: 25,
+//  disableWebhook: true
+//},function(err){console.log(err)});
 
 mailin.on('startMessage', function (connection) {
   console.log(JSON.stringify(connection));
@@ -169,52 +165,12 @@ mailin.on('message', function (connection, data, content) {
 	str = str.replace(/\s{2,}/g, ' ');
 	var mailObj = appParser.parseText(str);
 	console.log('Title:'+mailObj.title);
-	phantom.create(function (ph) {
-		ph.createPage(function (page) {
-			page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
-				console.log("opened page? ", status);
-				//todo retry on bad status
-				if(status !== 'success'){
-					ph.exit();
-				}
-				page.evaluate(function (mailObj) {
-					var username = document.querySelector('#username');
-					if(!username){
-						console.log('No username detected');
-						ph.exit();
-					}
-					document.querySelector('#username').value = 'AppBot';
-					document.querySelector('#password').value = 'excal99';
-					document.querySelector('.button1').click();
-					return mailObj; 
-				}, function (mailObj) {
-					setTimeout(function(){
-						page.evaluate(function(mailObj) {
-							document.querySelector('#subject').value = mailObj.title;
-							document.querySelector('#message').value = mailObj.body;
-							document.querySelector('.default-submit-action').click();
-						}, function(){
-							setTimeout(function() {
-								page.evaluate(function() { return document.URL},function(url) {
-									if(url.indexOf('t=') > -1){
-										console.log(url);
-										discordBot.newAppMessage(mailObj.title,url);
-									}else{
-										console.log("Possibly did not upload");
-									}
-									console.log('Exiting');
-									ph.exit();
-								});
-							},10000);
-						},mailObj);
-					},10000);
-				},mailObj);
-			});
-		});
-	});
+
+    phantomScripts.postApp(mailObj);
 });
 
-app.listen(port);
-var exports = module.exports = app;
+app.listen(port,function(){
 
-setInterval(function(){console.log('still alive at '+new Date().toString());},60*60*1000);
+});
+
+//setInterval(function(){console.log('still alive at '+new Date().toString());},60*60*1000);
