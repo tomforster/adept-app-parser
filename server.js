@@ -131,10 +131,10 @@ function getFiles (dir){
     return files_;
 }
 
-//mailin.start({
-//  port: 25,
-//  disableWebhook: true
-//},function(err){console.log(err)});
+mailin.start({
+  port: 25,
+  disableWebhook: true
+},function(err){console.log(err)});
 
 mailin.on('startMessage', function (connection) {
   console.log(JSON.stringify(connection));
