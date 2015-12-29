@@ -60,12 +60,12 @@ app.get('/img/:tagId',auth, function(req,res) {
 });
 app.get('/catimg/:tagId',auth, function(req,res) {
 	console.log('Camera 1 image request');
-	res.sendFile('/home/node/security/cam2/'+req.param("tagId"));
+	res.sendFile('/home/node/security/'+req.param("tagId"));
 });
 
 app.get('/catimg2/:tagId',auth, function(req,res) {
 	console.log('Camera 2 image request');
-	res.sendFile('/home/node/security/'+req.param("tagId"));
+	res.sendFile('/home/node/security/cam2/'+req.param("tagId"));
 });
 
 app.get('/catpics/',auth,function(req,res) {
