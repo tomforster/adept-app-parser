@@ -25,5 +25,11 @@ angular.module('pics',[])
         }, function(response){
             console.log('ERROR');
         })
+
+        this.snapshot = function(){
+            $http({
+                method: 'POST',
+                url: '/snapshot/2'});
+        }
     }]);
 

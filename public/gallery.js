@@ -24,6 +24,11 @@ angular.module('pics',[])
         self.images = angular.fromJson(response.data);
     }, function(response){
         console.log('ERROR');
-    })
-}]);
+    });
 
+    this.snapshot = function(){
+        $http({
+            method: 'POST',
+            url: '/snapshot/1'});
+    }
+}]);
