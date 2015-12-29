@@ -1,7 +1,3 @@
-/**
- * Created by Tom on 20/03/14.
- */
-
 angular.module('pics',[])
 
 .directive('pic',[function(){

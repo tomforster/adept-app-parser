@@ -49,6 +49,11 @@ app.get('/imagelist',auth, function(req,res) {
     res.send(getImagelist('/home/node/security/'));
 });
 
+app.get('/cam2imagelist',auth, function(req,res) {
+	console.log('imglistrequest');
+	res.send(getImagelist('/home/node/security/cam2'));
+});
+
 app.get('/img/:tagId',auth, function(req,res) {
 	console.log('imgrequest');
 	res.sendFile('/home/node/img/'+req.param("tagId"));
@@ -61,6 +66,11 @@ app.get('/catimg/:tagId',auth, function(req,res) {
 app.get('/catpics/',auth,function(req,res) {
 	console.log('cats');
     	res.sendFile(path.join(__dirname,'/public/gallery.html'));
+});
+
+app.get('/catpics2/',auth,function(req,res) {
+	console.log('cats2');
+	res.sendFile(path.join(__dirname,'/public/cam2gallery.html'));
 });
 
 app.get('/catpicsold/',auth,function(req,res) {
