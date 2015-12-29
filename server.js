@@ -14,6 +14,9 @@ var port = config.port; // set our port
 var username = config.username;
 var password = config.password;
 
+var sys = require('sys');
+var exec = require('child_process').exec;
+
 var app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,19 +82,47 @@ app.get('/catpics2/',auth,function(req,res) {
 });
 
 app.get('/catpicsold/',auth,function(req,res) {
-	console.log('catsold');
+	console.log('Old cat images list');
 	res.send(getFiles('/home/node/security/'));
 });
 
 app.get('/', function(req, res) {
-	console.log('ZOMG');
+	console.log('Root URL request.');
 	res.sendFile(path.join(__dirname,'/public/parser.html'));
 });
 
 app.get('/robots.txt',function(req,res){
-	console.log('robot');
+	console.log('Robot detected.');
 	res.type('text/plain');
 	res.send("User-agent: *\nDisallow: /");
+});
+
+app.post('/snapshot/1/',function(req,res){
+	console.log('Snapshot camera 1');
+	exec('snapshot-cam-1.sh',
+		function (error, stdout, stderr) {
+			if (error !== null) {
+				console.log(error);
+			} else {
+				console.log('stdout: ' + stdout);
+				console.log('stderr: ' + stderr);
+			}
+		}
+	);
+});
+
+app.post('/snapshot/2/',function(req,res){
+	console.log('Snapshot camera 2');
+	exec('snapshot-cam-2.sh',
+		function (error, stdout, stderr) {
+			if (error !== null) {
+				console.log(error);
+			} else {
+				console.log('stdout: ' + stdout);
+				console.log('stderr: ' + stderr);
+			}
+		}
+	);
 });
 
 function getImagelist (dir,requestStr){
