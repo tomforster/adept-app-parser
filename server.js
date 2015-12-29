@@ -45,31 +45,36 @@ app.get('/parser', function(req, res) {
 });
 
 app.get('/imagelist',auth, function(req,res) {
-    console.log('imglistrequest');
-    res.send(getImagelist('/home/node/security/'));
+	console.log('Camera 1 image list request');
+    res.send(getImagelist('/home/node/security/','catimg/'));
 });
 
 app.get('/cam2imagelist',auth, function(req,res) {
-	console.log('imglistrequest');
-	res.send(getImagelist('/home/node/security/cam2'));
+	console.log('Camera 2 image list request');
+	res.send(getImagelist('/home/node/security/cam2','catimg2/'));
 });
 
 app.get('/img/:tagId',auth, function(req,res) {
-	console.log('imgrequest');
+	console.log('Saved image request');
 	res.sendFile('/home/node/img/'+req.param("tagId"));
 });
 app.get('/catimg/:tagId',auth, function(req,res) {
-	console.log('catimgrequest');
+	console.log('Camera 1 image request');
+	res.sendFile('/home/node/security/cam2/'+req.param("tagId"));
+});
+
+app.get('/catimg2/:tagId',auth, function(req,res) {
+	console.log('Camera 2 image request');
 	res.sendFile('/home/node/security/'+req.param("tagId"));
 });
 
 app.get('/catpics/',auth,function(req,res) {
-	console.log('cats');
+	console.log('Cat camera 1 page request.');
     	res.sendFile(path.join(__dirname,'/public/gallery.html'));
 });
 
 app.get('/catpics2/',auth,function(req,res) {
-	console.log('cats2');
+	console.log('Cat camera 2 page request.');
 	res.sendFile(path.join(__dirname,'/public/cam2gallery.html'));
 });
 
@@ -89,7 +94,7 @@ app.get('/robots.txt',function(req,res){
 	res.send("User-agent: *\nDisallow: /");
 });
 
-function getImagelist (dir){
+function getImagelist (dir,requestStr){
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg'});
@@ -100,7 +105,7 @@ function getImagelist (dir){
     files.forEach(function(file){
         var name = dir + '/' + file;
         if (!(fs.statSync(name).isDirectory() || getExtension(file) !== 'jpg' || file === 'lastsnap.jpg')) {
-            files_.push({url: 'catimg/' + file, time: getImageTime(file), date: getImageDate(file)});
+            files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file)});
         }
     });
     return files_.slice(0,30);
