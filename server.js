@@ -51,7 +51,7 @@ app.get('/imagelist',auth, function(req,res) {
 
 app.get('/cam2imagelist',auth, function(req,res) {
 	console.log('Camera 2 image list request');
-	res.send(getImagelist('/home/node/security/cam2','catimg2/'));
+	res.send(getImagelist('/home/node/security/cam2/','catimg2/'));
 });
 
 app.get('/img/:tagId',auth, function(req,res) {
