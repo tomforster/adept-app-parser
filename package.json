@@ -9,6 +9,7 @@
 		"basic-auth": "latest",
 		"bootstrap" : "latest",
 		"angular": "latest",
-		"discord.js": "latest"
+		"discord.js": "latest",
+		"cors": "latest"
 	}
 }
