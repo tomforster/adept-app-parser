@@ -125,6 +125,20 @@ app.post('/snapshot/2/',function(req,res){
 	);
 });
 
+app.post('/deploy/',function(req,res){
+	console.log('Deploy');
+	exec('deploy-adept.sh',
+		function (error, stdout, stderr) {
+			if (error !== null) {
+				console.log(error);
+			} else {
+				console.log('stdout: ' + stdout);
+				console.log('stderr: ' + stderr);
+			}
+		}
+	);
+});
+
 function getImagelist (dir,requestStr){
     var files_ = [];
     var files = fs.readdirSync(dir);
