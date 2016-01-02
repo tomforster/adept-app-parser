@@ -3,7 +3,6 @@
 var express = require('express');
 var path = require('path');
 var mailin = require('mailin');
-var cors = require('cors');
 var appParser = require('./appParser.js');
 var discordBot = require('./discordBot.js');
 var phantomScripts = require('./phantomScripts.js');
@@ -126,7 +125,7 @@ app.post('/snapshot/2/',function(req,res){
 	);
 });
 
-app.post('/deploy/', cors(), function(req,res){
+app.post('/deploy/',function(req,res){
 	console.log('Deploy');
 	exec('deploy-adept.sh',
 		function (error, stdout, stderr) {
