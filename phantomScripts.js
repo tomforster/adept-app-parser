@@ -9,6 +9,10 @@ postApp = function(mailObj){
     var password = config.forumPassword;
 
     phantom.create(function (ph) {
+        ph.onConsoleMessage = function(msg, lineNum, sourceId) {
+            console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
+        };
+
         ph.createPage(function (page) {
             page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
                 console.log("opened page? status: ", status);
