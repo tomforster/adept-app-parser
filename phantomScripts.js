@@ -30,13 +30,13 @@ postApp = function(mailObj){
                     //document.querySelector('.button1').click();
                     return result;
                 }, function (result) {
+                    page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                     if(!result){
                         console.log('No username detected');
                         ph.exit();
                     }
                     console.log("waiting for load...");
                     setTimeout(function(){
-                        page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                         console.log("finished waiting, posting app:");
                         console.log(mailObj.title);
                         page.evaluate(function(mailObj) {
