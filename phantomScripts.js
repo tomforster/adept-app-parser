@@ -30,6 +30,7 @@ postApp = function(mailObj){
                     document.querySelector('.button1').click();
                     return mailObj;
                 }, function (mailObj) {
+                    console.log(mailObj.title);
                     if(!mailObj){
                         console.log('No username detected');
                         ph.exit();
