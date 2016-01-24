@@ -20,7 +20,7 @@ postApp = function(mailObj){
                 }
 
                 page.evaluate(function (mailObj,username,password) {
-                    console.log("logging in...");
+                    console.log("logging in as "+username+":"+password+"...");
                     var usernameElement = document.querySelector('#username');
                     if(!usernameElement){
                         return;
