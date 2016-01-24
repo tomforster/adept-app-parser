@@ -27,10 +27,10 @@ postApp = function(mailObj){
                     }
                     usernameElement.value = username;
                     document.querySelector('#password').value = password;
-                    //document.querySelector('.button1').click();
+                    document.querySelector('.button1').click();
                     return result;
                 }, function (result) {
-                    page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
+                    //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                     if(!result){
                         console.log('No username detected');
                         ph.exit();
@@ -38,7 +38,6 @@ postApp = function(mailObj){
                     console.log("waiting for load...");
                     setTimeout(function(){
                         console.log("finished waiting, posting app:");
-                        console.log(mailObj.title);
                         page.evaluate(function(mailObj) {
                             document.querySelector('#subject').value = mailObj.title;
                             document.querySelector('#message').value = mailObj.body;
@@ -59,7 +58,7 @@ postApp = function(mailObj){
                             },10000);
                         },mailObj);
                     },10000);
-                },mailObj);
+                },mailObj, username, password);
             });
         });
     });
