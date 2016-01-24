@@ -7,58 +7,66 @@ postApp = function(mailObj){
     console.log('Posting Adept App');
     var username = config.forumUsername;
     var password = config.forumPassword;
+    return new Promise(function(fulfill,reject) {
+        phantom.create(function (ph) {
+            ph.createPage(function (page) {
+                page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
+                    console.log("opened page? status: ", status);
 
-    phantom.create(function (ph) {
-        ph.createPage(function (page) {
-            page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
-                console.log("opened page? status: ", status);
-
-                //todo retry on bad status
-                if (status.indexOf('success') == -1) {
-                    console.log("exiting");
-                    ph.exit();
-                }
-
-                console.log("logging in as "+username+":"+password+"...");
-                page.evaluate(function (mailObj,username,password) {
-                    var usernameElement = document.querySelector('#username');
-                    if(!usernameElement){
-                        return false;
-                    }
-                    usernameElement.value = username;
-                    document.querySelector('#password').value = password;
-                    document.querySelector('.button1').click();
-                    return true;
-                }, function (result) {
-                    //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
-                    if(!result){
-                        console.log('No username detected');
+                    //todo retry on bad status
+                    if (status.indexOf('success') == -1) {
+                        console.log("exiting");
                         ph.exit();
+                        reject();
+                        return;
                     }
-                    console.log("waiting for load...");
-                    setTimeout(function(){
-                        console.log("finished waiting, posting app:");
-                        page.evaluate(function(mailObj) {
-                            document.querySelector('#subject').value = mailObj.title;
-                            document.querySelector('#message').value = mailObj.body;
-                            document.querySelector('.default-submit-action').click();
-                        }, function(){
-                            setTimeout(function() {
-                                page.evaluate(function() { return document.URL},function(url) {
-                                    if(url.indexOf('t=') > -1){
-                                        console.log('app posted!');
-                                        console.log(url);
-                                        discordBot.newAppMessage(mailObj.title,url);
-                                    }else{
-                                        console.log("Possibly did not upload");
-                                    }
-                                    console.log('Exiting');
-                                    ph.exit();
-                                });
-                            },10000);
-                        },mailObj);
-                    },10000);
-                },mailObj, username, password);
+
+                    console.log("logging in as " + username + ":" + password + "...");
+                    page.evaluate(function (mailObj, username, password) {
+                        var usernameElement = document.querySelector('#username');
+                        if (!usernameElement) {
+                            return false;
+                        }
+                        usernameElement.value = username;
+                        document.querySelector('#password').value = password;
+                        document.querySelector('.button1').click();
+                        return true;
+                    }, function (result) {
+                        //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
+                        if (!result) {
+                            console.log('No username detected');
+                            ph.exit();
+                            reject();
+                            return;
+                        }
+                        console.log("waiting for load...");
+                        setTimeout(function () {
+                            console.log("finished waiting, posting app:");
+                            page.evaluate(function (mailObj) {
+                                document.querySelector('#subject').value = mailObj.title;
+                                document.querySelector('#message').value = mailObj.body;
+                                document.querySelector('.default-submit-action').click();
+                            }, function () {
+                                setTimeout(function () {
+                                    page.evaluate(function () {
+                                        return document.URL
+                                    }, function (url) {
+                                        if (url.indexOf('t=') > -1) {
+                                            console.log('app posted!');
+                                            console.log(url);
+                                            fulfill(url);
+                                        } else {
+                                            reject();
+                                            console.log("Possibly did not upload");
+                                        }
+                                        console.log('Exiting');
+                                        ph.exit();
+                                    });
+                                }, 10000);
+                            }, mailObj);
+                        }, 10000);
+                    }, mailObj, username, password);
+                });
             });
         });
     });

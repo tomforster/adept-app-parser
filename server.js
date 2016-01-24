@@ -227,7 +227,9 @@ mailin.on('message', function (connection, data, content) {
     var mailObj = appParser.parseText(str);
     console.log('Title:'+mailObj.title);
 
-    phantomScripts.postApp(mailObj);
+    phantomScripts.postApp(mailObj).then(function(url){
+        discordBot.newAppMessage(mailObj.title,url);
+    });
 });
 
 app.listen(port,function(){
