@@ -25,9 +25,18 @@ mybot.on("message", function(message){
     }
 });
 
-mybot.login(config.discordEmail, config.discordPassword).then(function(result){
-    console.log(result);
-});
+var login = function(){
+    mybot.login(config.discordEmail, config.discordPassword).then(function(result){
+
+    }).catch(function(error){
+        setTimeout(login,30*1000);
+    });
+};
+
+login();
+
+mybot.on("disconnected", login);
+
 
 //todo get last updated date
 var runAudit = function(message){
