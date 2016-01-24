@@ -55,6 +55,9 @@ var runAudit = function(message){
                 opString += bad.name + " is missing an enchant or a gem! ";
             }
         });
+        if(bads.length == 0){
+            opString += 'I must be malfunctioning, everyone passed the audit! :o'
+        }
         console.log(opString);
         mybot.sendMessage(message.channel, opString);
     });
