@@ -6,7 +6,7 @@ var phantom = require('phantom');
 var exports;
 
 exports.postApp = function(mailObj){
-
+    console.log('Posting Adept App');
     var username = config.forumUsername;
     var password = config.forumPassword;
 
