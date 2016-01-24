@@ -23,12 +23,12 @@ postApp = function(mailObj){
                 page.evaluate(function (mailObj,username,password) {
                     var usernameElement = document.querySelector('#username');
                     if(!usernameElement){
-                        return;
+                        return false;
                     }
                     usernameElement.value = username;
                     document.querySelector('#password').value = password;
                     document.querySelector('.button1').click();
-                    return result;
+                    return true;
                 }, function (result) {
                     //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                     if(!result){
