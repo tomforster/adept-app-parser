@@ -27,10 +27,10 @@ postApp = function(mailObj){
                     }
                     usernameElement.value = username;
                     document.querySelector('#password').value = password;
-                    document.querySelector('.button1').click();
-                    return mailObj;
-                }, function (mailObj) {
-                    if(!mailObj){
+                    //document.querySelector('.button1').click();
+                    return result;
+                }, function (result) {
+                    if(!result){
                         console.log('No username detected');
                         ph.exit();
                     }
