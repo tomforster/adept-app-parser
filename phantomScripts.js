@@ -36,6 +36,7 @@ postApp = function(mailObj){
                     }
                     console.log("waiting for load...");
                     setTimeout(function(){
+                        page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                         console.log("finished waiting, posting app:");
                         console.log(mailObj.title);
                         page.evaluate(function(mailObj) {
