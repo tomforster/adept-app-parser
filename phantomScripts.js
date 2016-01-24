@@ -3,9 +3,7 @@ var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
 
-var exports = {};
-
-exports.postApp = function(mailObj){
+postApp = function(mailObj){
     console.log('Posting Adept App');
     var username = config.forumUsername;
     var password = config.forumPassword;
@@ -59,7 +57,7 @@ exports.postApp = function(mailObj){
     });
 };
 
-exports.readAudit = function(){
+readAudit = function(){
     return new Promise(function(resolve,reject){
         var auditUrl = "http://www.guildaudit.com/g/9146";
         phantom.create(function (ph) {
@@ -91,4 +89,9 @@ exports.readAudit = function(){
             });
         });
     });
+};
+
+module.exports = {
+    postApp: postApp,
+    readAudit: readAudit
 };
