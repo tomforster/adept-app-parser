@@ -11,7 +11,7 @@ postApp = function(mailObj){
     phantom.create(function (ph) {
         ph.createPage(function (page) {
             page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
-                console.log("opened page? ", status);
+                console.log("opened page? status: ", status);
                 //todo retry on bad status
                 if (status.indexOf('success') == -1) {
                     console.log("exiting");
