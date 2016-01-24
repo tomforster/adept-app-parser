@@ -9,30 +9,31 @@ postApp = function(mailObj){
     var password = config.forumPassword;
 
     phantom.create(function (ph) {
-        ph.onConsoleMessage = function(msg, lineNum, sourceId) {
-            console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
-        };
-
         ph.createPage(function (page) {
             page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
                 console.log("opened page? status: ", status);
+
                 //todo retry on bad status
                 if (status.indexOf('success') == -1) {
                     console.log("exiting");
                     ph.exit();
                 }
+
                 page.evaluate(function (mailObj,username,password) {
                     console.log("logging in...");
                     var usernameElement = document.querySelector('#username');
-                    if(!username){
-                        console.log('No username detected');
-                        ph.exit();
+                    if(!usernameElement){
+                        return;
                     }
                     usernameElement.value = username;
                     document.querySelector('#password').value = password;
                     document.querySelector('.button1').click();
                     return mailObj;
                 }, function (mailObj) {
+                    if(!mailObj){
+                        console.log('No username detected');
+                        ph.exit();
+                    }
                     setTimeout(function(){
                         page.evaluate(function(mailObj) {
                             console.log("posting app...");
