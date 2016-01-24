@@ -3,7 +3,7 @@ var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
 
-var exports;
+var exports = {};
 
 exports.postApp = function(mailObj){
     console.log('Posting Adept App');
@@ -16,9 +16,11 @@ exports.postApp = function(mailObj){
                 console.log("opened page? ", status);
                 //todo retry on bad status
                 if (status.indexOf('success') == -1) {
+                    console.log("exiting");
                     ph.exit();
                 }
                 page.evaluate(function (mailObj,username,password) {
+                    console.log("logging in...");
                     var usernameElement = document.querySelector('#username');
                     if(!username){
                         console.log('No username detected');
@@ -31,6 +33,7 @@ exports.postApp = function(mailObj){
                 }, function (mailObj) {
                     setTimeout(function(){
                         page.evaluate(function(mailObj) {
+                            console.log("posting app...");
                             document.querySelector('#subject').value = mailObj.title;
                             document.querySelector('#message').value = mailObj.body;
                             document.querySelector('.default-submit-action').click();
@@ -38,6 +41,7 @@ exports.postApp = function(mailObj){
                             setTimeout(function() {
                                 page.evaluate(function() { return document.URL},function(url) {
                                     if(url.indexOf('t=') > -1){
+                                        console.log('app posted!');
                                         console.log(url);
                                         discordBot.newAppMessage(mailObj.title,url);
                                     }else{
