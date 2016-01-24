@@ -30,14 +30,15 @@ postApp = function(mailObj){
                     document.querySelector('.button1').click();
                     return mailObj;
                 }, function (mailObj) {
-                    console.log(mailObj.title);
                     if(!mailObj){
                         console.log('No username detected');
                         ph.exit();
                     }
+                    console.log("waiting for load...");
                     setTimeout(function(){
+                        console.log("finished waiting, posting app:");
+                        console.log(mailObj.title);
                         page.evaluate(function(mailObj) {
-                            console.log("posting app...");
                             document.querySelector('#subject').value = mailObj.title;
                             document.querySelector('#message').value = mailObj.body;
                             document.querySelector('.default-submit-action').click();
