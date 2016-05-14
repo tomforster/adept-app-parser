@@ -10,7 +10,7 @@ postApp = function(mailObj){
     return new Promise(function(fulfill,reject) {
         phantom.create(function (ph) {
             ph.createPage(function (page) {
-                page.open("http://www.adept-draenor.org/board/posting.php?mode=post&f=30", function (status) {
+                page.open(config.forumUrl, function (status) {
                     console.log("opened page? status: ", status);
 
                     //todo retry on bad status
@@ -29,7 +29,7 @@ postApp = function(mailObj){
                         }
                         usernameElement.value = username;
                         document.querySelector('#password').value = password;
-                        document.querySelector('.button1').click();
+                        document.querySelector('.button1[name=login]').click();
                         return true;
                     }, function (result) {
                         //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
@@ -45,7 +45,7 @@ postApp = function(mailObj){
                             page.evaluate(function (mailObj) {
                                 document.querySelector('#subject').value = mailObj.title;
                                 document.querySelector('#message').value = mailObj.body;
-                                document.querySelector('.default-submit-action').click();
+                                document.querySelector('.default-submit-action[name=post]').click();
                             }, function () {
                                 setTimeout(function () {
                                     page.evaluate(function () {
