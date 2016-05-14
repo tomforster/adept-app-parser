@@ -153,7 +153,7 @@ function getImagelist (dir,requestStr){
             files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file)});
         }
     });
-    return files_.slice(0,30);
+    return files_.slice(0,18);
 }
 
 function getImageTime(str){
