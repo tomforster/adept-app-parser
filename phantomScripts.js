@@ -49,7 +49,7 @@ postApp = function(mailObj){
                             }, function () {
                                 setTimeout(function () {
                                     page.evaluate(function () {
-                                        return document.URL
+                                        return document.URL.split('&sid')[0]
                                     }, function (url) {
                                         if (url.indexOf('t=') > -1) {
                                             console.log('app posted!');
