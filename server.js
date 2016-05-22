@@ -14,6 +14,11 @@ var port = config.port; // set our port
 var username = config.username;
 var password = config.password;
 var winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)({'timestamp':true})
+    ]
+});
 
 var sys = require('sys');
 var exec = require('child_process').exec;
@@ -44,97 +49,97 @@ var auth = function (req, res, next) {
 
 //routes
 app.get('/parser', function(req, res) {
-    winston.info('parserReq');
+    logger.info('parserReq');
     res.sendFile(path.join(__dirname,'/public/parser.html'));
 });
 
 app.get('/imagelist',auth, function(req,res) {
-    winston.info('Camera 1 image list request');
+    logger.info('Camera 1 image list request');
     res.send(getImagelist('/home/node/security/','catimg/'));
 });
 
 app.get('/cam2imagelist',auth, function(req,res) {
-    winston.info('Camera 2 image list request');
+    logger.info('Camera 2 image list request');
     res.send(getImagelist('/home/node/security/cam2/','catimg2/'));
 });
 
 app.get('/img/:tagId',auth, function(req,res) {
-    winston.info('Saved image request');
+    logger.info('Saved image request');
     res.sendFile('/home/node/img/'+req.param("tagId"));
 });
 app.get('/catimg/:tagId',auth, function(req,res) {
-    winston.info('Camera 1 image request');
+    logger.info('Camera 1 image request');
     res.sendFile('/home/node/security/'+req.param("tagId"));
 });
 
 app.get('/catimg2/:tagId',auth, function(req,res) {
-    winston.info('Camera 2 image request');
+    logger.info('Camera 2 image request');
     res.sendFile('/home/node/security/cam2/'+req.param("tagId"));
 });
 
 app.get('/catpics/',auth,function(req,res) {
-    winston.info('Cat camera 1 page request.');
+    logger.info('Cat camera 1 page request.');
     res.sendFile(path.join(__dirname,'/public/gallery.html'));
 });
 
 app.get('/catpics2/',auth,function(req,res) {
-    winston.info('Cat camera 2 page request.');
+    logger.info('Cat camera 2 page request.');
     res.sendFile(path.join(__dirname,'/public/cam2gallery.html'));
 });
 
 app.get('/catpicsold/',auth,function(req,res) {
-    winston.info('Old cat images list');
+    logger.info('Old cat images list');
     res.send(getFiles('/home/node/security/'));
 });
 
 app.get('/', function(req, res) {
-    winston.info('Root URL request.');
+    logger.info('Root URL request.');
     res.sendFile(path.join(__dirname,'/public/parser.html'));
 });
 
 app.get('/robots.txt',function(req,res){
-    winston.info('Robot detected.');
+    logger.info('Robot detected.');
     res.type('text/plain');
     res.send("User-agent: *\nDisallow: /");
 });
 
 app.post('/snapshot/1/',function(req,res){
-    winston.info('Snapshot camera 1');
+    logger.info('Snapshot camera 1');
     exec('snapshot-cam-1.sh',
         function (error, stdout, stderr) {
             if (error !== null) {
-                winston.info(error);
+                logger.info(error);
             } else {
-                winston.info('stdout: ' + stdout);
-                winston.info('stderr: ' + stderr);
+                logger.info('stdout: ' + stdout);
+                logger.info('stderr: ' + stderr);
             }
         }
     );
 });
 
 app.post('/snapshot/2/',function(req,res){
-    winston.info('Snapshot camera 2');
+    logger.info('Snapshot camera 2');
     exec('snapshot-cam-2.sh',
         function (error, stdout, stderr) {
             if (error !== null) {
-                winston.info(error);
+                logger.info(error);
             } else {
-                winston.info('stdout: ' + stdout);
-                winston.info('stderr: ' + stderr);
+                logger.info('stdout: ' + stdout);
+                logger.info('stderr: ' + stderr);
             }
         }
     );
 });
 
 //app.post('/deploy/',function(req,res){
-//	winston.info('Deploy');
+//	logger.info('Deploy');
 //	exec('deploy-adept.sh',
 //		function (error, stdout, stderr) {
 //			if (error !== null) {
-//				winston.info(error);
+//				logger.info(error);
 //			} else {
-//				winston.info('stdout: ' + stdout);
-//				winston.info('stderr: ' + stderr);
+//				logger.info('stdout: ' + stdout);
+//				logger.info('stderr: ' + stderr);
 //			}
 //		}
 //	);
@@ -196,17 +201,17 @@ mailin.start({
     port: 25,
     host: '0.0.0.0',
     disableWebhook: true
-},function(err){winston.info(err)});
+},function(err){logger.info(err)});
 
 mailin.on('startMessage', function (connection) {
-    winston.info(JSON.stringify(connection));
+    logger.info(JSON.stringify(connection));
 });
 
 mailin.on('message', function (connection, data, content) {
     if(connection.envelope.rcptTo.filter(function(rcpt){
             return rcpt.address == config.appEmail
         }).length < 1){
-        winston.info('bad email: '+JSON.stringify(connection.envelope.rcptTp));
+        logger.info('bad email: '+JSON.stringify(connection.envelope.rcptTp));
         return;
     }
     var cheerio = require('cheerio');
@@ -226,7 +231,7 @@ mailin.on('message', function (connection, data, content) {
     });
     str = str.replace(/\s{2,}/g, ' ');
     var mailObj = appParser.parseText(str);
-    winston.info('Title:'+mailObj.title);
+    logger.info('Title:'+mailObj.title);
 
     phantomScripts.postApp(mailObj).then(function(url){
         discordBot.newAppMessage(mailObj.title,url);
@@ -237,4 +242,4 @@ app.listen(port,function(){
 
 });
 
-//setInterval(function(){winston.info('still alive at '+new Date().toString());},60*60*1000);
+//setInterval(function(){logger.info('still alive at '+new Date().toString());},60*60*1000);
