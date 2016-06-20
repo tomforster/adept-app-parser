@@ -2,17 +2,18 @@
   "name": "adept-app-parser",
   "main": "server.js",
   "dependencies": {
+    "angular": "latest",
+    "basic-auth": "latest",
+    "bootstrap": "latest",
     "cheerio": "latest",
+    "discord.js": "latest",
     "express": "latest",
     "mailin": "3.0.2",
     "phantom": "latest",
-    "basic-auth": "latest",
-    "bootstrap": "latest",
-    "angular": "latest",
-    "discord.js": "latest",
-    "winston": "latest",
     "pug": "latest",
-    "ws": "latest",
-    "underscore": "latest"
+    "underscore": "latest",
+    "websocket": "^1.0.23",
+    "winston": "latest",
+    "express-ws": "latest"
   }
 }
