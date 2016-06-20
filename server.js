@@ -161,7 +161,9 @@ function updateImageCache (imageCache, dir,requestStr){
         }
     });
     var newImageCache = files_.slice(0,18);
+    console.log(newImageCache.length);
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
+    console.log('!!!');
     setTimeout(function(){
         wss.broadcast("refresh");
     },100);
