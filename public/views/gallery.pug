@@ -8,10 +8,10 @@ html
         title="Cat Cam Gallery"
     body
         div.container-fluid(ng-controller="ctrl as c")
-            button(ng-click="c.snapshot()") | Snapshot
             div.row
                 div.col-lg-12
-                    h1.page-header | Cat Cam Gallery
+                    h1.page-header Cat Cam Gallery
+                        button.btn.btn-default(ng-click="c.snapshot()") Snapshot
 
                 div
                     each image in images
