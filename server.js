@@ -162,7 +162,9 @@ function updateImageCache (imageCache, dir,requestStr){
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
     logger.info("New images found, image cache updated.");
     setTimeout(function(){
-        wss.broadcast("refresh");
+        expressWs.getWss('/').clients.forEach(function (client) {
+            client.send('refresh');
+        });
     },100);
     return newImageCache;
 }
