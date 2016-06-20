@@ -27,7 +27,9 @@ var exec = require('child_process').exec;
 var app = express();
 
 var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({ server: app });
+var wss = new WebSocketServer({ server: app }, function(error){
+    logger.info(error);
+});
 
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -70,16 +72,16 @@ app.get('/cam2imagelist',auth, function(req,res) {
 
 app.get('/img/:tagId',auth, function(req,res) {
     logger.info('Saved image request');
-    res.sendFile('/home/node/img/'+req.param("tagId"));
+    res.sendFile('/home/node/img/'+req.params["tagId"]);
 });
 app.get('/catimg/:tagId',auth, function(req,res) {
     logger.info('Camera 1 image request');
-    res.sendFile('/home/node/security/'+req.param("tagId"));
+    res.sendFile('/home/node/security/'+req.params["tagId"]);
 });
 
 app.get('/catimg2/:tagId',auth, function(req,res) {
     logger.info('Camera 2 image request');
-    res.sendFile('/home/node/security/cam2/'+req.param("tagId"));
+    res.sendFile('/home/node/security/cam2/'+req.params["tagId"]);
 });
 
 app.get('/catpics/',auth,function(req,res) {
