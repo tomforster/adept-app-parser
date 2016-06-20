@@ -20,16 +20,12 @@ var logger = new (winston.Logger)({
         new (winston.transports.Console)({'timestamp':true})
     ]
 });
+var WebSocketServer = require('ws').Server;
 
 var sys = require('sys');
 var exec = require('child_process').exec;
 
 var app = express();
-
-var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({ server: app }, function(error){
-    logger.info(error);
-});
 
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -282,3 +278,5 @@ app.listen(port,function(){
     }, 30000);
 
 });
+
+var wss = new WebSocketServer({ server: app });
