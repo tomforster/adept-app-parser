@@ -163,10 +163,17 @@ function updateImageCache (imageCache, dir,requestStr){
     var newImageCache = files_.slice(0,18);
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
     setTimeout(function(){
-        wss.send("refresh");
+        wss.broadcast("refresh");
     },100);
     return newImageCache;
 }
+
+wss.broadcast = function broadcast(data) {
+    wss.clients.forEach(function each(client) {
+        client.send(data);
+    });
+};
+
 
 function getImageTime(str){
     var splitstr = str.split(/[-_]/);
