@@ -10,7 +10,7 @@ var fs = require('fs');
 var basicAuth = require('basic-auth');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var port = config.port; // set our port
+var port = config.port;
 var username = config.username;
 var password = config.password;
 var winston = require('winston');
@@ -25,6 +25,7 @@ var exec = require('child_process').exec;
 
 var app = express();
 
+app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
 
@@ -79,7 +80,8 @@ app.get('/catimg2/:tagId',auth, function(req,res) {
 
 app.get('/catpics/',auth,function(req,res) {
     logger.info('Cat camera 1 page request.');
-    res.sendFile(path.join(__dirname,'/public/gallery.html'));
+    res.render('/public/gallery_template.jade', {images : getImageList()});
+    //res.sendFile(path.join(__dirname,'/public/gallery.html'));
 });
 
 app.get('/catpics2/',auth,function(req,res) {
@@ -130,20 +132,6 @@ app.post('/snapshot/2/',function(req,res){
         }
     );
 });
-
-//app.post('/deploy/',function(req,res){
-//	logger.info('Deploy');
-//	exec('deploy-adept.sh',
-//		function (error, stdout, stderr) {
-//			if (error !== null) {
-//				logger.info(error);
-//			} else {
-//				logger.info('stdout: ' + stdout);
-//				logger.info('stderr: ' + stderr);
-//			}
-//		}
-//	);
-//});
 
 function getImagelist (dir,requestStr){
     var files_ = [];
@@ -241,5 +229,3 @@ mailin.on('message', function (connection, data, content) {
 app.listen(port,function(){
 
 });
-
-//setInterval(function(){logger.info('still alive at '+new Date().toString());},60*60*1000);

@@ -10,6 +10,7 @@
 		"bootstrap" : "latest",
 		"angular": "latest",
 		"discord.js": "latest",
-		"winston": "latest"
+		"winston": "latest",
+		"pug": "latest"
 	}
 }
