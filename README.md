@@ -1,6 +1,6 @@
 # adept-app-parser
 
-Just my crappy personal node server code, thrown together in a hurry. Please don't use this project to evaluate my code skills :)
+Just my crappy personal node server code, thrown together in a hurry. Please don't use this project to evaluate my abilities :)
 
 TODO: 
 * add in labelling of snapshot images
