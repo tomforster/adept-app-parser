@@ -9,3 +9,4 @@ TODO:
 * make a more bandwidth light version for some mobile cases
 * email on no images received for set period
 * make image deletion policy less strict
+* better separation of modules
