@@ -1,15 +1,14 @@
 angular.module('pics',[])
 
-.controller('ctrl',["$http", '$scope', function($http, $scope){
+.controller('ctrl',["$http", '$window', function($http, $window){
     this.snapshot = function(){
         $http({
             method: 'POST',
             url: '/snapshot/1'});
     };
 
-
-    var loc = window.location, new_uri;
-    if (loc.protocol === "https:") {
+    var new_uri;
+    if ($window.location.protocol === "https:") {
         new_uri = "wss:";
     } else {
         new_uri = "ws:";
@@ -19,7 +18,7 @@ angular.module('pics',[])
     var ws = new WebSocket(new_uri);
 
     ws.onmessage = function(event) {
-        console.log(event);
+        $window.location.reload();
     }
 
 }]);
