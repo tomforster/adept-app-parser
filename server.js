@@ -229,7 +229,9 @@ mailin.start({
     port: 25,
     host: '0.0.0.0',
     disableWebhook: true
-},function(err){logger.info(err)});
+},function(err){
+    //logger.info(err)
+});
 
 mailin.on('startMessage', function (connection) {
     logger.info(JSON.stringify(connection));
