@@ -147,6 +147,7 @@ var catpicsImageCache = [];
 var catpics2ImageCache = [];
 
 function updateImageCache (imageCache, dir,requestStr){
+    logger.info("Updating image cache for "+requestStr);
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg'});
@@ -254,6 +255,9 @@ mailin.on('message', function (connection, data, content) {
 });
 
 app.listen(port,function(){
+
+    catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
+    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
 
     setInterval(function(){
         catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/')
