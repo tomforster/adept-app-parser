@@ -8,6 +8,9 @@ var discordBot = require('./discordBot.js');
 var phantomScripts = require('./phantomScripts.js');
 var fs = require('fs');
 var basicAuth = require('basic-auth');
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({ server: server });
+var _ = require('underscore');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var port = config.port;
@@ -56,12 +59,12 @@ app.get('/parser', function(req, res) {
 
 app.get('/imagelist',auth, function(req,res) {
     logger.info('Camera 1 image list request');
-    res.send(getImagelist('/home/node/security/','catimg/'));
+    res.send(catpicsImageCache);
 });
 
 app.get('/cam2imagelist',auth, function(req,res) {
     logger.info('Camera 2 image list request');
-    res.send(getImagelist('/home/node/security/cam2/','catimg2/'));
+    res.send(catpics2ImageCache);
 });
 
 app.get('/img/:tagId',auth, function(req,res) {
@@ -80,7 +83,7 @@ app.get('/catimg2/:tagId',auth, function(req,res) {
 
 app.get('/catpics/',auth,function(req,res) {
     logger.info('Cat camera 1 page request.');
-    res.render('gallery.pug', {images : getImagelist('/home/node/security/','catimg/')});
+    res.render('gallery.pug', {images : catpicsImageCache});
 });
 
 app.get('/catpics2/',auth,function(req,res) {
@@ -127,12 +130,22 @@ app.post('/snapshot/2/',function(req,res){
             } else {
                 logger.info('stdout: ' + stdout);
                 logger.info('stderr: ' + stderr);
+                setTimeout(updateImageCache, 3000);
             }
         }
     );
 });
 
-function getImagelist (dir,requestStr){
+wss.on('connection', function connection(ws) {
+
+    logger.info("Websocket Connected");
+
+});
+
+var catpicsImageCache = [];
+var catpics2ImageCache = [];
+
+function updateImageCache (imageCache, dir,requestStr){
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg'});
@@ -146,7 +159,12 @@ function getImagelist (dir,requestStr){
             files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file)});
         }
     });
-    return files_.slice(0,18);
+    var newImageCache = files_.slice(0,18);
+    if(_.isEqual(imageCache, newImageCache)) return imageCache;
+    setTimeout(function(){
+        wss.send("refresh");
+    },100);
+    return newImageCache;
 }
 
 function getImageTime(str){
@@ -226,5 +244,13 @@ mailin.on('message', function (connection, data, content) {
 });
 
 app.listen(port,function(){
+
+    setInterval(function(){
+        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/')
+    }, 30000);
+
+    setInterval(function(){
+        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/')
+    }, 30000);
 
 });

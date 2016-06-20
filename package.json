@@ -1,16 +1,18 @@
 {
-	"name": "adept-app-parser",
-	"main": "server.js",
-	"dependencies": {
-		"cheerio": "latest",
-		"express": "latest",
-		"mailin": "3.0.2",
-		"phantom": "latest",
-		"basic-auth": "latest",
-		"bootstrap" : "latest",
-		"angular": "latest",
-		"discord.js": "latest",
-		"winston": "latest",
-		"pug": "latest"
-	}
+  "name": "adept-app-parser",
+  "main": "server.js",
+  "dependencies": {
+    "cheerio": "latest",
+    "express": "latest",
+    "mailin": "3.0.2",
+    "phantom": "latest",
+    "basic-auth": "latest",
+    "bootstrap": "latest",
+    "angular": "latest",
+    "discord.js": "latest",
+    "winston": "latest",
+    "pug": "latest",
+    "ws": "latest",
+    "underscore": "latest"
+  }
 }
