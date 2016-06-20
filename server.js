@@ -80,8 +80,7 @@ app.get('/catimg2/:tagId',auth, function(req,res) {
 
 app.get('/catpics/',auth,function(req,res) {
     logger.info('Cat camera 1 page request.');
-    res.render('/public/gallery.pug', {images : getImagelist('/home/node/security/','catimg/')});
-    //res.sendFile(path.join(__dirname,'/public/gallery.html'));
+    res.render('/gallery.pug', {images : getImagelist('/home/node/security/','catimg/')});
 });
 
 app.get('/catpics2/',auth,function(req,res) {
