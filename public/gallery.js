@@ -13,7 +13,7 @@ angular.module('pics',[])
     } else {
         new_uri = "ws:";
     }
-    new_uri += "//" + loc.host;
+    new_uri += "//" + $window.location.host;
 
     var ws = new WebSocket(new_uri);
 
