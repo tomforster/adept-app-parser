@@ -15,7 +15,6 @@ angular.module('pics',[])
         new_uri = "ws:";
     }
     new_uri += "//" + loc.host;
-    new_uri += loc.pathname;
 
     var ws = new WebSocket(new_uri);
 
