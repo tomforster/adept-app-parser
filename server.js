@@ -152,7 +152,7 @@ var catpicsImageCache = [];
 var catpics2ImageCache = [];
 
 function updateImageCache (imageCache, dir,requestStr){
-    logger.info("Updating image cache for "+requestStr);
+    logger.info("Checking if any updated images for "+requestStr);
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg'});
@@ -168,7 +168,7 @@ function updateImageCache (imageCache, dir,requestStr){
     });
     var newImageCache = files_.slice(0,18);
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
-    logger.info("Image Cache Updated");
+    logger.info("New images found, image cache updated.");
     setTimeout(function(){
         wss.broadcast("refresh");
     },100);
