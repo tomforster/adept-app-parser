@@ -167,12 +167,6 @@ function updateImageCache (imageCache, dir,requestStr){
     return newImageCache;
 }
 
-wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-        client.send(data);
-    });
-};
-
 
 function getImageTime(str){
     var splitstr = str.split(/[-_]/);
@@ -280,3 +274,9 @@ wss.on('error', function connection(error) {
     logger.error(error);
 
 });
+
+wss.broadcast = function broadcast(data) {
+    wss.clients.forEach(function each(client) {
+        client.send(data);
+    });
+};
