@@ -1,5 +1,0 @@
-add NODE_ENV = production
-
-make config.json
-install n, get latest node
-install phantomjs
