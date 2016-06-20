@@ -140,6 +140,9 @@ app.post('/snapshot/2/',function(req,res){
     );
 });
 
+app.ws('/', function(ws, req) {
+});
+
 var catpicsImageCache = [];
 var catpics2ImageCache = [];
 
@@ -162,11 +165,17 @@ function updateImageCache (imageCache, dir,requestStr){
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
     logger.info("New images found, image cache updated.");
     setTimeout(function(){
-        expressWs.getWss('/').clients.forEach(function (client) {
-            client.send('refresh');
-        });
+        console.log("sending refresh");
+        broadcastRefresh();
     },100);
     return newImageCache;
+}
+
+function broadcastRefresh(){
+    expressWs.getWss('/').clients.forEach(function (client) {
+        console.log(client);
+        client.send('refresh');
+    });
 }
 
 
