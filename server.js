@@ -148,6 +148,12 @@ wss.on('connection', function connection(ws) {
 
 });
 
+wss.on('error', function connection(error) {
+
+    logger.error(error);
+
+});
+
 var catpicsImageCache = [];
 var catpics2ImageCache = [];
 
