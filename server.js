@@ -8,8 +8,6 @@ var discordBot = require('./discordBot.js');
 var phantomScripts = require('./phantomScripts.js');
 var fs = require('fs');
 var basicAuth = require('basic-auth');
-var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({ server: server });
 var _ = require('underscore');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
@@ -27,6 +25,9 @@ var sys = require('sys');
 var exec = require('child_process').exec;
 
 var app = express();
+
+var WebSocketServer = require('ws').Server;
+var wss = new WebSocketServer({ server: app });
 
 app.set('view engine', 'pug');
 app.use(express.static(path.join(__dirname, 'public')));
