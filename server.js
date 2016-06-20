@@ -172,7 +172,7 @@ function updateImageCache (imageCache, dir,requestStr){
 }
 
 function broadcastRefresh(){
-    expressWs.getWss('/').clients.forEach(function (client) {
+    expressWs.getWss('/catpics').clients.forEach(function (client) {
         client.send('refresh');
     });
 }
