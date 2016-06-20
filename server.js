@@ -140,18 +140,6 @@ app.post('/snapshot/2/',function(req,res){
     );
 });
 
-wss.on('connection', function connection(ws) {
-
-    logger.info("Websocket Connected");
-
-});
-
-wss.on('error', function connection(error) {
-
-    logger.error(error);
-
-});
-
 var catpicsImageCache = [];
 var catpics2ImageCache = [];
 
@@ -280,3 +268,15 @@ app.listen(port,function(){
 });
 
 var wss = new WebSocketServer({ server: app });
+
+wss.on('connection', function connection(ws) {
+
+    logger.info("Websocket Connected");
+
+});
+
+wss.on('error', function connection(error) {
+
+    logger.error(error);
+
+});
