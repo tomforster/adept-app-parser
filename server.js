@@ -140,7 +140,7 @@ app.post('/snapshot/2/',function(req,res){
     );
 });
 
-app.ws('/', function(ws, req) {
+app.ws('/catpics', function(ws, req) {
 });
 
 var catpicsImageCache = [];
