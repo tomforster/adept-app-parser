@@ -117,6 +117,9 @@ app.post('/snapshot/1/',function(req,res){
             } else {
                 logger.info('stdout: ' + stdout);
                 logger.info('stderr: ' + stderr);
+                setTimeout(function(){
+                    catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
+                }, 3000);
             }
         }
     );
@@ -131,7 +134,9 @@ app.post('/snapshot/2/',function(req,res){
             } else {
                 logger.info('stdout: ' + stdout);
                 logger.info('stderr: ' + stderr);
-                setTimeout(updateImageCache, 3000);
+                setTimeout(function(){
+                    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
+                }, 3000);
             }
         }
     );
@@ -162,9 +167,8 @@ function updateImageCache (imageCache, dir,requestStr){
         }
     });
     var newImageCache = files_.slice(0,18);
-    console.log(newImageCache.length);
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
-    console.log('!!!');
+    logger.info("Image Cache Updated");
     setTimeout(function(){
         wss.broadcast("refresh");
     },100);
