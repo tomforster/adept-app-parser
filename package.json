@@ -8,12 +8,12 @@
     "cheerio": "latest",
     "discord.js": "latest",
     "express": "latest",
+    "express-ws": "latest",
     "mailin": "3.0.2",
     "phantom": "latest",
     "pug": "latest",
     "underscore": "latest",
     "websocket": "^1.0.23",
-    "winston": "latest",
-    "express-ws": "latest"
+    "winston": "latest"
   }
 }
