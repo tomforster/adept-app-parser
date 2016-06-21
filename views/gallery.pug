@@ -11,9 +11,9 @@ html(ng-app="pics")
             div.row
                 div.col-lg-12
                     h1.page-header Cat Cam Gallery
-                        button.btn.btn-default.pull-right(ng-click="c.snapshot()")
+                        button.btn.btn-default.pull-right(ng-click="c.snapshot()" ng-disabled="c.snapshotInProgress")
                             i.fa.fa-spinner.fa-pulse.fa-fw(ng-show="c.snapshotInProgress")
-                            | Snapshot
+                            span(ng-show="!c.snapshotInProgress") Snapshot
 
                 div
                     each image in images
