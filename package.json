@@ -12,6 +12,7 @@
     "mailin": "3.0.3",
     "moment": "^2.13.0",
     "pg": "^6.0.1",
+    "pg-promise": "^4.8.1",
     "phantom": "2.1.8",
     "pug": "2.0.0-beta3",
     "underscore": "1.8.3",

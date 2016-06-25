@@ -4,6 +4,7 @@ var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantomScripts = require('./phantomScripts.js');
 var winston = require('winston');
+var validUrl = require('valid-url');
 var logger = new (winston.Logger)({
     transports: [
         new (winston.transports.Console)({'timestamp':true})
@@ -12,6 +13,7 @@ var logger = new (winston.Logger)({
 
 var mybot = new Discord.Client();
 var command = require('./commandRepository.js');
+var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 mybot.on("message", function(message){
     if(message.author.id === "99435952493072384") return;
@@ -32,20 +34,33 @@ mybot.on("message", function(message){
                 break;
             case 'testsave': var params = getParams(message.content, '!testsave');
                 if(params.length < 2) return;
-                command.save(params[0], params[1], message.author.id);
-                mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
+                if(command && typeof command === 'string' && command.length>0 && validUrl.is_uri(url)) {
+                    if (allowable_extensions.indexOf(url.split('.').pop()) == -1) {
+                        return;
+                    }
+                    command.save(params[0], params[1], message.author.id).then(function(){
+                        mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
+                    });
+
+                }
+                else{
+                    return;
+                }
                 break;
             case 'testload': var params = getParams(message.content, '!testload');
                 if(params.length < 1) return;
-                var results = command.fetch(params[0]);
-                var img = {};
-                if(results.length == 0) return;
-                else if(results.length > 1){
-                    img = results[Math.floor(Math.random()*results.length)];
-                }else{
-                    img = results[0];
+                if(command && typeof command === 'string' && command.length>0){
+                    command.fetch(params[0]).then(function(results){
+                        var img = {};
+                        if(results.length == 0) return;
+                        else if(results.length > 1){
+                            img = results[Math.floor(Math.random()*results.length)];
+                        }else{
+                            img = results[0];
+                        }
+                        mybot.sendFile(message.channel, img.url, "image.gif");
+                    })
                 }
-                mybot.sendFile(message.channel, img.url, "image.gif");
         }
     }
 });

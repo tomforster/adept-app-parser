@@ -3,20 +3,14 @@
  */
 
 var pg = require('pg');
-var db = null;
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
+
+exports.db = require('pg-promise')({
+    host:config.db.host,
+    port:config.db.port,
+    database:config.db.name,
+    user:config.db.user,
+    password:config.db.password
 });
-exports.db = function(){
-    if(db === null){
-        logger.info("connecting client");
-        db = new pg.Client(config.db);
-    }
-    return db;
-};
