@@ -24,6 +24,8 @@ mybot.on("message", function(message){
                 break;
             case 'yes': mybot.sendMessage(message.channel, "http://upload.evocdn.co.uk/cafereality/uploads/asset_image/2_203.jpg");
                 break;
+            case 'notest': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","grumpy-cat-no-1.jpg");
+                break;
         }
     }
 });
