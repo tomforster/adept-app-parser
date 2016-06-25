@@ -11,7 +11,7 @@ var logger = new (winston.Logger)({
 });
 
 var mybot = new Discord.Client();
-var commands = require('./commandRepository');
+var command = require('./commandRepository.js');
 
 mybot.on("message", function(message){
     if(message.author.id === "99435952493072384") return;
@@ -32,7 +32,7 @@ mybot.on("message", function(message){
                 break;
             case 'testsave': var params = getParams(message.content, '!testsave');
                 if(params.length < 2) return;
-                commands.save(params[0], params[1]);
+                command.save(params[0], params[1]);
         }
     }
 });
