@@ -33,10 +33,19 @@ mybot.on("message", function(message){
             case 'testsave': var params = getParams(message.content, '!testsave');
                 if(params.length < 2) return;
                 command.save(params[0], params[1], message.author.id);
+                mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
                 break;
             case 'testload': var params = getParams(message.content, '!testload');
                 if(params.length < 1) return;
-                command.fetch(params[0]);
+                var results = command.fetch(params[0]);
+                var img = {};
+                if(results.length == 0) return;
+                else if(results.length > 1){
+                    img = results[Math.floor(Math.random()*results.length)];
+                }else{
+                    img = results[0];
+                }
+                mybot.sendFile(message.channel, img.url, "image.gif");
         }
     }
 });

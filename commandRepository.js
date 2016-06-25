@@ -25,7 +25,7 @@ exports.fetch = function(command){
                     if (err) throw err;
                 });
                 logger.info(result);
-                return result;
+                return result.rows;
             });
         });
     }else{
