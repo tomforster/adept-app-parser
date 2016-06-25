@@ -13,7 +13,7 @@ var logger = new (winston.Logger)({
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
-    if(message.author.username === "Irwin") return;
+    if(message.author.id === "99435952493072384") return;
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
         var keyword= matches[1];
