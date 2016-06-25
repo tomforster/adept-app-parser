@@ -2,26 +2,32 @@ var env = process.env.NODE_ENV || "development";
 var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
+var winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)({'timestamp':true})
+    ]
+});
 
 postApp = function(mailObj){
-    console.log('Posting Adept App');
+    logger.info('Posting Adept App');
     var username = config.forumUsername;
     var password = config.forumPassword;
     return new Promise(function(fulfill,reject) {
         phantom.create(function (ph) {
             ph.createPage(function (page) {
                 page.open(config.forumUrl, function (status) {
-                    console.log("opened page? status: ", status);
+                    logger.info("opened page? status: ", status);
 
                     //todo retry on bad status
                     if (status.indexOf('success') == -1) {
-                        console.log("exiting");
+                        logger.info("exiting");
                         ph.exit();
                         reject();
                         return;
                     }
 
-                    console.log("logging in as " + username + ":" + password + "...");
+                    logger.info("logging in as " + username + ":" + password + "...");
                     page.evaluate(function (mailObj, username, password) {
                         var usernameElement = document.querySelector('#username');
                         if (!usernameElement) {
@@ -34,14 +40,14 @@ postApp = function(mailObj){
                     }, function (result) {
                         //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
                         if (!result) {
-                            console.log('No username detected');
+                            logger.info('No username detected');
                             ph.exit();
                             reject();
                             return;
                         }
-                        console.log("waiting for load...");
+                        logger.info("waiting for load...");
                         setTimeout(function () {
-                            console.log("finished waiting, posting app:");
+                            logger.info("finished waiting, posting app:");
                             page.evaluate(function (mailObj) {
                                 document.querySelector('#subject').value = mailObj.title;
                                 document.querySelector('#message').value = mailObj.body;
@@ -52,14 +58,14 @@ postApp = function(mailObj){
                                         return document.URL.split('&sid')[0]
                                     }, function (url) {
                                         if (url.indexOf('t=') > -1) {
-                                            console.log('app posted!');
-                                            console.log(url);
+                                            logger.info('app posted!');
+                                            logger.info(url);
                                             fulfill(url);
                                         } else {
                                             reject();
-                                            console.log("Possibly did not upload");
+                                            logger.info("Possibly did not upload");
                                         }
-                                        console.log('Exiting');
+                                        logger.info('Exiting');
                                         ph.exit();
                                     });
                                 }, 10000);
@@ -78,17 +84,16 @@ readAudit = function(){
         phantom.create(function (ph) {
             ph.createPage(function (page) {
                 page.open(auditUrl, function (status) {
-                    console.log("opened page? ", status);
+                    logger.info("opened page? status: ", status);
                     if (status.indexOf('success') == -1) {
                         reject('Did not load');
+                        logger.error("Failed to load page");
                         ph.exit();
                     }
-                    console.log('1');
                     page.evaluate(function () {
-                        console.log('2');
+                        logger.info("Reading data");
                         var characterData = [];
                         var names = $(".characterRow .nameLink").map(function(index,value){return $(value).text()});
-                        console.log("name"+names);
                         var ilvls = $(".characterRow .iLvl").map(function(index,value){return $(value).text()});
                         var upgradesPC = $(".characterRow .upgradesNumber").map(function(index,value){return $(value).text()});
                         var auditInfo = $(".characterRow .audit").map(function(index,value){return $(value).text()});
@@ -97,6 +102,7 @@ readAudit = function(){
                         }
                         return characterData;
                     }, function (characterData) {
+                        logger.info("Got character data");
                         resolve(characterData);
                         ph.exit();
                     });

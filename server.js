@@ -218,7 +218,7 @@ mailin.start({
     host: '0.0.0.0',
     disableWebhook: true
 },function(err){
-    //logger.info(err)
+    if(err) logger.info(err);
 });
 
 mailin.on('startMessage', function (connection) {

@@ -3,24 +3,23 @@ var path = require("path");
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantomScripts = require('./phantomScripts.js');
+var winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)({'timestamp':true})
+    ]
+});
 
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
-    if(message.mentions.length > 0){
-        if(message.mentions[0].username == 'AppBot'){
-            console.log(message);
-            var matches = message.content.match(/!(\w+)/);
-            if(matches && matches.length == 2){
-                var keyword= matches[1];
-                switch(keyword){
-                    case 'audit': runAudit(message);
-                        console.log('audit');
-                        break;
-                }
-            }
-
-            //mybot.sendMessage(message.channel, "Hi "+message.author);
+    var matches = message.content.match(/!(\w+)/);
+    if(matches && matches.length == 2){
+        var keyword= matches[1];
+        switch(keyword){
+            case 'audit': runAudit(message);
+                logger.info('Audit message');
+                break;
         }
     }
 });
@@ -36,7 +35,6 @@ var login = function(){
 login();
 
 mybot.on("disconnected", login);
-
 
 //todo get last updated date
 var runAudit = function(message){
@@ -58,7 +56,7 @@ var runAudit = function(message){
         if(bads.length == 0){
             opString += 'I must be malfunctioning, everyone passed the audit! :o'
         }
-        console.log(opString);
+        logger.info(opString);
         mybot.sendMessage(message.channel, opString);
     });
 };
