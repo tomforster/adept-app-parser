@@ -18,7 +18,7 @@ exports.fetch = function(command){
     if(command && typeof command === 'string' && command.length>0){
         db.connect(function(err){
             if (err) throw err;
-            return db.query("select command, url, date from command where command=$1",command, function(err, result){
+            return db.query("select command, url, date_added from command where command=$1",command, function(err, result){
                 if (err) throw err;
 
                 db.end(function (err) {
@@ -42,7 +42,7 @@ exports.save = function(command, url, user_id){
         }
         db.connect(function(err){
             if (err) throw err;
-            db.query("insert into command(type, command, url, date, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id], function(err, result){
+            db.query("insert into command(type, command, url, date_added, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id], function(err, result){
                 if (err) throw err;
 
                 db.end(function (err) {
