@@ -49,6 +49,7 @@ var getParams = function(messageString, command) {
     for (var i = commandIndex + 1; i < words.length; i++) {
         results.push(words[i]);
     }
+    return results;
 };
 
 var login = function(){
