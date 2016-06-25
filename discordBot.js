@@ -36,13 +36,12 @@ login();
 
 mybot.on("disconnected", login);
 
-//todo get last updated date
 var runAudit = function(message){
     mybot.sendMessage(message.channel, 'One second...');
 
     phantomScripts.readAudit().then(function(auditInfo){
         logger.info("Audit promise returned");
-        var bads = auditInfo.filter(function(player){
+        var bads = auditInfo.characterData.filter(function(player){
             return player.audit !== '0' || player.upgrades !== '100';
         });
         var opString = "";
@@ -58,6 +57,9 @@ var runAudit = function(message){
             opString += 'I must be malfunctioning, everyone passed the audit! :o'
         }
         logger.info(opString);
+        if(auditInfo && auditInfo.length > 0){
+            opString += " last refresh: " + auditInfo.lastCheck;
+        }
         mybot.sendMessage(message.channel, opString);
     });
 };

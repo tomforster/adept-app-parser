@@ -98,7 +98,7 @@ var readAudit = function(){
             }
             logger.info("Reading data");
             _page.evaluate(function () {
-                var characterData = [];
+                var auditData = {characterData:[], lastCheck:""};
                 var names = $(".characterRow .nameLink").map(function (index, value) {
                     return $(value).text()
                 });
@@ -112,12 +112,14 @@ var readAudit = function(){
                     return $(value).text()
                 });
                 for (var i = 0; i < names.length; i++) {
-                    characterData.push({name: names[i], ilvl: ilvls[i], upgrades: upgradesPC[i], audit: auditInfo[i]});
+                    auditData.characterData.push({name: names[i], ilvl: ilvls[i], upgrades: upgradesPC[i], audit: auditInfo[i]});
                 }
-                return characterData;
-            }).then(function (characterData) {
-                logger.info("Got character data");
-                resolve(characterData);
+                var lastCheck = $(".groupLastchecked").text();
+                auditData.lastCheck = lastCheck.split(': ').pop();
+                return auditData;
+            }).then(function (auditData) {
+                logger.info("Got audit data");
+                resolve(auditData);
                 _ph.exit();
             });
         });
