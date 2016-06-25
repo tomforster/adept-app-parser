@@ -13,6 +13,7 @@ var logger = new (winston.Logger)({
 var mybot = new Discord.Client();
 
 mybot.on("message", function(message){
+    if(message.author.username === "Irwin") return;
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
         var keyword= matches[1];
@@ -24,6 +25,7 @@ mybot.on("message", function(message){
                 break;
             case 'no': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","no.jpg");
                 break;
+            case 'nein': mybot.sendFile(message.channel, "http://i.imgur.com/sMQoX48.gif", "nein.gif");
         }
     }
 });
