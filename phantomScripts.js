@@ -114,7 +114,7 @@ var readAudit = function(){
                 for (var i = 0; i < names.length; i++) {
                     auditData.characterData.push({name: names[i], ilvl: ilvls[i], upgrades: upgradesPC[i], audit: auditInfo[i]});
                 }
-                var lastCheck = $(".groupLastchecked").text();
+                var lastCheck = $(".groupLastChecked").text();
                 auditData.lastCheck = lastCheck.split(': ').pop();
                 return auditData;
             }).then(function (auditData) {
