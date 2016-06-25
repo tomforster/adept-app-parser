@@ -32,14 +32,16 @@ mybot.on("message", function(message){
                 break;
             case 'rainbow': mybot.sendFile(message.channel, "http://pre12.deviantart.net/4437/th/pre/i/2015/121/6/7/unicorn_pooping_a_rainbow_by_designfarmstudios-d2upaha.png", "rainbow.png");
                 break;
-            case 'testsave': var params = getParams(message.content, '!testsave');
+            case 'save': var params = getParams(message.content, keyword);
                 if(params.length < 2) return;
-                if(command && typeof command === 'string' && command.length>0 && validUrl.is_uri(url)) {
-                    if (allowable_extensions.indexOf(url.split('.').pop()) == -1) {
+                if(params[0] && typeof params[0] === 'string' && params[0].length > 0 && validUrl.is_uri(params[1])) {
+                    if (allowable_extensions.indexOf(params[1].split('.').pop()) == -1) {
                         return;
                     }
                     command.save(params[0], params[1], message.author.id).then(function(){
                         mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
+                    }).catch(function(err){
+                        logger.info(err);
                     });
 
                 }
@@ -47,10 +49,9 @@ mybot.on("message", function(message){
                     return;
                 }
                 break;
-            case 'testload': var params = getParams(message.content, '!testload');
-                if(params.length < 1) return;
-                if(command && typeof command === 'string' && command.length>0){
-                    command.fetch(params[0]).then(function(results){
+            default:
+                if(keyword && typeof keyword === 'string' && keyword.length > 0){
+                    command.fetch(keyword).then(function(results){
                         var img = {};
                         if(results.length == 0) return;
                         else if(results.length > 1){
@@ -69,7 +70,7 @@ var getParams = function(messageString, command) {
     logger.info("getting params");
     var words = messageString.split(' ');
     logger.info("words:",words);
-    var commandIndex = words.indexOf(command);
+    var commandIndex = words.indexOf('!'+command);
     if (commandIndex == (words.length - 1) || commandIndex < 0) {
         return [];
     }
