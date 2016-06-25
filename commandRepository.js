@@ -18,7 +18,7 @@ exports.fetch = function(command){
     if(command && typeof command === 'string' && command.length>0){
         db.connect(function(err){
             if (err) throw err;
-            return db.query("select command, url, date_added from command where command=$1",command, function(err, result){
+            return db.query("select command, url, date_added from command where command=($1)",[command], function(err, result){
                 if (err) throw err;
 
                 db.end(function (err) {
