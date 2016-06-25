@@ -83,7 +83,7 @@ var readAudit = function(){
         var auditUrl = "http://www.guildaudit.com/g/9146";
         var _ph, _page;
         
-        phantom.create().then(function(ph){
+        phantom.create(['--load-images=no']).then(function(ph){
             _ph = ph;
             return _ph.createPage();
         }).then(function(page) {
