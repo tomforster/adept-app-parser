@@ -38,7 +38,9 @@ mybot.on("message", function(message){
 });
 
 var getParams = function(messageString, command) {
+    logger.info("getting params");
     var words = messageString.split(' ');
+    logger.info("words:",words);
     var commandIndex = words.indexOf(command);
     if (commandIndex == words.length - 1 || commandIndex < 0) {
         return [];
