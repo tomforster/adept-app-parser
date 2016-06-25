@@ -20,11 +20,11 @@ exports.fetch = function(command){
             if (err) throw err;
             return db.query("select command, url, date_added from command where command=($1)",[command], function(err, result){
                 if (err) throw err;
+                logger.info(result.rows);
 
                 db.end(function (err) {
                     if (err) throw err;
                 });
-                logger.info(result);
                 return result.rows;
             });
         });
