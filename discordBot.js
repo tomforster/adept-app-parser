@@ -57,7 +57,7 @@ var runAudit = function(message){
             opString += 'I must be malfunctioning, everyone passed the audit! :o'
         }
         logger.info(opString);
-        if(auditInfo && auditInfo.length > 0){
+        if(auditInfo.lastCheck && auditInfo.lastCheck.length > 0){
             opString += " last refresh: " + auditInfo.lastCheck;
         }
         mybot.sendMessage(message.channel, opString);
