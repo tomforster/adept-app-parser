@@ -26,6 +26,9 @@ mybot.on("message", function(message){
             case 'no': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","no.jpg");
                 break;
             case 'nein': mybot.sendFile(message.channel, "http://i.imgur.com/sMQoX48.gif", "nein.gif");
+                break;
+            case 'rainbow': mybot.sendFile(message.channel, "http://pre12.deviantart.net/4437/th/pre/i/2015/121/6/7/unicorn_pooping_a_rainbow_by_designfarmstudios-d2upaha.png", "rainbow.png");
+                break;
         }
     }
 });
