@@ -79,6 +79,7 @@ postApp = function(mailObj){
 };
 
 readAudit = function(){
+    logger.info("Starting audit read");
     return new Promise(function(resolve,reject){
         var auditUrl = "http://www.guildaudit.com/g/9146";
         phantom.create(function (ph) {
