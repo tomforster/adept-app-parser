@@ -41,6 +41,7 @@ var runAudit = function(message){
     mybot.sendMessage(message.channel, 'One second...');
 
     phantomScripts.readAudit().then(function(auditInfo){
+        logger.info("Audit promise returned");
         var bads = auditInfo.filter(function(player){
             return player.audit !== '0' || player.upgrades !== '100';
         });
