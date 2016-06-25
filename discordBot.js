@@ -56,10 +56,10 @@ var runAudit = function(message){
         if(bads.length == 0){
             opString += 'I must be malfunctioning, everyone passed the audit! :o'
         }
-        logger.info(opString);
-        if(auditInfo.lastCheck && auditInfo.lastCheck.length > 0){
+        if(auditInfo.lastCheck.length > 0){
             opString += " last refresh: " + auditInfo.lastCheck;
         }
+        logger.info(opString);
         mybot.sendMessage(message.channel, opString);
     });
 };
