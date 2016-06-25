@@ -20,11 +20,9 @@ mybot.on("message", function(message){
             case 'audit': runAudit(message);
                 logger.info('Audit message');
                 break;
-            case 'no': mybot.sendMessage(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg");
+            case 'yes': mybot.sendFile(message.channel, "http://upload.evocdn.co.uk/cafereality/uploads/asset_image/2_203.jpg", "yes.jpg");
                 break;
-            case 'yes': mybot.sendMessage(message.channel, "http://upload.evocdn.co.uk/cafereality/uploads/asset_image/2_203.jpg");
-                break;
-            case 'notest': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","grumpy-cat-no-1.jpg");
+            case 'no': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","no.jpg");
                 break;
         }
     }
