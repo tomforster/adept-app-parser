@@ -16,7 +16,7 @@ var command = require('./commandRepository.js');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 mybot.on("message", function(message){
-    if(message.author.id === "99435952493072384") return;
+    //if(message.author.id === "99435952493072384") return;
     if(message.mentions.length > 0) return;
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
