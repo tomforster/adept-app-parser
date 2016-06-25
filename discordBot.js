@@ -32,7 +32,7 @@ mybot.on("message", function(message){
                 break;
             case 'testsave': var params = getParams(message.content, '!testsave');
                 if(params.length < 2) return;
-                command.save(params[0], params[1]);
+                command.save(params[0], params[1], message.author.id);
         }
     }
 });
