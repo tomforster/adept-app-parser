@@ -28,6 +28,7 @@ var app = express();
 var expressWs = require('express-ws')(app);
 
 app.set('view engine', 'pug');
+app.set('views', express.static(path.join(__dirname, 'views')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
 
