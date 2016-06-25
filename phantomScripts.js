@@ -15,7 +15,7 @@ var postApp = function(mailObj){
     var password = config.forumPassword;
     return new Promise(function(fulfill,reject) {
         var _ph, _page;
-        phantom.create().then(function(ph){
+        phantom.create(['--load-images=no']).then(function(ph){
             _ph = ph;
             return _ph.createPage();
         }).then(function(page) {
