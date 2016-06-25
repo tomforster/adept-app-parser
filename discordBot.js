@@ -11,6 +11,7 @@ var logger = new (winston.Logger)({
 });
 
 var mybot = new Discord.Client();
+var commands = require('./commandRepository');
 
 mybot.on("message", function(message){
     if(message.author.id === "99435952493072384") return;
@@ -29,9 +30,24 @@ mybot.on("message", function(message){
                 break;
             case 'rainbow': mybot.sendFile(message.channel, "http://pre12.deviantart.net/4437/th/pre/i/2015/121/6/7/unicorn_pooping_a_rainbow_by_designfarmstudios-d2upaha.png", "rainbow.png");
                 break;
+            case 'testsave': var params = getParams('testsave');
+                if(params.length < 2) return;
+                commands.save(params[0], params[1]);
         }
     }
 });
+
+var getParams = function(messageString, command) {
+    var words = messageString.split(' ');
+    var commandIndex = words.indexOf(command);
+    if (commandIndex == words.length - 1 || commandIndex < 0) {
+        return [];
+    }
+    var results = [];
+    for (var i = commandIndex + 1; i < words.length; i++) {
+        results.push(words[i]);
+    }
+};
 
 var login = function(){
     mybot.login(config.discordEmail, config.discordPassword).then(function(result){
