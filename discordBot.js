@@ -30,7 +30,7 @@ mybot.on("message", function(message){
                 break;
             case 'rainbow': mybot.sendFile(message.channel, "http://pre12.deviantart.net/4437/th/pre/i/2015/121/6/7/unicorn_pooping_a_rainbow_by_designfarmstudios-d2upaha.png", "rainbow.png");
                 break;
-            case 'testsave': var params = getParams('testsave');
+            case 'testsave': var params = getParams(message.content, 'testsave');
                 if(params.length < 2) return;
                 commands.save(params[0], params[1]);
         }
