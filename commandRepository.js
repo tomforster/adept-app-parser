@@ -13,16 +13,20 @@ var logger = new (winston.Logger)({
     ]
 });
 
-var fetch = function(command){
+exports.fetch = function(command){
     logger.info("fetching",command);
     if(command && typeof command === 'string' && command.length>0){
-        var query = db.query("select command, url, date from command where command=$1",command);
-        // Stream results back one row at a time
-        var results = [];
-        query.on('row', function(row) {
-            results.push(row);
+        db.connect(function(err){
+            if (err) throw err;
+            return db.query("select command, url, date from command where command=$1",command, function(err, result){
+                if (err) throw err;
+
+                db.end(function (err) {
+                    if (err) throw err;
+                });
+                return result;
+            });
         });
-        return results;
     }else{
         return null;
     }
@@ -30,19 +34,24 @@ var fetch = function(command){
 
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
-var save = function(command, url, user_id){
+exports.save = function(command, url, user_id){
     logger.info("saving", command);
     if(command && typeof command === 'string' && command.length>0 && validUrl.is_uri(url)){
         if(allowable_extensions.indexOf(url.split('.').pop()) == -1){
             return false;
         }
-        db.query("insert into command(type, command, url, date, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id]);
+        db.connect(function(err){
+            if (err) throw err;
+            db.query("insert into command(type, command, url, date, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id], function(err, result){
+                if (err) throw err;
+
+                db.end(function (err) {
+                    if (err) throw err;
+                });
+            });
+        })
+
     }else{
         return false;
     }
-};
-
-exports = {
-    fetch:fetch,
-    save: save
 };
