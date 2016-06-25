@@ -24,6 +24,7 @@ exports.fetch = function(command){
                 db.end(function (err) {
                     if (err) throw err;
                 });
+                logger.info(result);
                 return result;
             });
         });

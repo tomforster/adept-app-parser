@@ -33,6 +33,10 @@ mybot.on("message", function(message){
             case 'testsave': var params = getParams(message.content, '!testsave');
                 if(params.length < 2) return;
                 command.save(params[0], params[1], message.author.id);
+                break;
+            case 'testload': var params = getParams(message.content, '!testload');
+                if(params.length < 1) return;
+                command.fetch(params[0]);
         }
     }
 });
