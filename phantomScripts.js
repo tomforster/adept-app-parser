@@ -70,9 +70,9 @@ var postApp = function(mailObj){
                                 logger.info('Exiting');
                                 ph.exit();
                             });
-                        }, 2000);
+                        }, 5000);
                     }, mailObj);
-                }, 2000);
+                }, 5000);
             }, mailObj, username, password);
         });
     });
