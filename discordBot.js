@@ -54,7 +54,7 @@ mybot.on("message", function(message){
                 break;
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
-                    command.fetch(keyword).then(function(results){
+                    command.fetch(keyword.toLowerCase()).then(function(results){
                         var img = {};
                         if(results.length == 0) return;
                         else if(results.length > 1){
@@ -79,7 +79,7 @@ var getParams = function(messageString, command) {
     }
     var results = [];
     for (var i = commandIndex + 1; i < words.length; i++) {
-        results.push(words[i]);
+        results.push(words[i].toLowerCase());
     }
     logger.info(results);
     return results;
