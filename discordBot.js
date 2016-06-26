@@ -38,6 +38,9 @@ mybot.on("message", function(message){
                     if (allowable_extensions.indexOf(params[1].split('.').pop()) == -1) {
                         return;
                     }
+                    if(params[0] === "red" || params[0] === "redlorr"){
+                        return;
+                    }
                     command.save(params[0], params[1], message.author.id).then(function(){
                         mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
                     }).catch(function(err){

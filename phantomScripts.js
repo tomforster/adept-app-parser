@@ -38,11 +38,11 @@ var postApp = function(mailObj){
                 document.querySelector('#password').value = password;
                 document.querySelector('.button1[name=login]').click();
                 return true;
-            }, function (result) {
-                //page.render('testfile.jpeg',{format: 'jpeg', quality: '100'});
+            },mailObj, username, password)
+                .then( function(result) {
                 if (!result) {
                     logger.info('No username detected');
-                    ph.exit();
+                    _ph.exit();
                     reject();
                     return;
                 }
@@ -53,11 +53,12 @@ var postApp = function(mailObj){
                         document.querySelector('#subject').value = mailObj.title;
                         document.querySelector('#message').value = mailObj.body;
                         document.querySelector('.default-submit-action[name=post]').click();
-                    }, function () {
+                    }, mailObj)
+                    .then(function () {
                         setTimeout(function () {
-                            page.evaluate(function () {
+                            _page.evaluate(function () {
                                 return document.URL.split('&sid')[0]
-                            }, function (url) {
+                            }).then(function (url) {
                                 if (url.indexOf('t=') > -1) {
                                     logger.info('app posted!');
                                     logger.info(url);
