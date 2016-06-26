@@ -24,14 +24,6 @@ mybot.on("message", function(message){
             case 'audit': runAudit(message);
                 logger.info('Audit message');
                 break;
-            // case 'yes': mybot.sendFile(message.channel, "http://upload.evocdn.co.uk/cafereality/uploads/asset_image/2_203.jpg", "yes.jpg");
-            //     break;
-            // case 'no': mybot.sendFile(message.channel, "https://zbeads.files.wordpress.com/2014/11/grumpy-cat-no-1.jpg","no.jpg");
-            //     break;
-            // case 'nein': mybot.sendFile(message.channel, "http://i.imgur.com/sMQoX48.gif", "nein.gif");
-            //     break;
-            // case 'rainbow': mybot.sendFile(message.channel, "http://pre12.deviantart.net/4437/th/pre/i/2015/121/6/7/unicorn_pooping_a_rainbow_by_designfarmstudios-d2upaha.png", "rainbow.png");
-            //     break;
             case 'save': var params = getParams(message.content, keyword);
                 if(params.length < 2) return;
                 if(params[0] && typeof params[0] === 'string' && params[0].length > 0 && validUrl.is_uri(params[1])) {
@@ -62,7 +54,7 @@ mybot.on("message", function(message){
                         }else{
                             img = results[0];
                         }
-                        mybot.sendFile(message.channel, img.url, "image"+img.url.split('.').pop());
+                        mybot.sendFile(message.channel, img.url, "image."+img.url.split('.').pop());
                     })
                 }
         }
