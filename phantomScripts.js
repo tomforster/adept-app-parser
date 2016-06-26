@@ -46,8 +46,8 @@ var postApp = function(mailObj){
                     reject();
                     return;
                 }
-                //logger.info("waiting for load...");
-                //setTimeout(function () {
+                logger.info("waiting for load...");
+                setTimeout(function () {
                     logger.info("finished waiting, posting app:");
                     _page.evaluate(function (mailObj) {
                         document.querySelector('#subject').value = mailObj.title;
@@ -55,7 +55,7 @@ var postApp = function(mailObj){
                         document.querySelector('.default-submit-action[name=post]').click();
                     }, mailObj)
                     .then(function () {
-                        //setTimeout(function () {
+                        setTimeout(function () {
                             _page.evaluate(function () {
                                 return document.URL.split('&sid')[0]
                             }).then(function (url) {
@@ -70,9 +70,9 @@ var postApp = function(mailObj){
                                 logger.info('Exiting');
                                 ph.exit();
                             });
-                        //}, 10000);
+                        }, 2000);
                     }, mailObj);
-                //}, 10000);
+                }, 2000);
             }, mailObj, username, password);
         });
     });
