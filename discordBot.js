@@ -62,7 +62,7 @@ mybot.on("message", function(message){
                         }else{
                             img = results[0];
                         }
-                        mybot.sendFile(message.channel, img.url, "image.gif");
+                        mybot.sendFile(message.channel, img.url, "image"+img.url.split('.').pop());
                     })
                 }
         }
