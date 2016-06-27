@@ -18,8 +18,8 @@ html(ng-app="pics")
 
                 div
                     each image in images
-                        div.col-lg-2.col-md-3.col-sm-4.cos-xs-12.card
-                            a.thumbnail(href=image.url)
+                        div.col-lg-2.col-md-3.col-sm-4.cos-xs-12(class=image.type)
+                            a.thumbnail.card(href=image.url)
                                 div.overlay
                                 img.img-responsive(src=image.url)
                                 span.date
