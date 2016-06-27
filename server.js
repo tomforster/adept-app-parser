@@ -158,7 +158,7 @@ function updateImageCache (imageCache, dir,requestStr){
     files.forEach(function(file){
         var name = dir + '/' + file;
         if (!(fs.statSync(name).isDirectory() || getExtension(file) !== 'jpg' || file === 'lastsnap.jpg')) {
-            files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file)});
+            files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file), type: getImageType(file)});
         }
     });
     var newImageCache = files_.slice(0,18);
@@ -189,6 +189,18 @@ function getImageDate(str){
     if(splitstr.length < 7) return "";
     splitstr = splitstr.slice(0,3);
     return splitstr.join('/');
+}
+
+function getImageType(str){
+    var matches = str.match(/best/);
+    if(matches){
+        return "best"
+    }
+    matches = str.match(/snapshot/);
+    if(matches){
+        return "snapshot"
+    }
+    return ""
 }
 
 function getExtension(filename) {
