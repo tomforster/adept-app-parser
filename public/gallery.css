@@ -8,11 +8,8 @@
 
 .card {
     position: relative;
-    width: 200px;
-    height: 300px;
-    border: 2px solid #000000;
 }
-.image {
+.overlay {
     position: absolute;
     top: 0px;
     right: 0px;
