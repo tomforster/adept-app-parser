@@ -15,6 +15,7 @@
     "pg-promise": "^4.8.1",
     "phantom": "2.1.8",
     "pug": "2.0.0-beta3",
+    "request": "^2.72.0",
     "underscore": "1.8.3",
     "valid-url": "^1.0.9",
     "websocket": "1.0.23",
