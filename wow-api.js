@@ -26,24 +26,33 @@ var apiKey = config.battleNetApiKey;
  * Image
  */
 
+var app = null;
+
+module.exports = function(express){
+    app = express;
+
+    request(createCharacterUri("Roonié"), function (error, response, body) {
+        if (error) {
+            logger.error(error.message);
+        } else if (response.statusCode !== 200) {
+            logger.error("Got status code " + response.statusCode);
+        } else if (!error && response.statusCode == 200) {
+            var charInfo = JSON.parse(body);
+            app.render('char-stub.pug',{charInfo:charInfo},function(err, html){
+                logger.info(html);
+            });
+        }
+    });
+
+};
+
 var createCharacterUri = function(character, realm){
 
     if(character && character.length >0){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
         }
-        return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items&locale=en_GB&apikey='+apiKey;
+        return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items,progression&locale=en_GB&apikey='+apiKey;
     }
     throw "bad params"
 };
-
-request(createCharacterUri("Roonié"), function (error, response, body) {
-    if(error){
-        logger.error(error.message);
-    } else if(response.statusCode !== 200){
-        logger.error("Got status code "+ response.statusCode);
-    }else if (!error && response.statusCode == 200) {
-        var charInfo = JSON.parse(body);
-        logger.info(charInfo);
-    }
-});
