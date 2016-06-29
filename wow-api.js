@@ -6,6 +6,7 @@ var request = require('request');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
+var webshot = require('webshot');
 var winston = require('winston');
 var logger = new (winston.Logger)({
     transports: [
@@ -28,6 +29,12 @@ var apiKey = config.battleNetApiKey;
 
 var app = null;
 var MAX_LEVEL = 100;
+var options = {
+    screenSize: {
+        width: 400, height: 200
+    },
+    siteType:'html'
+};
 
 module.exports = function(express){
     app = express;
@@ -39,8 +46,11 @@ module.exports = function(express){
             logger.error("Got status code " + response.statusCode);
         } else if (!error && response.statusCode == 200) {
             var charInfo = JSON.parse(body);
-            app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo)},function(err, html){
+            app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
                 logger.info(html);
+                webshot(html, 'stub.png', options, function(err) {
+                    if(err) logger.info(err);
+                });
             });
         }
     });
@@ -48,7 +58,6 @@ module.exports = function(express){
 };
 
 var createCharacterUri = function(character, realm){
-
     if(character && character.length >0){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
@@ -58,8 +67,14 @@ var createCharacterUri = function(character, realm){
     throw "bad params"
 };
 
+var getImageUri = function(charInfo){
+    if(!charInfo) return "";
+
+    return imageUrlPathStart + charInfo.thumbnail;
+};
+
 var getProgression = function(charInfo){
-    if(charInfo.level < MAX_LEVEL || !charInfo || !charInfo.progression || !charInfo.progression.raids) return [];
+    if(!charInfo || charInfo.level < MAX_LEVEL || !charInfo.progression || !charInfo.progression.raids) return [];
     var raids = charInfo.progression.raids;
     //get last 3 raids
     var latestRaids = raids.slice(-3);
