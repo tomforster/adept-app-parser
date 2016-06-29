@@ -1,8 +1,10 @@
 html
     body
-        h1
-            = charInfo.name + " "
-            = charInfo.level
-        each raid in raidInfo
-            p
-                = raid.name + ": " + raid.bossesKilled + "/" + raid.totalBosses
+        img(src=imageUri)
+        div(style="display:inline-block;")
+            h1
+                = charInfo.name + " "
+                = charInfo.level
+            each raid in raidInfo
+                p
+                    = raid.name + ": " + raid.bossesKilled + "/" + raid.totalBosses
