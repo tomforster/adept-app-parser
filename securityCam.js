@@ -36,7 +36,7 @@ var auth = function (req, res, next) {
     }
 };
 
-module.export = function(app){
+module.exports = function(app){
 
     catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
     catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');

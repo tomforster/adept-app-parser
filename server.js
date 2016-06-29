@@ -22,7 +22,8 @@ var wow = require('./wow')(app, config.enableDiscordBot, config.enableMail);
 if(config.enableCam){
     var securityCam = require('./securityCam')(app);
 }
-require('./wow-api');
+
+require('./wow-api')(app);
 
 app.get('/robots.txt',function(req,res){
     logger.info('Robot detected.');
