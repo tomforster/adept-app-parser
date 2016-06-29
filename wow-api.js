@@ -27,6 +27,7 @@ var apiKey = config.battleNetApiKey;
  */
 
 var app = null;
+var MAX_LEVEL = 100;
 
 module.exports = function(express){
     app = express;
@@ -38,7 +39,7 @@ module.exports = function(express){
             logger.error("Got status code " + response.statusCode);
         } else if (!error && response.statusCode == 200) {
             var charInfo = JSON.parse(body);
-            app.render('char-stub.pug',{charInfo:charInfo},function(err, html){
+            app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo)},function(err, html){
                 logger.info(html);
             });
         }
@@ -55,4 +56,26 @@ var createCharacterUri = function(character, realm){
         return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items,progression&locale=en_GB&apikey='+apiKey;
     }
     throw "bad params"
+};
+
+var getProgression = function(charInfo){
+    if(charInfo.level < MAX_LEVEL || !charInfo || !charInfo.progression || !charInfo.progression.raids) return [];
+    var raids = charInfo.progression.raids;
+    //get last 3 raids
+    var latestRaids = raids.slice(-3);
+    var info = [];
+    latestRaids.forEach(function(raid){
+        var raidInfo = {name: raid.name, totalBosses: raid.bosses.length, bossesKilled:0};
+        raid.bosses.forEach(function(boss){
+            if(boss.mythicKills && boss.mythicKills > 0){
+                raidInfo.bossesKilled++;
+            }
+        });
+        //fix for blackhand bug, todo: use achi instead
+        if((raid.id === 6967) && (raidInfo.bossesKilled === (raidInfo.totalBosses-1))){
+            raidInfo.bossesKilled++;
+        }
+        info.push(raidInfo);
+    });
+    return info;
 };

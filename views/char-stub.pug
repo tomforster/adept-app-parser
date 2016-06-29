@@ -3,3 +3,6 @@ html
         h1
             = charInfo.name + " "
             = charInfo.level
+        each raid in raidInfo
+            p
+                = raid.name + ": " + raid.bossesKilled + "/" + raid.totalBosses
