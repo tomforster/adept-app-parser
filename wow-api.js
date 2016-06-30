@@ -13,48 +13,81 @@ var logger = new (winston.Logger)({
         new (winston.transports.Console)({'timestamp':true})
     ]
 });
+var fs = require('fs');
 
 var imageUrlPathStart = "http://render-api-eu.worldofwarcraft.com/static-render/eu/";
-var characterRequestUriPathStart = "https://eu.api.battle.net/wow/character/"; //+/:realm/:name?fields=:fieldsArray&locale=:locale&apikey=:apikey
+var characterRequestUriPathStart = "https://eu.api.battle.net/wow/character/";
 var apiKey = config.battleNetApiKey;
+var uriEnd = "locale=en_GB&apikey=" + apiKey;
+var classRequestUri = "https://eu.api.battle.net/wow/data/character/classes?" + uriEnd;
 
 /*todo:
  * Armory link
  * Specs
  * Wol link
- * Boss kills
  * Item level
- * Image
  */
 
 var app = null;
 var MAX_LEVEL = 100;
 var options = {
     screenSize: {
-        width: 400, height: 200
+        width: 600, height: 200
     },
-    siteType:'html'
+    siteType:'html',
+    customCSS:'body,html{margin:0; padding:0;} .col{padding:5px; display:inline-block; border: 1px solid black;}'
 };
+var classMap = {};
 
 module.exports = function(express){
     app = express;
 
-    request(createCharacterUri("Roonié"), function (error, response, body) {
-        if (error) {
-            logger.error(error.message);
-        } else if (response.statusCode !== 200) {
-            logger.error("Got status code " + response.statusCode);
-        } else if (!error && response.statusCode == 200) {
-            var charInfo = JSON.parse(body);
-            app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
-                logger.info(html);
-                webshot(html, 'stub.png', options, function(err) {
-                    if(err) logger.info(err);
+    var classPromise = new Promise(function(resolve, reject){
+        request(classRequestUri, function(error, response, body) {
+            if (error) {
+                logger.error(error.message);
+                reject();
+            } else if (response.statusCode !== 200) {
+                logger.error("Got status code " + response.statusCode);
+                reject();
+            } else if (!error && response.statusCode == 200) {
+                var classInfo = JSON.parse(body);
+                logger.info(classInfo);
+                classInfo.classes.forEach(function(wowClass){
+                    classMap[wowClass.id] = wowClass.name;
                 });
-            });
-        }
+                resolve();
+            }
+        })
     });
 
+    classPromise.then(function(){
+        var characterPromise = new Promise(function(resolve, reject){
+            request(createCharacterUri("Roonié"), function (error, response, body) {
+                if (error) {
+                    logger.error(error.message);
+                    reject();
+                } else if (response.statusCode !== 200) {
+                    logger.error("Got status code " + response.statusCode);
+                    reject();
+                } else if (!error && response.statusCode == 200) {
+                    var charInfo = JSON.parse(body);
+                    charInfo.className = classMap[charInfo.class];
+                    app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
+                        logger.info(html);
+                        fs.writeFile("public/stubtest.html", html, 'ascii');
+                        // webshot(html, 'stub.png', options, function(err) {
+                        //     if(err){
+                        //         logger.info(err);
+                        //         reject();
+                        //     }
+                        //     resolve();
+                        // });
+                    });
+                }
+            });
+        });
+    });
 };
 
 var createCharacterUri = function(character, realm){
@@ -62,7 +95,7 @@ var createCharacterUri = function(character, realm){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
         }
-        return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items,progression&locale=en_GB&apikey='+apiKey;
+        return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items,progression&' + uriEnd;
     }
     throw "bad params"
 };
@@ -77,7 +110,7 @@ var getProgression = function(charInfo){
     if(!charInfo || charInfo.level < MAX_LEVEL || !charInfo.progression || !charInfo.progression.raids) return [];
     var raids = charInfo.progression.raids;
     //get last 3 raids
-    var latestRaids = raids.slice(-3);
+    var latestRaids = raids.slice(-2);
     var info = [];
     latestRaids.forEach(function(raid){
         var raidInfo = {name: raid.name, totalBosses: raid.bosses.length, bossesKilled:0};

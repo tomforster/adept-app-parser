@@ -1,0 +1,10 @@
+body,html{
+    margin:0;
+    padding:0;
+}
+
+.col{
+    padding:5px;
+    display:inline-block;
+    border: 1px solid black;
+}

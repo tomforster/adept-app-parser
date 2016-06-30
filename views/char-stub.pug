@@ -1,10 +1,18 @@
 html
+    head
+        link(rel="stylesheet" href="stub.css")
     body
-        img(src=imageUri)
-        div(style="display:inline-block;")
-            h1
-                = charInfo.name + " "
-                = charInfo.level
-            each raid in raidInfo
-                p
-                    = raid.name + ": " + raid.bossesKilled + "/" + raid.totalBosses
+        table
+            tr
+                td
+                    img(src=imageUri)
+                td
+                    = charInfo.name
+                    br
+                    = charInfo.className + ": " + charInfo.level
+                td(style="text-align: right")
+                    each raid in raidInfo
+                        = raid.name
+                        br
+                        = raid.bossesKilled + "/" + raid.totalBosses
+                        br
