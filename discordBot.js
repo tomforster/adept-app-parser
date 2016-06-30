@@ -26,15 +26,17 @@ mybot.on("message", function(message){
                 break;
             case 'save': var params = getParams(message.content, keyword);
                 if(params.length < 2) return;
-                if(params[0] && typeof params[0] === 'string' && params[0].length > 0 && validUrl.is_uri(params[1])) {
-                    if (allowable_extensions.indexOf(params[1].split('.').pop()) == -1) {
+                var commandParam = params[0].toLowerCase();
+                var uriParam = params[1];
+                if(commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
+                    if (allowable_extensions.indexOf(uriParam.split('.').pop()) == -1) {
                         return;
                     }
-                    if(params[0] === "red" || params[0] === "redlorr"){
+                    if(commandParam === "red" || commandParam === "redlorr"){
                         return;
                     }
-                    command.save(params[0], params[1], message.author.id).then(function(){
-                        mybot.sendMessage(message.channel, "Saved new command: " + params[0]);
+                    command.save(commandParam, uriParam, message.author.id).then(function(){
+                        mybot.sendMessage(message.channel, "Saved new command: " + commandParam);
                     }).catch(function(err){
                         logger.info(err);
                     });
@@ -71,7 +73,7 @@ var getParams = function(messageString, command) {
     }
     var results = [];
     for (var i = commandIndex + 1; i < words.length; i++) {
-        results.push(words[i].toLowerCase());
+        results.push(words[i]);
     }
     logger.info(results);
     return results;
