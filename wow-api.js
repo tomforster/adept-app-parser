@@ -73,9 +73,15 @@ module.exports = function(express){
                 } else if (!error && response.statusCode == 200) {
                     var charInfo = JSON.parse(body);
                     charInfo.className = classMap[charInfo.class];
-                    app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
-                        logger.info(html);
-                        fs.writeFile("public/stubtest.html", html, 'ascii');
+                    app.get('/stub',function(req,res){
+                        res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)});
+                    });
+                    // app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
+                    //     logger.info(html);
+                    //     fs.writeFile("public/stubtest.html", html, 'ascii');
+                    //     app.get('/stub',function(req,res){
+                    //         res.send()
+                    //     });
                         // webshot(html, 'stub.png', options, function(err) {
                         //     if(err){
                         //         logger.info(err);
@@ -83,7 +89,7 @@ module.exports = function(express){
                         //     }
                         //     resolve();
                         // });
-                    });
+                    // });
                 }
             });
         });
