@@ -64,7 +64,6 @@ mybot.on("message", function(message){
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
                     command.fetch(keyword.toLowerCase()).then(function(results){
-                        logger.info("Fetched " + keyword.toLowerCase());
                         var img = {};
                         if(results.length == 0) return;
                         else if(results.length > 1){
@@ -72,10 +71,11 @@ mybot.on("message", function(message){
                         }else{
                             img = results[0];
                         }
-                        mybot.sendFile(message.channel, img.url, "image."+img.url.split('.').pop(), function(err, msg) {
-                                if (err) logger.error(err);
-                            }
-                        );
+                        logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
+                        logger.info(img.url);
+                        mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
+                            if (err) logger.error(err);
+                        });
                     }, function(err){
                         logger.error(err);
                     })
