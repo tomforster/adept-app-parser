@@ -23,18 +23,17 @@ mybot.on("message", function(message){
         var params = getParams(message.content, keyword);
         switch(keyword){
             case 'roll' :
-                if(params.length == 0){
-                    mybot.reply(message, "you rolled a " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")");
-                }
                 if(params.length > 0){
                     if(!isNaN(params[0])){
                         var upperBound = +params[0];
                         //is this an int
                         if(upperBound % 1 === 0){
                             mybot.reply(message, "you rolled a " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
+                            return;
                         }
                     }
                 }
+                mybot.reply(message, "you rolled a " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")");
                 break;
             case 'audit':
                 runAudit(message);
