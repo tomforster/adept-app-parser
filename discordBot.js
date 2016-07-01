@@ -72,9 +72,11 @@ mybot.on("message", function(message){
                             img = results[0];
                         }
                         logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
-                        logger.info(img.url);
-                        mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
-                            if (err) logger.error(err);
+                        logger.info(get_filesize(img.url), function(size){
+                            logger.info(size);
+                            mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
+                                if (err) logger.error(err);
+                            });
                         });
                     }, function(err){
                         logger.error(err);
@@ -83,6 +85,18 @@ mybot.on("message", function(message){
         }
     }
 });
+
+function get_filesize(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("HEAD", url, true); // Notice "HEAD" instead of "GET",
+                                 //  to get only the header
+    xhr.onreadystatechange = function() {
+        if (this.readyState == this.DONE) {
+            callback(parseInt(xhr.getResponseHeader("Content-Length")));
+        }
+    };
+    xhr.send();
+}
 
 var getParams = function(messageString, command) {
     logger.info("getting params");
