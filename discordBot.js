@@ -104,7 +104,7 @@ function get_filesize(url, callback) {
     }, function(err, headRes) {
         var size = headRes.headers['content-length'];
         if (size > MAX_SIZE) {
-            console.log('Resource size exceeds limit (' + size + ')');
+            callback(true);
         } else {
             callback();
         }
