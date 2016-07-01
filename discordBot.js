@@ -28,12 +28,12 @@ mybot.on("message", function(message){
                         var upperBound = +params[0];
                         //is this an int
                         if(upperBound % 1 === 0){
-                            mybot.reply(message, "you rolled a " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
+                            mybot.reply(message, "you rolled " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
                             return;
                         }
                     }
                 }
-                mybot.reply(message, "you rolled a " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")");
+                mybot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")");
                 break;
             case 'audit':
                 runAudit(message);
