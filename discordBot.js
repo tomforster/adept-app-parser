@@ -76,6 +76,8 @@ mybot.on("message", function(message){
                                 else logger.info(msg);
                             }
                         );
+                    }, function(err){
+                        logger.error(err);
                     })
                 }
         }
