@@ -24,17 +24,18 @@ mybot.on("message", function(message){
         switch(keyword){
             case 'roll' :
                 if(params.length == 0){
-                    mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random*6) + "[0 - " + 6 + "]");
+                    mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random() * 6) + "[0 - " + 6 + "]");
                 }
                 if(params.length > 0){
                     if(!isNaN(params[0])){
                         var upperBound = +params[0];
                         //is this an int
                         if(upperBound % 1 === 0){
-                            mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random * upperBound) + "[0 - " + upperBound + "]");
+                            mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random() * upperBound) + "[0 - " + upperBound + "]");
                         }
                     }
                 }
+                break;
             case 'audit':
                 runAudit(message);
                 logger.info('Audit message');
