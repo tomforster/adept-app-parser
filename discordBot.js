@@ -20,11 +20,26 @@ mybot.on("message", function(message){
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
         var keyword= matches[1];
+        var params = getParams(message.content, keyword);
         switch(keyword){
-            case 'audit': runAudit(message);
+            case 'roll' :
+                if(params.length == 0){
+                    mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random*6) + "[0 - " + 6 + "]");
+                }
+                if(params.length > 0){
+                    if(!isNaN(params[0])){
+                        var upperBound = +params[0];
+                        //is this an int
+                        if(upperBound % 1 === 0){
+                            mybot.sendMessage(message.channel, "/me rolls " + Math.ceil(Math.random * upperBound) + "[0 - " + upperBound + "]");
+                        }
+                    }
+                }
+            case 'audit':
+                runAudit(message);
                 logger.info('Audit message');
                 break;
-            case 'save': var params = getParams(message.content, keyword);
+            case 'save':
                 if(params.length < 2) return;
                 var commandParam = params[0].toLowerCase();
                 var uriParam = params[1];
