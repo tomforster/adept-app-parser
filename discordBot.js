@@ -10,6 +10,9 @@ var logger = new (winston.Logger)({
         new (winston.transports.Console)({'timestamp':true})
     ]
 });
+var request = require('request');
+
+var MAX_SIZE = 5000000;
 
 var mybot = new Discord.Client();
 var command = require('./commandRepository.js');
@@ -50,12 +53,17 @@ mybot.on("message", function(message){
                     if(commandParam === "red" || commandParam === "redlorr"){
                         return;
                     }
-                    command.save(commandParam, uriParam, message.author.id).then(function(){
-                        mybot.sendMessage(message.channel, "Saved new command: " + commandParam);
-                    }).catch(function(err){
-                        logger.info(err);
+                    get_filesize(uriParam, function(err){
+                        if(err){
+                            mybot.sendMessage(message.channel, "Image is too large :(");
+                        }else{
+                            command.save(commandParam, uriParam, message.author.id).then(function(){
+                                mybot.sendMessage(message.channel, "Saved new command: " + commandParam);
+                            }).catch(function(err){
+                                logger.info(err);
+                            });
+                        }
                     });
-
                 }
                 else{
                     return;
@@ -72,11 +80,14 @@ mybot.on("message", function(message){
                             img = results[0];
                         }
                         logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
-                        logger.info(get_filesize(img.url), function(size){
-                            logger.info(size);
-                            mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
-                                if (err) logger.error(err);
-                            });
+                        get_filesize(img.url, function(err){
+                            if(err){
+                                mybot.sendMessage(message.channel, "Image is too large :(");
+                            }else{
+                                mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
+                                    if (err) logger.error(err);
+                                });
+                            }
                         });
                     }, function(err){
                         logger.error(err);
@@ -87,15 +98,17 @@ mybot.on("message", function(message){
 });
 
 function get_filesize(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("HEAD", url, true); // Notice "HEAD" instead of "GET",
-                                 //  to get only the header
-    xhr.onreadystatechange = function() {
-        if (this.readyState == this.DONE) {
-            callback(parseInt(xhr.getResponseHeader("Content-Length")));
+    request({
+        url: url,
+        method: "HEAD"
+    }, function(err, headRes) {
+        var size = headRes.headers['content-length'];
+        if (size > MAX_SIZE) {
+            console.log('Resource size exceeds limit (' + size + ')');
+        } else {
+            callback();
         }
-    };
-    xhr.send();
+    });
 }
 
 var getParams = function(messageString, command) {
