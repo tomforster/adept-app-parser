@@ -16,7 +16,11 @@ exports.fetch = function(command){
     logger.info("fetching",command);
     if(command && typeof command === 'string' && command.length>0){
         return db.any("select command, url, date_added from command where command=($1)", [command])
-            .then().catch()
+            .then(function(){
+                logger.info("loaded "+ command);
+            }).catch(function(err){
+                logger.error(err);
+            })
     }else{
         logger.info("type of command incorrect!");
         return [];
