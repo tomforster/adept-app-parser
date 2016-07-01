@@ -64,6 +64,7 @@ mybot.on("message", function(message){
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
                     command.fetch(keyword.toLowerCase()).then(function(results){
+                        logger.info("Fetched " + keyword.toLowerCase());
                         var img = {};
                         if(results.length == 0) return;
                         else if(results.length > 1){
