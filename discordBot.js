@@ -73,7 +73,6 @@ mybot.on("message", function(message){
                         }
                         mybot.sendFile(message.channel, img.url, "image."+img.url.split('.').pop(), function(err, msg) {
                                 if (err) logger.error(err);
-                                else logger.info(msg);
                             }
                         );
                     }, function(err){
