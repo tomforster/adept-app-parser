@@ -27,7 +27,7 @@ mybot.on("message", function(message){
                     if(!isNaN(params[0])){
                         var upperBound = +params[0];
                         //is this an int
-                        if(upperBound % 1 === 0){
+                        if(upperBound % 1 === 0 && upperBound < Number.MAX_VALUE && upperBound > 0){
                             mybot.reply(message, "you rolled " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
                             return;
                         }
