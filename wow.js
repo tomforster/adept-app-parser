@@ -4,7 +4,6 @@
 
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
-var discordBot = require('./discordBot.js');
 var phantomScripts = require('./phantomScripts.js');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
@@ -16,11 +15,17 @@ var logger = new (winston.Logger)({
     ]
 });
 
-module.exports = function(app, startBot, startMail){
+var discordBot = null;
+
+    module.exports = function(app, startBot, startMail){
     app.get('/parser', function(req, res) {
         logger.info('parserReq');
         res.sendFile(path.join(__dirname,'/public/parser.html'));
     });
+
+    if(startBot){
+        discordBot = require('./discordBot.js');
+    }
 
     if(startMail){
         mailin.start({
@@ -34,9 +39,7 @@ module.exports = function(app, startBot, startMail){
         mailin.on('startMessage', function (connection) {
             logger.info(JSON.stringify(connection));
         });
-    }
 
-    if(startBot){
         mailin.on('message', function (connection, data, content) {
             if(connection.envelope.rcptTo.filter(function(rcpt){
                     return rcpt.address == config.appEmail
@@ -64,7 +67,9 @@ module.exports = function(app, startBot, startMail){
             logger.info('Title:'+mailObj.title);
 
             phantomScripts.postApp(mailObj).then(function(url){
-                discordBot.newAppMessage(mailObj.title,url);
+                if(discordBot) {
+                    discordBot.newAppMessage(mailObj.title, url);
+                }
             });
         });
     }

@@ -21,6 +21,39 @@ var apiKey = config.battleNetApiKey;
 var uriEnd = "locale=en_GB&apikey=" + apiKey;
 var classRequestUri = "https://eu.api.battle.net/wow/data/character/classes?" + uriEnd;
 
+var itemSlots = [
+    'back',
+    'chest',
+    'feet',
+    'finger1',
+    'finger2',
+    'hands',
+    'head',
+    'legs',
+    'mainHand',
+    'neck',
+    'offHand',
+    'shoulder',
+    'trinket1',
+    'trinket2',
+    'waist',
+    'wrist'
+];
+var requiresEnchant = [
+    'neck', 'back', 'finger1', 'finger2', 'mainHand', 'offHand'
+];
+
+var bonusIds = {
+    socket: [523, 563, 564, 565],
+    warforged: [499, 560, 561, 562],
+    avoidance: [40],
+    leech: [41],
+    speed: [42],
+    indestructible: [43],
+    mythicRaid: [566],
+    heroicRaid: [567]
+};
+
 /*todo:
  * Armory link
  * Specs
@@ -52,7 +85,6 @@ module.exports = function(express){
                 reject();
             } else if (!error && response.statusCode == 200) {
                 var classInfo = JSON.parse(body);
-                logger.info(classInfo);
                 classInfo.classes.forEach(function(wowClass){
                     classMap[wowClass.id] = wowClass.name;
                 });
@@ -73,6 +105,7 @@ module.exports = function(express){
                 } else if (!error && response.statusCode == 200) {
                     var charInfo = JSON.parse(body);
                     charInfo.className = classMap[charInfo.class];
+                    console.log(itemAudit(charInfo.items));
                     app.get('/stub',function(req,res){
                         res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)});
                     });
@@ -132,4 +165,71 @@ var getProgression = function(charInfo){
         info.push(raidInfo);
     });
     return info;
+};
+
+var itemAudit = function(items){
+    var totalItemUpgradeRatio = 0;
+    var numItems = 0;
+    var totalMissingGems = 0;
+    var totalMissingEnchants = 0;
+    itemSlots.forEach(function(itemSlot){
+        if(items.hasOwnProperty(itemSlot)){
+            var item = items[itemSlot];
+            totalMissingEnchants += itemEnchantAudit(item, itemSlot);
+            totalMissingGems += itemGemAudit(item);
+            totalItemUpgradeRatio += itemUpgradeAudit(item);
+            numItems++;
+        }
+    });
+    return {
+        averageItemUpgradeRatio: totalItemUpgradeRatio / numItems,
+        totalMissingGems:totalMissingGems,
+        totalMissingEnchants:totalMissingEnchants
+    }
+};
+
+var itemEnchantAudit = function(item, itemSlot){
+    var missingEnchants = 0;
+    if (requiresEnchant.indexOf(itemSlot) >= 0) {
+        missingEnchants = 1;
+        if(item.hasOwnProperty("tooltipParams")){
+            if(item["tooltipParams"].hasOwnProperty("enchant")){
+                //todo, check enchant is good
+                missingEnchants = 0;
+            }
+        }
+    }
+    return missingEnchants;
+};
+
+var itemGemAudit = function(item){
+    var missingGems = 0;
+    if(item.hasOwnProperty('bonusLists')){
+        item.bonusLists.forEach(function(bonus){
+            if(bonusIds.socket.indexOf(+bonus) > -1){
+                missingGems = 1;
+                //item has a socket
+                if(item.hasOwnProperty("tooltipParams")){
+                    if(item["tooltipParams"].hasOwnProperty("gem0") || item["tooltipParams"].hasOwnProperty("gem")){
+                        //todo, check gem is good
+                        missingGems = 0;
+                    }
+                }
+
+            }
+        })
+    }
+    return missingGems;
+};
+
+var itemUpgradeAudit = function(item){
+    var passRatio = 0;
+    if(item.quality == 5) return 1;
+    if(item.hasOwnProperty("tooltipParams")){
+        if(item["tooltipParams"].hasOwnProperty("upgrade")){
+            //todo, check enchant is good
+            passRatio = item.tooltipParams.upgrade.current / item.tooltipParams.upgrade.total;
+        }
+    }
+    return passRatio;
 };
