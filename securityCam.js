@@ -35,9 +35,11 @@ var auth = function (req, res, next) {
     }
 };
 
+var ws = null;
+
 module.exports = function(app){
 
-    var ws = require('express-ws')(app);
+    ws = require('express-ws')(app);
 
     catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
     catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
