@@ -9,7 +9,6 @@ var fs = require('fs');
 var basicAuth = require('basic-auth');
 var _ = require('underscore');
 var exec = require('child_process').exec;
-var expressWs = require('express-ws')(app);
 var winston = require('winston');
 var logger = new (winston.Logger)({
     transports: [
