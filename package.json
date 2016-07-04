@@ -15,11 +15,11 @@
     "pg-promise": "^4.8.1",
     "phantom": "2.1.8",
     "pug": "2.0.0-beta3",
-    "request": "^2.72.0",
+    "request-promise": "^3.0.0",
     "underscore": "1.8.3",
     "valid-url": "^1.0.9",
+    "webshot": "^0.18.0",
     "websocket": "1.0.23",
-    "winston": "2.2.0",
-    "request": "2.72.0"
+    "winston": "2.2.0"
   }
 }

@@ -1,22 +1,37 @@
 html
     head
-        link(rel="stylesheet" href="stub.css")
-    body(style="width:500px")
-        table(style="width:100%")
-            tr
-                td
-                    img(src=imageUri style="width:84px")
-                td(style="width:100%; vertical-align: top;")
-                    span(style="font-size:18pt")
-                        = charInfo.name
-                    br
-                    = charInfo.className + ": " + charInfo.level
-                td(style="text-align: right; white-space:nowrap;")
-                    table(style="white-space:nowrap;")
-                        each raid in raidInfo
-                            tr
-                                td
-                                    = raid.name
-                                    br
-                                    = raid.bossesKilled + "/" + raid.totalBosses + "M"
-                                    br
+        link(rel="stylesheet" href="/stub.css")
+    body
+        div.col(style="width:84px; height:84px")
+            img(src=imageUri style="width:100%")
+        div.col(style="width:250px; height:84px")
+            table(style="width:100%; height:100%")
+                tr
+                    td(style="width:100%")
+                        span
+                            = charInfo.name
+                    td
+                tr
+                    td(style="white-space: nowrap")
+                        = charInfo.realm
+                    td(style="width:100%; white-space:nowrap; text-align: right;")
+                        = charInfo.className + ": " + charInfo.level
+                tr
+                    td(style="white-space: nowrap")
+                        = "ilvl (E): " + charInfo.items.averageItemLevelEquipped
+                    td(style="width:100%; white-space:nowrap; text-align: right;")
+                        = "Audit: " + auditInfo.result
+                tr
+                    td(style="white-space: nowrap")
+                        = "ilvl (A): " + charInfo.items.averageItemLevel
+                    td(style="width:100%; white-space:nowrap; text-align: right;")
+                        = "Upg: " + (auditInfo.averageItemUpgradeRatio * 100).toFixed(2) + '%'
+        div.col(style="height:84px; padding-right:5px")
+            table(style="width:100%; height:100%; text-align: right")
+                each raid in raidInfo
+                    tr
+                        td
+                            = raid.name
+                    tr
+                        td
+                            = raid.bossesKilled + "/" + raid.totalBosses + "M"

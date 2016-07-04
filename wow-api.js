@@ -2,7 +2,7 @@
  * Created by Tom on 28/06/2016.
  */
 
-var request = require('request');
+var rp = require('request-promise');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
@@ -15,29 +15,23 @@ var logger = new (winston.Logger)({
 });
 var fs = require('fs');
 
+/*todo:
+ * Armory link
+ * Specs
+ * Wol link
+ * Item level
+ */
+
 var imageUrlPathStart = "http://render-api-eu.worldofwarcraft.com/static-render/eu/";
 var characterRequestUriPathStart = "https://eu.api.battle.net/wow/character/";
+var guildRequestUriPathStart = "https://eu.api.battle.net/wow/guild/";
 var apiKey = config.battleNetApiKey;
 var uriEnd = "locale=en_GB&apikey=" + apiKey;
 var classRequestUri = "https://eu.api.battle.net/wow/data/character/classes?" + uriEnd;
 
 var itemSlots = [
-    'back',
-    'chest',
-    'feet',
-    'finger1',
-    'finger2',
-    'hands',
-    'head',
-    'legs',
-    'mainHand',
-    'neck',
-    'offHand',
-    'shoulder',
-    'trinket1',
-    'trinket2',
-    'waist',
-    'wrist'
+    'back', 'chest', 'feet', 'finger1', 'finger2', 'hands', 'head', 'legs', 'mainHand',
+    'neck', 'offHand', 'shoulder', 'trinket1', 'trinket2', 'waist', 'wrist'
 ];
 var requiresEnchant = [
     'neck', 'back', 'finger1', 'finger2', 'mainHand', 'offHand'
@@ -54,13 +48,6 @@ var bonusIds = {
     heroicRaid: [567]
 };
 
-/*todo:
- * Armory link
- * Specs
- * Wol link
- * Item level
- */
-
 var app = null;
 var MAX_LEVEL = 100;
 var options = {
@@ -70,63 +57,89 @@ var options = {
     siteType:'html',
     customCSS:'body,html{margin:0; padding:0;} .col{padding:5px; display:inline-block; border: 1px solid black;}'
 };
-var classMap = {};
 
 module.exports = function(express){
     app = express;
 
-    var classPromise = new Promise(function(resolve, reject){
-        request(classRequestUri, function(error, response, body) {
-            if (error) {
-                logger.error(error.message);
-                reject();
-            } else if (response.statusCode !== 200) {
-                logger.error("Got status code " + response.statusCode);
-                reject();
-            } else if (!error && response.statusCode == 200) {
-                var classInfo = JSON.parse(body);
-                classInfo.classes.forEach(function(wowClass){
-                    classMap[wowClass.id] = wowClass.name;
-                });
-                resolve();
-            }
+    app.get('/stub/:character/:realm?',function(req,res){
+        var character = req.params["character"];
+        var realm = req.params["realm"];
+        if(!character) {
+            res.status(400);
+            res.send('Bad character name');
+        }
+        if(!realm) realm = "Frostmane";
+        classPromise.then(function(classMap){
+            rp(createCharacterUri(character,realm))
+                .then(function(body){
+                    var charInfo = JSON.parse(body);
+                    charInfo.className = classMap[charInfo.class];
+                    var auditInfo = itemAudit(charInfo.items);
+                    res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo), auditInfo:auditInfo});
+                }).catch(function(error){
+                    logger.error(error.message);
+                    logger.error(character);
+                    logger.error(realm);
+                    res.send('error.reason');
+                })
         })
     });
 
-    classPromise.then(function(){
-        var characterPromise = new Promise(function(resolve, reject){
-            request(createCharacterUri("Roonié"), function (error, response, body) {
-                if (error) {
-                    logger.error(error.message);
-                    reject();
-                } else if (response.statusCode !== 200) {
-                    logger.error("Got status code " + response.statusCode);
-                    reject();
-                } else if (!error && response.statusCode == 200) {
-                    var charInfo = JSON.parse(body);
-                    charInfo.className = classMap[charInfo.class];
-                    console.log(itemAudit(charInfo.items));
-                    app.get('/stub',function(req,res){
-                        res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)});
-                    });
-                    // app.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo)},function(err, html){
-                    //     logger.info(html);
-                    //     fs.writeFile("public/stubtest.html", html, 'ascii');
-                    //     app.get('/stub',function(req,res){
-                    //         res.send()
-                    //     });
-                        // webshot(html, 'stub.png', options, function(err) {
-                        //     if(err){
-                        //         logger.info(err);
-                        //         reject();
-                        //     }
-                        //     resolve();
-                        // });
-                    // });
-                }
+    var classPromise = rp(classRequestUri)
+        .then(function(body){
+            var classInfo = JSON.parse(body);
+            var classMap = {};
+            classInfo.classes.forEach(function(wowClass){
+                classMap[wowClass.id] = wowClass.name;
             });
+            return classMap;
+        }).catch(function(error) {
+            logger.error(error.message);
         });
-    });
+
+    // var guildPromise = new Promise(function(resolve, reject){
+    //     request(createGuildUri("Adept"), function (error, response, body) {
+    //         if (error) {
+    //             logger.error(error.message);
+    //             reject();
+    //         } else if (response.statusCode !== 200) {
+    //             logger.error("Got status code " + response.statusCode);
+    //             reject();
+    //         } else if (!error && response.statusCode == 200) {
+    //             var guildInfo = JSON.parse(body);
+    //             resolve(guildInfo);
+    //         }
+    //     });
+    // });
+    
+    // guildPromise.then(function(guildInfo){
+    //     classPromise.then(function(classMap){
+    //         var memberNames = guildInfo.members.filter(function(member){
+    //             return member.rank === 3 || member.rank === 2
+    //         }).map(function(member){
+    //             return member.character.name;
+    //         }).sort();
+    //         memberNames.forEach(function(memberName){
+    //             request(createCharacterUri(memberName, guildInfo.realm), function (error, response, body) {
+    //                 if (error) {
+    //                     logger.error(error.message);
+    //                     reject();
+    //                 } else if (response.statusCode !== 200) {
+    //                     logger.error("Got status code " + response.statusCode);
+    //                     reject();
+    //                 } else if (!error && response.statusCode == 200) {
+    //                     var charInfo = JSON.parse(body);
+    //                     if(charInfo.level < 100) return;
+    //                     charInfo.className = classMap[charInfo.class];
+    //                     var charAudit = itemAudit(charInfo.items);
+    //                     if(charAudit.totalMissingEnchants > 0 || charAudit.totalMissingGems > 0 || charAudit.averageItemUpgradeRatio < 1){
+    //                         console.log(memberName, charAudit);
+    //                     }
+    //                 }
+    //             })
+    //         });
+    //     })
+    // });
 };
 
 var createCharacterUri = function(character, realm){
@@ -134,14 +147,23 @@ var createCharacterUri = function(character, realm){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
         }
-        return characterRequestUriPathStart + realm + '/' + encodeURIComponent(character) + '?fields=items,progression&' + uriEnd;
+        return characterRequestUriPathStart + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=items,progression&' + uriEnd;
+    }
+    throw "bad params"
+};
+
+var createGuildUri = function(guild, realm){
+    if(guild && guild.length >0){
+        if(!realm || realm.length < 3){
+            realm = "Frostmane";
+        }
+        return guildRequestUriPathStart + encodeURIComponent(realm) + '/' + encodeURIComponent(guild) + '?fields=members&' + uriEnd;
     }
     throw "bad params"
 };
 
 var getImageUri = function(charInfo){
     if(!charInfo) return "";
-
     return imageUrlPathStart + charInfo.thumbnail;
 };
 
@@ -184,7 +206,8 @@ var itemAudit = function(items){
     return {
         averageItemUpgradeRatio: totalItemUpgradeRatio / numItems,
         totalMissingGems:totalMissingGems,
-        totalMissingEnchants:totalMissingEnchants
+        totalMissingEnchants:totalMissingEnchants,
+        result: totalMissingEnchants + totalMissingGems > 0 ? "Failed": "Passed"
     }
 };
 
@@ -193,7 +216,7 @@ var itemEnchantAudit = function(item, itemSlot){
     if (requiresEnchant.indexOf(itemSlot) >= 0) {
         missingEnchants = 1;
         if(item.hasOwnProperty("tooltipParams")){
-            if(item["tooltipParams"].hasOwnProperty("enchant")){
+            if(item["tooltipParams"].hasOwnProperty("enchant") || (itemSlot == "offHand" && !item.hasOwnProperty("weaponInfo"))){
                 //todo, check enchant is good
                 missingEnchants = 0;
             }
@@ -227,7 +250,6 @@ var itemUpgradeAudit = function(item){
     if(item.quality == 5) return 1;
     if(item.hasOwnProperty("tooltipParams")){
         if(item["tooltipParams"].hasOwnProperty("upgrade")){
-            //todo, check enchant is good
             passRatio = item.tooltipParams.upgrade.current / item.tooltipParams.upgrade.total;
         }
     }
