@@ -37,6 +37,8 @@ var auth = function (req, res, next) {
 
 module.exports = function(app){
 
+    var ws = require('express-ws');
+
     catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
     catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
 
