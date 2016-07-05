@@ -41,21 +41,21 @@ q:before, q:after {
     content: none;
 }
 
-body{
-    background-color: #1d1d1d;
-}
-
 .col{
     display:flex;
     flex-direction: column;
     justify-content: space-around;
+}
+
+.col:not(:last-child){
     padding-right:5px;
 }
 
 .mainrow{
     display:flex;
     flex-direction: row;
-    width:500px;
+    width: 412px;
+    background-color: #1d1d1d;
 }
 
 .row{
