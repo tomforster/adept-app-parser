@@ -2,36 +2,35 @@ html
     head
         link(rel="stylesheet" href="/stub.css")
     body
-        div.col(style="width:84px; height:84px")
-            img(src=imageUri style="width:100%")
-        div.col(style="width:250px; height:84px")
-            table(style="width:100%; height:100%")
-                tr
-                    td(style="width:100%")
-                        span
-                            = charInfo.name
-                    td
-                tr
-                    td(style="white-space: nowrap")
+        div.mainrow
+            div.col
+                img(src=imageUri)
+            div.col(style="width:250px")
+                div.row
+                    span(style="font-size: 20pt")= charInfo.name
+                    span
+                        span(style="color: " + charInfo.class.color)
+                            = charInfo.class.name
+                        = ":" + charInfo.level
+                div.row
+                    span(style="font-size: 10pt")
                         = charInfo.realm
-                    td(style="width:100%; white-space:nowrap; text-align: right;")
-                        = charInfo.className + ": " + charInfo.level
-                tr
-                    td(style="white-space: nowrap")
+                div.row
+                    span
                         = "ilvl (E): " + charInfo.items.averageItemLevelEquipped
-                    td(style="width:100%; white-space:nowrap; text-align: right;")
+                    span
                         = "Audit: " + auditInfo.result
-                tr
-                    td(style="white-space: nowrap")
+                div.row
+                    span
                         = "ilvl (A): " + charInfo.items.averageItemLevel
-                    td(style="width:100%; white-space:nowrap; text-align: right;")
+                    span
                         = "Upg: " + (auditInfo.averageItemUpgradeRatio * 100).toFixed(2) + '%'
-        div.col(style="height:84px; padding-right:5px")
-            table(style="width:100%; height:100%; text-align: right")
+            div.col(style="justify-content: flex-end")
                 each raid in raidInfo
-                    tr
-                        td
-                            = raid.name
-                    tr
-                        td
-                            = raid.bossesKilled + "/" + raid.totalBosses + "M"
+                    div.row.raid
+                        div.col
+                            span(style="font-size: 9pt; text-align:right")
+                                = raid.name
+                            span
+                                = raid.bossesKilled + "/" + raid.totalBosses + "M"
+

@@ -37,6 +37,11 @@ var requiresEnchant = [
     'neck', 'back', 'finger1', 'finger2', 'mainHand', 'offHand'
 ];
 
+var raidAcronyms = {
+    7545: "HFC",
+    6967: "BRF"
+};
+
 var bonusIds = {
     socket: [523, 563, 564, 565],
     warforged: [499, 560, 561, 562],
@@ -46,6 +51,21 @@ var bonusIds = {
     indestructible: [43],
     mythicRaid: [566],
     heroicRaid: [567]
+};
+
+var classColors = {
+    6: "#C41F3B",
+    12:	"#A330C9",
+    11: "#FF7D0A",
+    3: "#ABD473",
+    8:	"#69CCF0",
+    10:	"#00FF96",
+    2: "#F58CBA",
+    5: "#FFFFFF",
+    4: "#FFF569",
+    7: "#0070DE",
+    9: "#9482C9",
+    1: "#C79C6E"
 };
 
 var app = null;
@@ -73,7 +93,7 @@ module.exports = function(express){
             rp(createCharacterUri(character,realm))
                 .then(function(body){
                     var charInfo = JSON.parse(body);
-                    charInfo.className = classMap[charInfo.class];
+                    charInfo.class = classMap[charInfo.class];
                     var auditInfo = itemAudit(charInfo.items);
                     res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo), auditInfo:auditInfo});
                 }).catch(function(error){
@@ -90,7 +110,9 @@ module.exports = function(express){
             var classInfo = JSON.parse(body);
             var classMap = {};
             classInfo.classes.forEach(function(wowClass){
-                classMap[wowClass.id] = wowClass.name;
+                var color = classColors[wowClass.id];
+                if(!color) throw "Class color information not found!";
+                classMap[wowClass.id] = {name:wowClass.name, color:classColors[wowClass.id]};
             });
             return classMap;
         }).catch(function(error) {
@@ -174,7 +196,12 @@ var getProgression = function(charInfo){
     var latestRaids = raids.slice(-2);
     var info = [];
     latestRaids.forEach(function(raid){
-        var raidInfo = {name: raid.name, totalBosses: raid.bosses.length, bossesKilled:0};
+        var raidInfo = {totalBosses: raid.bosses.length, bossesKilled:0};
+        if(raidAcronyms[raid.id]){
+            raidInfo.name = raidAcronyms[raid.id];
+        }else{
+            raidInfo.name = raidInfo.name.match(/\b(\w)/g).join('');
+        }
         raid.bosses.forEach(function(boss){
             if(boss.mythicKills && boss.mythicKills > 0){
                 raidInfo.bossesKilled++;

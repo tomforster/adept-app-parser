@@ -19,6 +19,7 @@ time, mark, audio, video {
     padding: 0;
     border: 0;
     font-size: 100%;
+    color: white;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
@@ -39,17 +40,34 @@ q:before, q:after {
     content: '';
     content: none;
 }
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    color: white;
+
+body{
+    background-color: #1d1d1d;
 }
 
 .col{
-    padding-left:5px;
-    padding-top:5px;
-    padding-bottom:5px;
-    display:inline-block;
-    vertical-align: top;
-    background-color: #1d1d1d;
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding-right:5px;
+}
+
+.mainrow{
+    display:flex;
+    flex-direction: row;
+    width:500px;
+}
+
+.row{
+    display:flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.raid{
+    margin-top:5px;
+    border-left: white 1px solid;
+    margin-left: 5px;
+    padding-left: 5px
 }
