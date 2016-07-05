@@ -81,7 +81,7 @@ var options = {
 module.exports = function(express){
     app = express;
 
-    app.get('/stub/:character/:realm?',function(req,res){
+    app.get('/wow/character/:character/:realm?',function(req,res){
         var character = req.params["character"];
         var realm = req.params["realm"];
         if(!character) {
