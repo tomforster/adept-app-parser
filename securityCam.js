@@ -43,15 +43,15 @@ module.exports = function(app){
 
     ws = require('express-ws')(app);
 
-    catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
-    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
+    catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
+    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/');
 
     setInterval(function(){
-        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/')
+        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/')
     }, 30000);
 
     setInterval(function(){
-        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/')
+        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/')
     }, 30000);
     
     app.get('/imagelist',auth, function(req,res) {
