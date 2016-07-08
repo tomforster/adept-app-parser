@@ -37,6 +37,8 @@ var auth = function (req, res, next) {
 
 var ws = null;
 
+var IMAGE_CACHE_SIZE = 64;
+
 module.exports = function(app){
 
     ws = require('express-ws')(app);
@@ -52,9 +54,11 @@ module.exports = function(app){
         catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/')
     }, 30000);
     
-    app.get('/imagelist',auth, function(req,res) {
+    app.get('/imagelist/:numberImgs',auth, function(req,res) {
+        var number = req.params["numberImgs"] || 16;
+        number = Math.min(number,IMAGE_CACHE_SIZE);
         logger.info('Camera 1 image list request');
-        res.send(catpicsImageCache);
+        res.send(catpicsImageCache.slice(0,number));
     });
 
     app.get('/cam2imagelist',auth, function(req,res) {
@@ -147,7 +151,7 @@ function updateImageCache (imageCache, dir,requestStr){
             files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file), type: getImageType(file)});
         }
     });
-    var newImageCache = files_.slice(0,18);
+    var newImageCache = files_.slice(0,IMAGE_CACHE_SIZE);
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
     logger.info("New images found, image cache updated.");
     setTimeout(function(){
