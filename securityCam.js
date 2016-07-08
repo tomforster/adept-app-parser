@@ -132,7 +132,7 @@ module.exports = function(app){
     });
 
     app.ws('/catpicsocket', function(ws, req) {
-        logger.info(req);
+        logger.info("Websocket opened.");
     });
 };
 
