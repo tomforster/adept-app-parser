@@ -22,7 +22,7 @@ angular.module('pics',[])
     } else {
         new_uri = "ws:";
     }
-    new_uri += "//" + $window.location.host + $window.location.pathname;
+    new_uri += "//" + $window.location.host + '/catpics';
 
     var ws = new WebSocket(new_uri);
 
