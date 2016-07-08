@@ -80,8 +80,10 @@ module.exports = function(app){
 
     app.get('/catpics/:numberImgs?',auth,function(req,res) {
         logger.info('Cat camera 1 page request.');
-        var number = req.params["numberImgs"] || 16;
+        var number = parseInt(req.params["numberImgs"],10);
+        number = isNaN(number) ? 16 : number;
         number = Math.min(number,IMAGE_CACHE_SIZE);
+        number = Math.max(1, number);
         res.render('gallery.pug', {images : catpicsImageCache.slice(0,number)});
     });
 
