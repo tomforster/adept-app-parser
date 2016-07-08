@@ -54,11 +54,9 @@ module.exports = function(app){
         catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/')
     }, 30000);
     
-    app.get('/imagelist/:numberImgs',auth, function(req,res) {
-        var number = req.params["numberImgs"] || 16;
-        number = Math.min(number,IMAGE_CACHE_SIZE);
+    app.get('/imagelist',auth, function(req,res) {
         logger.info('Camera 1 image list request');
-        res.send(catpicsImageCache.slice(0,number));
+        res.send(catpicsImageCache);
     });
 
     app.get('/cam2imagelist',auth, function(req,res) {
@@ -80,9 +78,11 @@ module.exports = function(app){
         res.sendFile('/home/node/security/cam2/'+req.params["tagId"]);
     });
 
-    app.get('/catpics/',auth,function(req,res) {
+    app.get('/catpics/:numberImgs',auth,function(req,res) {
         logger.info('Cat camera 1 page request.');
-        res.render('gallery.pug', {images : catpicsImageCache});
+        var number = req.params["numberImgs"] || 16;
+        number = Math.min(number,IMAGE_CACHE_SIZE);
+        res.render('gallery.pug', {images : catpicsImageCache.slice(0,number)});
     });
 
     app.get('/catpics2/',auth,function(req,res) {
