@@ -130,6 +130,7 @@ module.exports = function(app){
     });
 
     app.ws('/catpics', function(ws, req) {
+        logger.info(req);
     });
 };
 
