@@ -155,14 +155,15 @@ function updateImageCache (imageCache, dir,requestStr){
     if(_.isEqual(imageCache, newImageCache)) return imageCache;
     logger.info("New images found, image cache updated.");
     setTimeout(function(){
-        console.log("sending refresh");
         broadcastRefresh();
     },100);
     return newImageCache;
 }
 
 function broadcastRefresh(){
+    logger.info("sending refresh");
     ws.getWss('/catpics').clients.forEach(function (client) {
+        logger.info("refreshing "+client.toString());
         client.send('refresh');
     });
 }
