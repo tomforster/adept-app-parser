@@ -105,7 +105,7 @@ module.exports = function(app){
                     logger.info('stdout: ' + stdout);
                     logger.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','catimg/');
+                        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
                     }, 3000);
                 }
             }
@@ -122,7 +122,7 @@ module.exports = function(app){
                     logger.info('stdout: ' + stdout);
                     logger.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','catimg2/');
+                        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/');
                     }, 3000);
                 }
             }
