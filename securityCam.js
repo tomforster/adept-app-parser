@@ -78,7 +78,7 @@ module.exports = function(app){
         res.sendFile('/home/node/security/cam2/'+req.params["tagId"]);
     });
 
-    app.get('/catpics/:numberImgs',auth,function(req,res) {
+    app.get('/catpics/:numberImgs?',auth,function(req,res) {
         logger.info('Cat camera 1 page request.');
         var number = req.params["numberImgs"] || 16;
         number = Math.min(number,IMAGE_CACHE_SIZE);
