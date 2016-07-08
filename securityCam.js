@@ -129,7 +129,7 @@ module.exports = function(app){
         );
     });
 
-    app.ws('/catpics', function(ws, req) {
+    app.ws('/catpicsocket', function(ws, req) {
         logger.info(req);
     });
 };
