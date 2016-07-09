@@ -26,3 +26,7 @@ exports.increment = function(userId){
         }
     });
 };
+
+exports.fetchTop10 = function(){
+    return db.manyOrNone("select du.username, umc.count from user_message_count umc join discord_user du on umc.user_id = du.id order by count desc limit 10");
+};

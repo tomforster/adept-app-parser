@@ -63,10 +63,10 @@ mybot.on("message", function(message){
                     }
                     get_filesize(uriParam, function(err){
                         if(err){
-                            mybot.sendMessage(message.channel, "Image is too large :(");
+                            mybot.reply(message, "Image is too large :(");
                         }else{
                             commandRepository.save(commandParam, uriParam, message.author.id).then(function(){
-                                mybot.sendMessage(message.channel, "Saved new command: " + commandParam);
+                                mybot.reply(message, "new command: " + commandParam + " has been added successfully.");
                             }).catch(function(err){
                                 logger.info(err);
                             });
@@ -76,6 +76,17 @@ mybot.on("message", function(message){
                 else{
                     return;
                 }
+                break;
+            case 'spammers':
+                userMessageCountRepository.fetchTop10().then(function(result){
+                    if(result && result.length > 0){
+                        var opMessage = "here are the 10 ten spammers:\n";
+                        result.forEach(function(messageCount){
+                            opMessage += "\n" + messageCount.username + ": " + messageCount.count;
+                        });
+                        mybot.reply(message, opMessage);
+                    }
+                });
                 break;
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
@@ -90,7 +101,7 @@ mybot.on("message", function(message){
                         logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
                         get_filesize(img.url, function(err){
                             if(err){
-                                mybot.sendMessage(message.channel, "Image is too large :(");
+                                mybot.reply(message, "Image is too large :(");
                             }else{
                                 mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
                                     if (err) logger.error(err);
