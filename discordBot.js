@@ -50,6 +50,17 @@ mybot.on("message", function(message){
                 runAudit(message);
                 logger.info('Audit message');
                 break;
+            case 'spammers':
+                userMessageCountRepository.fetchTop10().then(function(result){
+                    if(result && result.length > 0){
+                        var opMessage = "here are the 10 ten spammers:\n";
+                        result.forEach(function(messageCount){
+                            opMessage += "\n" + messageCount.username + ": " + messageCount.count;
+                        });
+                        mybot.reply(message, opMessage);
+                    }
+                });
+                break;
             case 'save':
                 if(params.length < 2) return;
                 var commandParam = params[0].toLowerCase();
@@ -76,17 +87,6 @@ mybot.on("message", function(message){
                 else{
                     return;
                 }
-                break;
-            case 'spammers':
-                userMessageCountRepository.fetchTop10().then(function(result){
-                    if(result && result.length > 0){
-                        var opMessage = "here are the 10 ten spammers:\n";
-                        result.forEach(function(messageCount){
-                            opMessage += "\n" + messageCount.username + ": " + messageCount.count;
-                        });
-                        mybot.reply(message, opMessage);
-                    }
-                });
                 break;
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
