@@ -17,9 +17,16 @@ var MAX_SIZE = 5000000;
 var mybot = new Discord.Client();
 var commandRepository = require('./commandRepository');
 var userRepository = require('./userRepository');
+var userMessageCountRepository = require('./userMessageCountRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 mybot.on("message", function(message){
+    //increment message count
+    logUserDetails(message.author).then(function(user){
+        userMessageCountRepository.increment(user.id).catch(function(error){
+            logger.error(error);
+        });
+    });
     if(message.mentions.length > 0) return;
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
@@ -141,7 +148,7 @@ mybot.on("disconnected", login);
 
 function logUserDetails(discordUser){
     //is this user currently in the db?
-    userRepository.fetchByDiscordId(discordUser.id).then(function(user){
+    return userRepository.fetchByDiscordId(discordUser.id).then(function(user){
         if(user === null){
             //if not, save their id and current username
             return userRepository.save(discordUser.id, discordUser.username);
@@ -150,7 +157,10 @@ function logUserDetails(discordUser){
             if(user.username !== discordUser.username) {
                 return userRepository.updateUsername(user.id, discordUser.username);
             }
+            return user;
         }
+    }).then(function(user){
+        return user;
     }).catch(function(error){
         logger.error(error);
     });

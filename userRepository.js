@@ -30,7 +30,7 @@ exports.fetchByDiscordId = function(discordId){
 exports.save = function(discordId, username){
     logger.info("saving", username);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && username && typeof username === 'string' && username.length>0) {
-        return db.none("insert into discord_user (discord_id, username, date_added) values ($1, $2, $3)", [discordId, username, moment().unix()]);
+        return db.one("insert into discord_user (discord_id, username, date_added) values ($1, $2, $3) RETURNING id, discord_id, username, date_added;", [discordId, username, moment().unix()]);
     }
     throw "Invalid argument";
 };
@@ -38,7 +38,7 @@ exports.save = function(discordId, username){
 exports.updateUsername = function(id, username){
     logger.info("updating", username);
     if(username && typeof username === 'string' && username.length>0) {
-        return db.none("update discord_user set username = ($1) where id = ($2)", [username, id]);
+        return db.one("update discord_user set username = ($1) where id = ($2) RETURNING id, discord_id, username, date_added;", [username, id]);
     }
     throw "Invalid argument";
 };
