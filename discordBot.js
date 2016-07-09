@@ -53,11 +53,11 @@ mybot.on("message", function(message){
             case 'spammers':
                 userMessageCountRepository.fetchTop10().then(function(result){
                     if(result && result.length > 0){
-                        var opMessage = "here are the 10 ten spammers:\n";
+                        var opMessage = "Top 10 most active Discord users:\n";
                         result.forEach(function(messageCount){
                             opMessage += "\n" + messageCount.username + ": " + messageCount.count;
                         });
-                        mybot.reply(message, opMessage);
+                        mybot.sendMessage(message.channel, opMessage);
                     }
                 });
                 break;
