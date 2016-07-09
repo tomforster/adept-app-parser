@@ -6,7 +6,7 @@ var rp = require('request-promise');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var webshot = require('webshot');
+// var webshot = require('webshot');
 var winston = require('winston');
 var logger = new (winston.Logger)({
     transports: [

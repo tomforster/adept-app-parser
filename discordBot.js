@@ -10,7 +10,7 @@ var logger = new (winston.Logger)({
         new (winston.transports.Console)({'timestamp':true})
     ]
 });
-var request = require('request');
+var rp = require('request-promise');
 
 var MAX_SIZE = 5000000;
 
@@ -98,11 +98,11 @@ mybot.on("message", function(message){
 });
 
 function get_filesize(url, callback) {
-    request({
+    rp({
         url: url,
         method: "HEAD"
-    }, function(err, headRes) {
-        var size = headRes.headers['content-length'];
+    }).then(function(headRes) {
+        var size = headRes['content-length'];
         if (size > MAX_SIZE) {
             callback(true);
         } else {
