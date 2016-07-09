@@ -2,7 +2,7 @@ var Discord = require("discord.js");
 var path = require("path");
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var phantomScripts = require('./phantomScripts.js');
+var phantomScripts = require('./phantomScripts');
 var winston = require('winston');
 var validUrl = require('valid-url');
 var logger = new (winston.Logger)({
@@ -15,7 +15,8 @@ var rp = require('request-promise');
 var MAX_SIZE = 5000000;
 
 var mybot = new Discord.Client();
-var command = require('./commandRepository.js');
+var commandRepository = require('./commandRepository');
+var userRepository = require('./userRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 mybot.on("message", function(message){
@@ -57,7 +58,7 @@ mybot.on("message", function(message){
                         if(err){
                             mybot.sendMessage(message.channel, "Image is too large :(");
                         }else{
-                            command.save(commandParam, uriParam, message.author.id).then(function(){
+                            commandRepository.save(commandParam, uriParam, message.author.id).then(function(){
                                 mybot.sendMessage(message.channel, "Saved new command: " + commandParam);
                             }).catch(function(err){
                                 logger.info(err);
@@ -71,7 +72,7 @@ mybot.on("message", function(message){
                 break;
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
-                    command.fetch(keyword.toLowerCase()).then(function(results){
+                    commandRepository.fetch(keyword.toLowerCase()).then(function(results){
                         var img = {};
                         if(results.length == 0) return;
                         else if(results.length > 1){
@@ -129,7 +130,6 @@ var getParams = function(messageString, command) {
 
 var login = function(){
     mybot.login(config.discordEmail, config.discordPassword).then(function(result){
-
     }).catch(function(error){
         setTimeout(login,30*1000);
     });
@@ -138,6 +138,40 @@ var login = function(){
 login();
 
 mybot.on("disconnected", login);
+
+function logUserDetails(discordUser){
+    //is this user currently in the db?
+    userRepository.fetchByDiscordId(discordUser.id).then(function(user){
+        if(user === null){
+            //if not, save their id and current username
+            return userRepository.save(discordUser.id, discordUser.username);
+        }else{
+            //if so, and their username has changed, update it
+            if(user.username !== discordUser.username) {
+                return userRepository.updateUsername(user.id, discordUser.username);
+            }
+        }
+    }).catch(function(error){
+        logger.error(error);
+    });
+}
+
+mybot.on("ready",function() {
+    logger.info("Bot started up!");
+    mybot.users.forEach(function(discordUser){
+        logUserDetails(discordUser);
+    })
+});
+
+mybot.on("serverNewMember",function(server, discordUser){
+    logger.info("Saving details on new member", discordUser.username);
+    logUserDetails(discordUser);
+});
+
+mybot.on("presence",function(oldUser, discordUser){
+    logger.info("Member presence updated!", discordUser.username);
+    logUserDetails(discordUser);
+});
 
 var runAudit = function(message){
     mybot.sendMessage(message.channel, 'One second...');
