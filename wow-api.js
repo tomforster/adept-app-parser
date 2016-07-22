@@ -100,7 +100,7 @@ module.exports = function(express){
                     logger.error(error.message);
                     logger.error(character);
                     logger.error(realm);
-                    res.send('error.reason');
+                    res.send(error.reason);
                 })
         })
     });
