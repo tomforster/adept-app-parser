@@ -69,5 +69,6 @@ q:before, q:after {
     margin-top:5px;
     border-left: white 1px solid;
     margin-left: 5px;
-    padding-left: 5px
+    padding-left: 5px;
+    justify-content: flex-end;
 }

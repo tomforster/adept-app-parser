@@ -39,7 +39,9 @@ var requiresEnchant = [
 
 var raidAcronyms = {
     7545: "HFC",
-    6967: "BRF"
+    6967: "BRF",
+    8026: "EN",
+    8025: "NH"
 };
 
 var bonusIds = {
@@ -200,7 +202,7 @@ var getProgression = function(charInfo){
         if(raidAcronyms[raid.id]){
             raidInfo.name = raidAcronyms[raid.id];
         }else{
-            raidInfo.name = raidInfo.name.match(/\b(\w)/g).join('');
+            raidInfo.name = raid.name.match(/\b(\w)/g).join('');
         }
         raid.bosses.forEach(function(boss){
             if(boss.mythicKills && boss.mythicKills > 0){
@@ -274,7 +276,7 @@ var itemGemAudit = function(item){
 
 var itemUpgradeAudit = function(item){
     var passRatio = 0;
-    if(item.quality == 5) return 1;
+    if(item.quality == 5 || item.quality == 7) return 1;
     if(item.hasOwnProperty("tooltipParams")){
         if(item["tooltipParams"].hasOwnProperty("upgrade")){
             passRatio = item.tooltipParams.upgrade.current / item.tooltipParams.upgrade.total;
