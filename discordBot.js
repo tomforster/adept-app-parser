@@ -20,12 +20,17 @@ var userRepository = require('./userRepository');
 var userMessageCountRepository = require('./userMessageCountRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
+var lastMessageUserId = "";
+
 mybot.on("message", function(message){
     //increment message count
     logUserDetails(message.author).then(function(user){
-        userMessageCountRepository.increment(user.id).catch(function(error){
-            logger.error(error);
-        });
+        if(lastMessageUserId !== user.id) {
+            userMessageCountRepository.increment(user.id).catch(function (error) {
+                logger.error(error);
+            });
+        }
+        lastMessageUserId = user.id;
     });
     if(message.mentions.length > 0) return;
     var matches = message.content.match(/!(\w+)/);
@@ -44,7 +49,9 @@ mybot.on("message", function(message){
                         }
                     }
                 }
-                mybot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")");
+                mybot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(function(error){
+                    logger.error(error);
+                });
                 break;
             case 'audit':
                 runAudit(message);
@@ -57,7 +64,9 @@ mybot.on("message", function(message){
                         result.forEach(function(messageCount){
                             opMessage += "\n" + messageCount.username + ": " + messageCount.count;
                         });
-                        mybot.sendMessage(message.channel, opMessage);
+                        mybot.sendMessage(message.channel, opMessage).catch(function(error){
+                            logger.error(error);
+                        });
                     }
                 });
                 break;
@@ -77,7 +86,7 @@ mybot.on("message", function(message){
                             mybot.reply(message, "Image is too large :(");
                         }else{
                             commandRepository.save(commandParam, uriParam, message.author.id).then(function(){
-                                mybot.reply(message, "new command: " + commandParam + " has been added successfully.");
+                                return mybot.reply(message, "new command: " + commandParam + " has been added successfully.");
                             }).catch(function(err){
                                 logger.info(err);
                             });
@@ -101,7 +110,9 @@ mybot.on("message", function(message){
                         logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
                         get_filesize(img.url, function(err){
                             if(err){
-                                mybot.reply(message, "Image is too large :(");
+                                mybot.reply(message, "Image is too large :(").catch(function(error){
+                                    logger.error(error);
+                                });
                             }else{
                                 mybot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), function(err, msg) {
                                     if (err) logger.error(err);
