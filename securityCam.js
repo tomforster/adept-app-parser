@@ -44,14 +44,14 @@ module.exports = function(app){
     ws = require('express-ws')(app);
 
     catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
-    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/');
+    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/');
 
     setInterval(function(){
         catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/')
     }, 30000);
 
     setInterval(function(){
-        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/')
+        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/')
     }, 30000);
     
     app.get('/imagelist',auth, function(req,res) {
@@ -75,7 +75,7 @@ module.exports = function(app){
 
     app.get('/catimg2/:tagId',auth, function(req,res) {
         logger.info('Camera 2 image request');
-        res.sendFile('/home/node/security/cam2/'+req.params["tagId"]);
+        res.sendFile('/home/node/security2/'+req.params["tagId"]);
     });
 
     app.get('/catpics/:numberImgs?',auth,function(req,res) {
@@ -87,9 +87,13 @@ module.exports = function(app){
         res.render('gallery.pug', {images : catpicsImageCache.slice(0,number)});
     });
 
-    app.get('/catpics2/',auth,function(req,res) {
+    app.get('/catpics2/:numberImgs?',auth,function(req,res) {
         logger.info('Cat camera 2 page request.');
-        res.sendFile(path.join(__dirname,'/public/cam2gallery.html'));
+        var number = parseInt(req.params["numberImgs"],10);
+        number = isNaN(number) ? 16 : number;
+        number = Math.min(number,IMAGE_CACHE_SIZE);
+        number = Math.max(1, number);
+        res.render('gallery.pug', {images : catpics2ImageCache.slice(0,number)});
     });
 
     app.get('/catpicsold/',auth,function(req,res) {
@@ -124,7 +128,7 @@ module.exports = function(app){
                     logger.info('stdout: ' + stdout);
                     logger.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security/cam2/','/catimg2/');
+                        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/');
                     }, 3000);
                 }
             }
