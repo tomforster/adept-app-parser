@@ -36,7 +36,6 @@ var auth = function (req, res, next) {
 };
 
 var ws = null;
-
 var IMAGE_CACHE_SIZE = 64;
 
 module.exports = function(app){
@@ -53,16 +52,6 @@ module.exports = function(app){
     setInterval(function(){
         catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/')
     }, 30000);
-    
-    app.get('/imagelist',auth, function(req,res) {
-        logger.info('Camera 1 image list request');
-        res.send(catpicsImageCache);
-    });
-
-    app.get('/cam2imagelist',auth, function(req,res) {
-        logger.info('Camera 2 image list request');
-        res.send(catpics2ImageCache);
-    });
 
     app.get('/img/:tagId',auth, function(req,res) {
         logger.info('Saved image request');
@@ -112,23 +101,6 @@ module.exports = function(app){
                     logger.info('stderr: ' + stderr);
                     setTimeout(function(){
                         catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
-                    }, 3000);
-                }
-            }
-        );
-    });
-
-    app.post('/snapshot/2/',function(req,res){
-        logger.info('Snapshot camera 2');
-        exec('snapshot-cam-2.sh',
-            function (error, stdout, stderr) {
-                if (error !== null) {
-                    logger.info(error);
-                } else {
-                    logger.info('stdout: ' + stdout);
-                    logger.info('stderr: ' + stderr);
-                    setTimeout(function(){
-                        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/');
                     }, 3000);
                 }
             }
