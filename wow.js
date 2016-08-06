@@ -5,6 +5,7 @@
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
 var phantomScripts = require('./phantomScripts.js');
+// var applicationRepository = require('repositories/applicationRepository');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
@@ -17,7 +18,7 @@ var logger = new (winston.Logger)({
 
 var discordBot = null;
 
-    module.exports = function(app, startBot, startMail){
+module.exports = function(app, startBot, startMail){
     app.get('/parser', function(req, res) {
         logger.info('parserReq');
         res.sendFile(path.join(__dirname,'/public/parser.html'));
@@ -71,6 +72,8 @@ var discordBot = null;
                     discordBot.newAppMessage(mailObj.title, url);
                 }
             });
+
+            // applicationRepository.save(mailObj.raw);
         });
     }
 };

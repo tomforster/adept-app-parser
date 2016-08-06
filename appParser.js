@@ -10,7 +10,7 @@ function AppInfo() {
     this.armoryurl = "";
     this.refer = "";
 
-    this.altStr = "";
+    this.alts = "";
     this.timeInWow = "";
     this.guildHistory = "";
     this.teams = "";
@@ -23,11 +23,11 @@ function AppInfo() {
     this.armoryurlHC = "";
     this.mainSpecsHC = [];
     this.offSpecsHC = [];
-    this.HCq1 = "";
-    this.HCq2 = "";
-    this.HCq3 = "";
-    this.HCq4 = "";
-    this.HClogsurl = "";
+    this.masteryHC = "";
+    this.classHC = "";
+    this.uiHC = "";
+    this.motivationHC = "";
+    this.logsUrlHC = "";
 
     this.differentCharSC = false;
     this.charnameSC = "";
@@ -36,17 +36,17 @@ function AppInfo() {
     this.mainSpecsSC = [];
     this.offSpecsSC = [];
     
-    this.specs = "";
+    this.specsHC = "";
     this.specsSC = "";
     
-    this.SCq1 = "";
-    this.SCq2 = "";
-    this.SCq3 = "";
-    this.SCq4 = "";
+    this.favouriteContentSC = "";
+    this.classSC = "";
+    this.addonsSC = "";
+    this.learningSC = "";
 
-    this.q1 = "";
-    this.q2 = "";
-    this.q3 = "";
+    this.legion = "";
+    this.otherGames = "";
+    this.whyAccept = "";
     this.net = "";
 
     this.wol = "";
@@ -58,8 +58,9 @@ exports.parseText = function(text) {
 
 var parseText = function (text) {
     var appInfo = new AppInfo;
+    var matched;
     var currentState = "";
-    section = 0;
+    var section = 0;
     var splitText = text.split("\n");
     for (var i = 0; i < splitText.length; i++) {
         matched = false;
@@ -67,7 +68,7 @@ var parseText = function (text) {
         for (var j in questions) {
             if (questions.hasOwnProperty(j)) {
                 if (line === questions[j].text) {
-                    if(section === "sc" && j === "specs"){
+                    if(section === "sc" && j === "specsHC"){
                         currentState = "specsSC"
                     }else{
                         currentState = j;
@@ -116,7 +117,7 @@ var parseText = function (text) {
                     currentState = "armoryurlSC";
                 }
                 break;
-            case "specs":
+            case "specsHC":
                 line = line.replace(" DPS", "");
                 if (line.indexOf('Off spec') !== -1) {
                     appInfo.offSpecsHC[appInfo.offSpecsHC.length] = specTranslate(line);
@@ -151,11 +152,11 @@ var parseText = function (text) {
     }
     
     appInfo.teams = buildTeamString(appInfo);
-    appInfo.specs = buildRolesString(appInfo,true);
+    appInfo.specsHC = buildRolesString(appInfo,true);
     appInfo.specsSC = buildRolesString(appInfo,false,true);
     appInfo.wol = buildWOLString(appInfo);
 
-    return ({title: buildTitle(appInfo), body: buildForm(appInfo)});
+    return ({title: buildTitle(appInfo), body: buildForm(appInfo), raw:appInfo});
 };
 
 function buildTeamString(appInfo) {
@@ -274,7 +275,7 @@ function buildForm(appInfo) {
     form += gen.questionAndAnswer("charname");
     form += gen.questionAndAnswer("charclass");
     form += gen.questionAndAnswer("armoryurl");
-    form += gen.questionAndAnswer("altStr");
+    form += gen.questionAndAnswer("alts");
     form += gen.questionAndAnswer("timeInWow");
     form += gen.questionAndAnswer("guildHistory");
     form += gen.questionAndAnswer("teams");
@@ -288,12 +289,12 @@ function buildForm(appInfo) {
             form += gen.questionAndAnswer("charnameHC");
             form += gen.questionAndAnswer("armoryurlHC");
         }
-        form += gen.questionAndAnswer("specs");
-        form += gen.questionAndAnswer("HCq1");
-        form += gen.questionAndAnswer("HCq2");
-        form += gen.questionAndAnswer("HCq3");
-        form += gen.questionAndAnswer("HCq4");
-        form += gen.questionAndAnswer("HClogsurl");
+        form += gen.questionAndAnswer("specsHC");
+        form += gen.questionAndAnswer("masteryHC");
+        form += gen.questionAndAnswer("classHC");
+        form += gen.questionAndAnswer("uiHC");
+        form += gen.questionAndAnswer("motivationHC");
+        form += gen.questionAndAnswer("logsUrlHC");
     }
     if (appInfo.social) {
         form += "\n";
@@ -304,17 +305,17 @@ function buildForm(appInfo) {
             form += gen.questionAndAnswer("armoryurlSC");
         }
         form += gen.questionAndAnswer("specsSC");
-        form += gen.questionAndAnswer("SCq1");
-        form += gen.questionAndAnswer("SCq2");
-        form += gen.questionAndAnswer("SCq3");
-        form += gen.questionAndAnswer("SCq4");
+        form += gen.questionAndAnswer("favouriteContentSC");
+        form += gen.questionAndAnswer("classSC");
+        form += gen.questionAndAnswer("addonsSC");
+        form += gen.questionAndAnswer("learningSC");
     }
     form += "\n";
     form += gen.sectionTitle("gaming");
-    form += gen.questionAndAnswer("q1");
+    form += gen.questionAndAnswer("legion");
     form += gen.questionAndAnswer("net");
-    form += gen.questionAndAnswer("q2");
-    form += gen.questionAndAnswer("q3");
+    form += gen.questionAndAnswer("otherGames");
+    form += gen.questionAndAnswer("whyAccept");
     if (appInfo.hardcore) {
         form += gen.sectionTitle("appbot");
         form += gen.questionAndAnswer("wol");
@@ -369,27 +370,27 @@ var questions = {
     "charclass": new Question("Class", false),
     "armoryurl": new Question("Armory link", false),
     "refer": new Question("How did you hear about us?", false),
-    "altStr": new Question("Any alts to tell us about?", true),
+    "alts": new Question("Any alts to tell us about?", true),
     "timeInWow": new Question("What do you usually spend your WoW time doing?", true),
     "guildHistory": new Question("What were your last 3 Guilds and why did you leave them?", true),
     "teams": new Question("Are you applying for any of our teams?", true),
     "differentCharHC": new Question("Are you applying to raid on the same character given above?", false, true, true),
-    "specs": new Question("What role(s) are you applying for?", true),
-    "HCq1": new Question("Give an example of when you have mastered a raid encounter that challenged you and how you overcame that challenge", true),
-    "HCq2": new Question("What class knowledge do you have that helps you to get the most out of your character?", true),
-    "HCq3": new Question("How do you configure your UI to enable you to perform to a high standard?", true),
-    "HCq4": new Question("What is your primary motivation to raid?", true),
-    "HClogsurl": new Question("Do you have any logs we can look at?", true),
+    "specsHC": new Question("What role(s) are you applying for?", true),
+    "masteryHC": new Question("Give an example of when you have mastered a raid encounter that challenged you and how you overcame that challenge", true),
+    "classHC": new Question("What class knowledge do you have that helps you to get the most out of your character?", true),
+    "uiHC": new Question("How do you configure your UI to enable you to perform to a high standard?", true),
+    "motivationHC": new Question("What is your primary motivation to raid?", true),
+    "logsUrlHC": new Question("Do you have any logs we can look at?", true),
     "differentCharSC": new Question("Are you applying to raid socially on the same character given at the start?", false, true, true),
     "specsSC": new Question("What role(s) are you applying for?", true),
-    "SCq1": new Question("What is your favourite piece of PVE content in WoW and why?", true),
-    "SCq2": new Question("Why did you choose your class? What do you like most about it?", true),
-    "SCq3": new Question("What addons do you use and why do you like them?", true),
-    "SCq4": new Question("How do you prefer learning tactics best (i.e. videos, descriptions, trying and wiping)?", true),
-    "q1": new Question("What are you most excited for in Legion?", false),
+    "favouriteContentSC": new Question("What is your favourite piece of PVE content in WoW and why?", true),
+    "classSC": new Question("Why did you choose your class? What do you like most about it?", true),
+    "addonsSC": new Question("What addons do you use and why do you like them?", true),
+    "learningSC": new Question("How do you prefer learning tactics best (i.e. videos, descriptions, trying and wiping)?", true),
+    "legion": new Question("What are you most excited for in Legion?", false),
     "net": new Question("What's your internet connection like?",true),
-    "q2": new Question("Do you play any other games or have any other hobbies? What do you like about them?", true),
-    "q3": new Question("Why should we accept your application?", true),
+    "otherGames": new Question("Do you play any other games or have any other hobbies? What do you like about them?", true),
+    "whyAccept": new Question("Why should we accept your application?", true),
     "wol": new Question("World of Logs")
 };
 

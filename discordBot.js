@@ -15,9 +15,9 @@ var rp = require('request-promise');
 var MAX_SIZE = 5000000;
 
 var mybot = new Discord.Client();
-var commandRepository = require('./commandRepository');
-var userRepository = require('./userRepository');
-var userMessageCountRepository = require('./userMessageCountRepository');
+var commandRepository = require('./repositories/commandRepository');
+var userRepository = require('./repositories/userRepository');
+var userMessageCountRepository = require('./repositories/userMessageCountRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 var lastMessageUserId = "";

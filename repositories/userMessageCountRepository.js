@@ -2,7 +2,7 @@
  * Created by Tom on 25/06/2016.
  */
 
-var db = require('./db.js').db;
+var db = require('./../db.js').db;
 
 var winston = require('winston');
 var logger = new (winston.Logger)({
