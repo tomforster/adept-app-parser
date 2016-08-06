@@ -94,6 +94,10 @@ mybot.on("message", function(message){
                 var commandParam = params[0].toLowerCase();
                 var uriParam = params[1];
                 if(commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
+                    if(commandParam.indexOf('!') >= 0){
+                        mybot.reply(message, "command: " + commandParam + " should not contain exclamation marks.");
+                        return;
+                    }
                     if (allowable_extensions.indexOf(uriParam.split('.').pop()) == -1) {
                         return;
                     }
