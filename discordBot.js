@@ -70,6 +70,23 @@ mybot.on("message", function(message){
                     }
                 });
                 break;
+            case 'list':
+                if(params.length < 2) return;
+                var commandParam = params[0].toLowerCase();
+                if(commandParam && typeof commandParam === 'string' && commandParam.length > 0){
+                    commandRepository.fetch(keyword.toLowerCase()).then(function(results) {
+                        logger.info("fetched list of "+ results.length +" values for " + commandParam);
+                        if (results.length == 0) return;
+                        var opMessage = "Saved images for command "+commandParam+":\n";
+                        results.forEach(function(img){
+                            opMessage += "\n" + img.url;
+                        });
+                        mybot.sendMessage(message.channel, opMessage).catch(function(error){
+                            logger.error(error);
+                        });
+                    });
+                }
+                break;
             case 'save':
                 if(params.length < 2) return;
                 var commandParam = params[0].toLowerCase();
