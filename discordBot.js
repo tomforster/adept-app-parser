@@ -98,7 +98,8 @@ mybot.on("message", function(message){
                         mybot.reply(message, "command: " + commandParam + " should not contain exclamation marks.");
                         return;
                     }
-                    if (allowable_extensions.indexOf(uriParam.split('.').pop()) == -1) {
+                    if (allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
+                        mybot.reply(message, "command: " + commandParam + " has an unknown extension.");
                         return;
                     }
                     if(commandParam === "red" || commandParam === "redlorr"){
