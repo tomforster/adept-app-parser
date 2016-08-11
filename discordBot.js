@@ -72,7 +72,7 @@ bot.on("message", (message) => {
                             if(err){
                                 return bot.reply(message, "Image is too large :(").catch(error => logger.error(error));
                             }else{
-                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), img.command);
+                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), "Here's your random image: !" + img.command);
                             }
                         });
                     })
