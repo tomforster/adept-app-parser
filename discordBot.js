@@ -31,6 +31,7 @@ bot.on("message", (message) => {
         lastMessageUserId = user.id;
     });
     if(message.mentions.length > 0) return;
+    if(message.author.equals(bot.user)) return;
     var matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
         var keyword= matches[1];
