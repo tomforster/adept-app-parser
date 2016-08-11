@@ -22,6 +22,12 @@ exports.fetch = function(command){
     }
 };
 
+exports.random = function(){
+    "use strict";
+    logger.info("fetching random");
+    return db.one("SELECT count(*) from command").then(count => db.one("SELECT command, url, date_added FROM command OFFSET floor(random()*$1) LIMIT 1;", [count]));
+};
+
 exports.save = function(command, url, user_id){
     logger.info("saving", command);
     return db.none("insert into command(type, command, url, date_added, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id]);
