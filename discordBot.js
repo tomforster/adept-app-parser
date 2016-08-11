@@ -72,7 +72,7 @@ bot.on("message", (message) => {
                             if(err){
                                 return bot.reply(message, "Image is too large :(").catch(error => logger.error(error));
                             }else{
-                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop());
+                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), img.command);
                             }
                         });
                     })
@@ -114,6 +114,7 @@ bot.on("message", (message) => {
                     if(commandParam === "red" || commandParam === "redlorr"){
                         return;
                     }
+                    //todo add duplicate discarding
                     get_fileSize(uriParam, err => {
                         if(err){
                             bot.reply(message, "Image is too large :(");
