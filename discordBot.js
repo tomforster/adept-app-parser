@@ -66,13 +66,7 @@ bot.on("message", (message) => {
             case 'random':
                 commandRepository
                     .random()
-                    .then(results => {
-                        var img = {};
-                        if(results.length == 0){
-                            return;
-                        } else {
-                            img = results[0];
-                        }
+                    .then(img => {
                         logger.info("fetched random filename: "+img.url);
                         get_fileSize(img.url, err => {
                             if(err){

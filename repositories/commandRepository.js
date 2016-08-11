@@ -25,7 +25,7 @@ exports.fetch = function(command){
 exports.random = function(){
     "use strict";
     logger.info("fetching random");
-    return db.one("SELECT count(*) from command").then(result => db.one("SELECT command, url, date_added FROM command OFFSET floor(random()*$1) LIMIT 1;", [result.count]));
+    return db.one("SELECT count(*) from command").then(result => db.one("SELECT command, url, date_added FROM command OFFSET floor(random()*$1) LIMIT 1", [result.count]));
 };
 
 exports.save = function(command, url, user_id){
