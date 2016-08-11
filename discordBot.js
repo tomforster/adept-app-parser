@@ -35,6 +35,7 @@ bot.on("message", (message) => {
     if(matches && matches.length == 2){
         var keyword= matches[1];
         var params = getParams(message.content, keyword);
+        var commandParam;
         switch(keyword){
             case 'roll' :
                 if(params.length > 0){
@@ -63,11 +64,30 @@ bot.on("message", (message) => {
                 });
                 break;
             case 'random':
+                commandRepository
+                    .random()
+                    .then(results => {
+                        var img = {};
+                        if(results.length == 0){
+                            return;
+                        } else {
+                            img = results[0];
+                        }
+                        logger.info("fetched random filename: "+img.url);
+                        get_fileSize(img.url, err => {
+                            if(err){
+                                return bot.reply(message, "Image is too large :(").catch(error => logger.error(error));
+                            }else{
+                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop());
+                            }
+                        });
+                    })
+                    .catch(err => logger.error(err));
 
                 break;
             case 'list':
                 if(params.length < 1) return;
-                let commandParam = params[0].toLowerCase();
+                commandParam = params[0].toLowerCase();
                 if(commandParam && typeof commandParam === 'string' && commandParam.length > 0){
                     commandRepository
                         .fetch(commandParam.toLowerCase())
@@ -86,7 +106,7 @@ bot.on("message", (message) => {
                 break;
             case 'save':
                 if(params.length < 2) return;
-                let commandParam = params[0].toLowerCase();
+                commandParam = params[0].toLowerCase();
                 var uriParam = params[1];
                 if(commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
                     if(commandParam.indexOf('!') >= 0){
