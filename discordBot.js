@@ -18,6 +18,7 @@ var bot = new Discord.Client();
 var commandRepository = require('./repositories/commandRepository');
 var userRepository = require('./repositories/userRepository');
 var userMessageCountRepository = require('./repositories/userMessageCountRepository');
+var auditRepository = require('./repositories/auditRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 
 var lastMessageUserId = "";
@@ -29,6 +30,8 @@ bot.on("message", (message) => {
             userMessageCountRepository.increment(user.id).catch(error => logger.error(error));
         }
         lastMessageUserId = user.id;
+
+        auditRepository.logMessageAudit(user.id, message.channel.id).catch(error => logger.error(error));
     });
     if(message.mentions.length > 0) return;
     if(message.author.equals(bot.user)) return;
