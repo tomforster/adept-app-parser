@@ -67,6 +67,15 @@ bot.on("message", (message) => {
                     }
                 });
                 break;
+            case 'spammers2':
+                auditRepository.top10UsersByMessageCountWithDuplicateDetection(message.channel.id).then(result => {
+                    if(result && result.length > 0){
+                        var opMessage = "Top 10 most active Discord users (by messages sent):\n";
+                        result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
+                        bot.sendMessage(message.channel, opMessage).catch(error => logger.error(error));
+                    }
+                });
+                break;
             case 'random':
                 commandRepository
                     .random()
