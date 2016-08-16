@@ -6,10 +6,9 @@ var db = require('./../db.js').db;
 var moment = require('moment');
 
 var logger = require("../logger");
-logger.info('asdjkhaskdhkasd');
 
 exports.logMessageAudit = function(discordId, channelId){
-    logger.info("saving message to archive", id);
+    logger.info("saving message to archive for channel", channelId);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>{
