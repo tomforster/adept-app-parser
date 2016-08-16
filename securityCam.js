@@ -9,12 +9,7 @@ var fs = require('fs');
 var basicAuth = require('basic-auth');
 var _ = require('underscore');
 var exec = require('child_process').exec;
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
 
 var auth = function (req, res, next) {
     function unauthorized(res) {

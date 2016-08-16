@@ -2,12 +2,7 @@ var env = process.env.NODE_ENV || "development";
 var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
 
 var postApp = function(mailObj){
     logger.info('Posting Adept App');

@@ -3,13 +3,8 @@ var path = require("path");
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantomScripts = require('./phantomScripts');
-var winston = require('winston');
+var logger = require('winston');
 var validUrl = require('valid-url');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
 var rp = require('request-promise');
 
 var MAX_SIZE = 5000000;

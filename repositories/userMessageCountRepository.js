@@ -4,12 +4,7 @@
 
 var db = require('./../db.js').db;
 
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
 
 exports.fetchByUserId = function(id){
     logger.info("fetching", id);

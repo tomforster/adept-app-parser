@@ -9,12 +9,7 @@ var phantomScripts = require('./phantomScripts.js');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
 
 var discordBot = null;
 

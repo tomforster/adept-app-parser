@@ -5,12 +5,7 @@
 var db = require('./../db.js').db;
 var moment = require('moment');
 
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
 
 exports.logMessageAudit = function(discordId, channelId){
     logger.info("saving message to archive", id);
