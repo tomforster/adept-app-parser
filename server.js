@@ -6,7 +6,7 @@ var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var logger = require('winston');
 logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console)({'timestamp':true});
+logger.add(logger.transports.Console, {'timestamp':true});
 var app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
