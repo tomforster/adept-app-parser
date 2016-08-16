@@ -22,7 +22,7 @@ exports.logMessageAudit = function(discordId, channelId){
 };
 
 exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
-    logger.info("Fetching top 10 users by message count with dupe detection", id);
+    logger.info("Fetching top 10 users by message count with dupe detection for channel", channelId);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         return db.manyOrNone(`SELECT du.username, count(*) FROM
 (
