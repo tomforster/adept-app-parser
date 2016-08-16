@@ -26,7 +26,7 @@ bot.on("message", (message) => {
         }
         lastMessageUserId = user.id;
 
-        auditRepository.logMessageAudit(user.id, message.channel.id).catch(error => logger.error(error));
+        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user)).catch(error => logger.error(error));
     });
     if(message.mentions.length > 0) return;
     if(message.author.equals(bot.user)) return;
