@@ -6,6 +6,7 @@ var db = require('./../db.js').db;
 var moment = require('moment');
 
 var logger = require("../logger");
+logger.info('asdjkhaskdhkasd');
 
 exports.logMessageAudit = function(discordId, channelId){
     logger.info("saving message to archive", id);
