@@ -16,7 +16,10 @@ exports.logMessageAudit = function(discordId, channelId){
     logger.debug("saving message to archive", id);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
-            .then((userId)=>db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()]));
+            .then((userId)=>{
+                logger.info("Loaded user id for audit");
+                db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()])
+            });
     }
     throw "Invalid argument";
 };
