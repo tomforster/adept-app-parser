@@ -29,7 +29,7 @@ exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
 ) as ids
 join discord_user du on du.id = ids.user_id
 WHERE
-next_user_id <> user_id or next_user_is is null
+next_user_id <> user_id or next_user_id is null
 GROUP BY
 user_id, du.username
 ORDER BY
