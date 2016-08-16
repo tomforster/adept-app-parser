@@ -8,8 +8,9 @@ var moment = require('moment');
 var logger = require("../logger");
 
 exports.logMessageAudit = function(userId, channelId){
-    logger.info("saving message to archive for channel", channelId);
+    logger.info("saving message to archive for channel", channelId, typeof channelId);
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
+        logger.info("saving...");
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>{
                 logger.info("Loaded user id for audit");
