@@ -10,12 +10,7 @@ var logger = require("../logger");
 exports.logMessageAudit = function(userId, channelId){
     logger.info("saving message to archive for channel", channelId, typeof channelId);
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
-        logger.info("saving...");
-        return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
-            .then((userId)=>{
-                logger.info("Loaded user id for audit");
-                return db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()])
-            });
+        return db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()])
     }
     return Promise.reject("Invalid Argument");
 };
