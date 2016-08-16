@@ -9,6 +9,8 @@ var logger = require("../logger");
 
 exports.logMessageAudit = function(discordId, channelId){
     logger.info("saving message to archive for channel", channelId);
+    logger.info("Type of discordid",typeof discordId, discordId.length);
+    logger.info("Type of channelId",typeof channelId, channelId.length);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>{
