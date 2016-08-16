@@ -31,7 +31,7 @@ join discord_user du on du.id = ids.user_id
 WHERE
 next_user_id <> user_id
 GROUP BY
-user_id
+user_id, du.username
 ORDER BY
 count(*) desc
 limit 10;`, [channelId])
