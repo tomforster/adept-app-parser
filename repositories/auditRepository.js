@@ -27,7 +27,7 @@ exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
         type
         FROM audit where type = 'message' and channel_id = $1
 ) as ids
-join discord_user du on du.user_id = ids.user_id
+join discord_user du on du.id = ids.user_id
 WHERE
 next_user_id <> user_id
 GROUP BY
