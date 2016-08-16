@@ -12,16 +12,16 @@ var logger = new (winston.Logger)({
     ]
 });
 
-export function logMessageAudit(discordId, channelId){
+exports.logMessageAudit = function(discordId, channelId){
     logger.debug("saving message to archive", id);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()]));
     }
     throw "Invalid argument";
-}
+};
 
-export function top10UsersByMessageCountWithDuplicateDetection(channelId) {
+exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
     logger.info("Fetching top 10 users by message count with dupe detection", id);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         return db.manyOrNone(`SELECT du.username, count(*) FROM
@@ -40,4 +40,4 @@ count(*) desc
 limit 10;`, [channelId])
     }
     throw "Invalid argument";
-}
+};
