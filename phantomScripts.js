@@ -2,7 +2,7 @@ var env = process.env.NODE_ENV || "development";
 var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
-var logger = require('winston');
+var logger = require("./logger");
 
 var postApp = function(mailObj){
     logger.info('Posting Adept App');

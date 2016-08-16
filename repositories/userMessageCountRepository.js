@@ -4,7 +4,7 @@
 
 var db = require('./../db.js').db;
 
-var logger = require('winston');
+var logger = require("../logger");
 
 exports.fetchByUserId = function(id){
     logger.info("fetching", id);

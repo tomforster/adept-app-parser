@@ -3,7 +3,7 @@ var path = require("path");
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantomScripts = require('./phantomScripts');
-var logger = require('winston');
+var logger = require("./logger");
 var validUrl = require('valid-url');
 var rp = require('request-promise');
 

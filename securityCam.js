@@ -9,7 +9,7 @@ var fs = require('fs');
 var basicAuth = require('basic-auth');
 var _ = require('underscore');
 var exec = require('child_process').exec;
-var logger = require('winston');
+var logger = require("./logger");
 
 var auth = function (req, res, next) {
     function unauthorized(res) {

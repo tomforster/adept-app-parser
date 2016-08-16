@@ -5,7 +5,7 @@
 var db = require('./../db.js').db;
 var moment = require('moment');
 
-var logger = require('winston');
+var logger = require("../logger");
 
 exports.fetch = function(command){
     logger.info("fetching",command);

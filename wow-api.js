@@ -7,7 +7,7 @@ var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 // var webshot = require('webshot');
-var logger = require('winston');
+var logger = require("./logger");
 var fs = require('fs');
 
 /*todo:
