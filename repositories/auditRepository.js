@@ -26,7 +26,7 @@ exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
         lead(user_id) over (order by date) as next_user_id,
         date,
         type
-        FROM audit where type = 'message' and channel_id = $1
+        FROM audit where type = 'message' and channel_id = $1 and is_bot_message is false
 ) as ids
 join discord_user du on du.id = ids.user_id
 WHERE
