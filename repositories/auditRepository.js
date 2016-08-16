@@ -16,7 +16,32 @@ exports.logMessageAudit = function(userId, channelId, isBotMessage){
     return Promise.reject("Invalid Argument");
 };
 
-exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
+exports.top10UsersForChannelByMessageCountWithDuplicateDetection = function(channelId){
+    logger.debug("Fetching top 10 users by message count with dupe detection for channel", channelId);
+    if (channelId && typeof channelId === 'string' && channelId.length > 0) {
+        return db.manyOrNone(`SELECT du.username, count(*) FROM
+(
+    SELECT 
+        user_id,
+        lead(user_id) over (order by date) as next_user_id,
+        date,
+        type
+        FROM audit where type = 'message' and channel_id = $1 and is_bot_message is false
+) as ids
+join discord_user du on du.id = ids.user_id
+WHERE
+next_user_id <> user_id or next_user_id is null
+GROUP BY
+user_id, du.username
+ORDER BY
+count(*) desc
+limit 10;`, [channelId])
+    }
+    return Promise.reject("Invalid Argument");
+};
+
+//todo
+exports.top10UsersForServerByMessageCountWithDuplicateDetection = function(channelId){
     logger.debug("Fetching top 10 users by message count with dupe detection for channel", channelId);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         return db.manyOrNone(`SELECT du.username, count(*) FROM
