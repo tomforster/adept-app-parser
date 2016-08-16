@@ -7,18 +7,16 @@ var moment = require('moment');
 
 var logger = require("../logger");
 
-exports.logMessageAudit = function(discordId, channelId){
+exports.logMessageAudit = function(userId, channelId){
     logger.info("saving message to archive for channel", channelId);
-    logger.info("Type of discordid",typeof discordId, discordId.length);
-    logger.info("Type of channelId",typeof channelId, channelId.length);
-    if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
+    if(channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>{
                 logger.info("Loaded user id for audit");
                 db.one("insert into audit (type, user_id, channel_id, date) values ($1, $2, $3) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix()])
             });
     }
-    throw "Invalid argument";
+    return Promise.reject("Invalid Argument");
 };
 
 exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
@@ -39,5 +37,5 @@ ORDER BY
 count(*) desc
 limit 10;`, [channelId])
     }
-    throw "Invalid argument";
+    return Promise.reject("Invalid Argument");
 };

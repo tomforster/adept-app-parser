@@ -26,8 +26,6 @@ bot.on("message", (message) => {
         }
         lastMessageUserId = user.id;
 
-        logger.info("!!!");
-
         auditRepository.logMessageAudit(user.id, message.channel.id).catch(error => logger.error(error));
     });
     if(message.mentions.length > 0) return;
