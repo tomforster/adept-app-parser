@@ -4,12 +4,8 @@ var express = require('express');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var winston = require('winston');
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({'timestamp':true})
-    ]
-});
+var logger = require('winston');
+logger.add(winston.transports.Console)({'timestamp':true});
 var app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
