@@ -62,10 +62,10 @@ bot.on("message", (message) => {
                     }
                 }).catch(error => logger.error(error));
                 break;
-            case 'spammers2':
+            case 'spammers-beta':
                 auditRepository.top10UsersByMessageCountWithDuplicateDetection(message.channel.id).then(result => {
                     if(result && result.length > 0){
-                        var opMessage = "Top 10 most active Discord users (by messages sent):\n";
+                        var opMessage = "Top 10 most active users in the channel ${message.channel.name} for all time:\n";
                         result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
                         return bot.sendMessage(message.channel, opMessage);
                     }
