@@ -62,7 +62,7 @@ bot.on("message", (message) => {
                     }
                 }).catch(error => logger.error(error));
                 break;
-            case 'spammers-beta':
+            case 'spammers_beta':
                 auditRepository.top10UsersByMessageCountWithDuplicateDetection(message.channel.id).then(result => {
                     if(result && result.length > 0){
                         var opMessage = "Top 10 most active users in the channel ${message.channel.name} for all time:\n";
