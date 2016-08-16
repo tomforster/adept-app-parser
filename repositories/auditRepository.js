@@ -20,13 +20,16 @@ exports.top10UsersByMessageCountWithDuplicateDetection = function(channelId){
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         return db.manyOrNone(`SELECT du.username, count(*) FROM
 (
-    SELECT user_id,
-    lead(user_id) over (order by date) as next_user_id,
-    date, type FROM audit where type = 'message' and channelId = $1
+    SELECT 
+        user_id,
+        lead(user_id) over (order by date) as next_user_id,
+        date,
+        type
+        FROM audit where type = 'message' and channel_id = $1
 ) as ids
 join discord_user du on du.user_id = ids.user_id
 WHERE
-type = 'message' and next_user_id <> user_id and channelId = $1
+next_user_id <> user_id
 GROUP BY
 user_id
 ORDER BY
