@@ -13,7 +13,7 @@ var logger = new (winston.Logger)({
 });
 
 exports.logMessageAudit = function(discordId, channelId){
-    logger.debug("saving message to archive", id);
+    logger.info("saving message to archive", id);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("select user_id from discord_user where discord_id = $1 limit 1", [discordId])
             .then((userId)=>{
