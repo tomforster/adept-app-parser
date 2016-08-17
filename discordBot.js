@@ -68,7 +68,7 @@ bot.on("message", (message) => {
             case 'spammers_beta':
                 var duration = parseDuration(params.join(' '));
                 if(duration > 0) {
-                    logger.info("duration test string:", humanizeDuration(start, duration));
+                    logger.info("duration test string:", humanizeDuration(duration));
                 }
                 auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id).then(result => {
                     if(result && result.length > 0){
