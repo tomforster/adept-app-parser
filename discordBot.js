@@ -70,7 +70,7 @@ bot.on("message", (message) => {
                 auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id, duration).then(result => {
                     if(result && result.length > 0){
                         var opMessage = `Top 10 most active users in the channel #${message.channel.name} for `;
-                        opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + "\n") : "all time:\n";
+                        opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
                         result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
                         return bot.sendMessage(message.channel, opMessage);
                     }else if(result.length == 0){
