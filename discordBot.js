@@ -73,6 +73,8 @@ bot.on("message", (message) => {
                         opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + "\n") : "all time:\n";
                         result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
                         return bot.sendMessage(message.channel, opMessage);
+                    }else if(result.length = 0){
+                        return bot.sendMessage(message.channel, "No eligible messages found.");
                     }
                 }).catch(error => logger.error(error));
                 break;
