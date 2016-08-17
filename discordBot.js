@@ -15,6 +15,7 @@ var userRepository = require('./repositories/userRepository');
 var userMessageCountRepository = require('./repositories/userMessageCountRepository');
 var auditRepository = require('./repositories/auditRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
+var moment = require('moment');
 
 var parseDuration = require('parse-duration');
 
@@ -65,7 +66,11 @@ bot.on("message", (message) => {
                 }).catch(error => logger.error(error));
                 break;
             case 'spammers_beta':
-                logger.info("duration test string:", parseDuration(params.join(' ')));
+                var duration = parseDuration(params.join(' '));
+                if(duration > 0) {
+                    var start = moment().subtract(duration, 'milliseconds');
+                    logger.info("duration test string:", parseDuration(params.join(' ')), moment().from(start, true));
+                }
                 auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id).then(result => {
                     if(result && result.length > 0){
                         var opMessage = `Top 10 most active users in the channel #${message.channel.name} for all time:\n`;
