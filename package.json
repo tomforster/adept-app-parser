@@ -11,6 +11,7 @@
     "express-ws": "2.0.0-rc.1",
     "mailin": "3.0.3",
     "moment": "^2.13.0",
+    "parse-duration": "0.1.1",
     "pg": "^6.0.1",
     "pg-promise": "^4.8.1",
     "phantom": "2.1.8",
