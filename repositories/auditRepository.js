@@ -20,7 +20,7 @@ exports.top10UsersForChannelByMessageCountWithDuplicateDetection = function(chan
     logger.debug("Fetching top 10 users by message count with dupe detection for channel", channelId);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         if(duration && duration > 0 && typeof duration === 'number'){
-            var start = moment().subtract(duration, 'milliseconds');
+            var start = moment().subtract(duration, 'milliseconds').valueOf();
             return db.manyOrNone(`SELECT du.username, count(*) FROM
 (
     SELECT 
