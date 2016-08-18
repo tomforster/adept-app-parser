@@ -67,16 +67,29 @@ bot.on("message", (message) => {
                 break;
             case 'spammers_beta':
                 var duration = parseDuration(params.join(' '));
-                auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id, duration).then(result => {
-                    if(result && result.length > 0){
-                        var opMessage = `Top 10 most active users in the channel #${message.channel.name} for `;
-                        opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
-                        result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
-                        return bot.sendMessage(message.channel, opMessage);
-                    }else if(result.length == 0){
-                        return bot.sendMessage(message.channel, "No eligible messages found.");
-                    }
-                }).catch(error => logger.error(error));
+                if(params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server){
+                    auditRepository.top10UsersForServerByMessageCountWithDuplicateDetection(message.server.channels.map(channel => channel.id), duration).then(result => {
+                        if (result && result.length > 0) {
+                            var opMessage = `Top 10 most active users in the server #${message.server.name} for `;
+                            opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
+                            result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
+                            return bot.sendMessage(message.channel, opMessage);
+                        } else if (result.length == 0) {
+                            return bot.sendMessage(message.channel, "No eligible messages found.");
+                        }
+                    }).catch(error => logger.error(error));
+                } else {
+                    auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id, duration).then(result => {
+                        if (result && result.length > 0) {
+                            var opMessage = `Top 10 most active users in the channel #${message.channel.name} for `;
+                            opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
+                            result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
+                            return bot.sendMessage(message.channel, opMessage);
+                        } else if (result.length == 0) {
+                            return bot.sendMessage(message.channel, "No eligible messages found.");
+                        }
+                    }).catch(error => logger.error(error));
+                }
                 break;
             case 'random':
                 commandRepository
