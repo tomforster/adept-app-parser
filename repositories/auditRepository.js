@@ -72,7 +72,7 @@ exports.top10UsersForServerByMessageCountWithDuplicateDetection = function(chann
         lead(user_id) over (order by date) as next_user_id,
         date,
         type
-        FROM audit where type = 'message' and channel_id in ($1^) and is_bot_message is false and date > $2
+        FROM audit where type = 'message' and channel_id in ($1:csv) and is_bot_message is false and date > $2
 ) as ids
 join discord_user du on du.id = ids.user_id
 WHERE
@@ -90,7 +90,7 @@ limit 10;`, [channelIds, start])
         lead(user_id) over (order by date) as next_user_id,
         date,
         type
-        FROM audit where type = 'message' and channel_id in ($1^) and is_bot_message is false
+        FROM audit where type = 'message' and channel_id in ($1:csv) and is_bot_message is false
 ) as ids
 join discord_user du on du.id = ids.user_id
 WHERE
