@@ -125,33 +125,45 @@ module.exports = function(express){
                 return classPromise
                     .then((classMap) => {
                         var memberNames = guildInfo.members.filter(function (member) {
-                            return member.rank === 3 || member.rank === 2
+                            return member.rank === 1 || member.rank === 2
                         }).map(function (member) {
                             return member.character.name;
                         }).sort();
                         var memberPromises = [];
-                        memberNames.forEach((memberName) => {
-                            memberPromises.push(rp(createCharacterUri(memberName, guildInfo.realm))
-                                .then(body => {
-                                    var charInfo = JSON.parse(body);
-                                    if (charInfo.level < 100) return;
-                                    charInfo.class = classMap[charInfo.class];
-                                    charInfo.audit = itemAudit(charInfo.items);
-                                    return charInfo;
-                                })
-                            )
-                        });
+                        memberNames.forEach((memberName) => memberPromises.push(getCharacterData(memberName, guildInfo.realm, classMap)));
                         return Promise.all(memberPromises);
                     });
             })
             .then(members => {
-                res.render('audit.pug', {members:members});
+                res.render('audit.pug', {members:members.filter(member => member.level == 100)});
             })
             .catch((error) => {
-                logger.error(error.message);
+                logger.error(error);
                 res.send(error.reason);
             })
     });
+};
+
+var getCharacterData = function(character, realm, classMap, numRetries){
+    if(numRetries == undefined || numRetries == null){
+        numRetries = 5;
+    }
+    return rp({url: createCharacterUri(character, realm),  json: true})
+        .then(charInfo => {
+            logger.debug(charInfo.name);
+            charInfo.class = classMap[charInfo.class];
+            charInfo.audit = itemAudit(charInfo.items);
+            return charInfo;
+        })
+        .catch((error) => {
+            if(numRetries == 0){
+                logger(error);
+                throw('failed after 5 retries');
+            }
+            logger.debug('failed character', character, 'retrying...');
+            numRetries--;
+            return getCharacterData(character, realm, classMap, numRetries);
+        })
 };
 
 var createCharacterUri = function(character, realm){

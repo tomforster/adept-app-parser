@@ -17,9 +17,15 @@ html
             tbody
                 each member in members
                     tr
-                        td = member.name
-                        td = member.class.name
-                        td = member.items.averageItemLevel
-                        td = member.items.averageItemLevelEquipped
-                        td = (member.audit.averageItemUpgradeRatio * 100).toFixed(2) + '%'
-                        td = member.audit.result
+                        td
+                            = member.name
+                        td
+                            = member.class.name
+                        td
+                            = member.items.averageItemLevel
+                        td
+                            = member.items.averageItemLevelEquipped
+                        td
+                            = (member.audit.averageItemUpgradeRatio * 100).toFixed(2) + '%'
+                        td
+                            = member.audit.result
