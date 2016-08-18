@@ -1,0 +1,25 @@
+//
+   Created by Tom on 18/08/2016.
+
+html
+    head
+        meta(property="title" content="Adept Guild Audit")
+    body
+        table
+            thead
+                tr
+                    td Character
+                    td Class
+                    td iLvl(A)
+                    td iLvl(E)
+                    td Upgrade %
+                    td Audit
+            tbody
+                each member in members
+                    tr
+                        td = member.name
+                        td = member.class.name
+                        td = member.items.averageItemLevel
+                        td = member.items.averageItemLevelEquipped
+                        td = (member.audit.averageItemUpgradeRatio * 100).toFixed(2) + '%'
+                        td = member.audit.result

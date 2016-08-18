@@ -78,6 +78,20 @@ var options = {
 module.exports = function(express){
     app = express;
 
+    var classPromise = rp(classRequestUri)
+        .then(function(body){
+            var classInfo = JSON.parse(body);
+            var classMap = {};
+            classInfo.classes.forEach(function(wowClass){
+                var color = classColors[wowClass.id];
+                if(!color) throw "Class color information not found!";
+                classMap[wowClass.id] = {name:wowClass.name, color:classColors[wowClass.id]};
+            });
+            return classMap;
+        }).catch(function(error) {
+            logger.error(error.message);
+        });
+
     app.get('/wow/character/:character/:realm?',function(req,res){
         var character = req.params["character"];
         var realm = req.params["realm"];
@@ -102,63 +116,42 @@ module.exports = function(express){
         })
     });
 
-    var classPromise = rp(classRequestUri)
-        .then(function(body){
-            var classInfo = JSON.parse(body);
-            var classMap = {};
-            classInfo.classes.forEach(function(wowClass){
-                var color = classColors[wowClass.id];
-                if(!color) throw "Class color information not found!";
-                classMap[wowClass.id] = {name:wowClass.name, color:classColors[wowClass.id]};
-            });
-            return classMap;
-        }).catch(function(error) {
-            logger.error(error.message);
-        });
-
-    // var guildPromise = new Promise(function(resolve, reject){
-    //     request(createGuildUri("Adept"), function (error, response, body) {
-    //         if (error) {
-    //             logger.error(error.message);
-    //             reject();
-    //         } else if (response.statusCode !== 200) {
-    //             logger.error("Got status code " + response.statusCode);
-    //             reject();
-    //         } else if (!error && response.statusCode == 200) {
-    //             var guildInfo = JSON.parse(body);
-    //             resolve(guildInfo);
-    //         }
-    //     });
-    // });
-    
-    // guildPromise.then(function(guildInfo){
-    //     classPromise.then(function(classMap){
-    //         var memberNames = guildInfo.members.filter(function(member){
-    //             return member.rank === 3 || member.rank === 2
-    //         }).map(function(member){
-    //             return member.character.name;
-    //         }).sort();
-    //         memberNames.forEach(function(memberName){
-    //             request(createCharacterUri(memberName, guildInfo.realm), function (error, response, body) {
-    //                 if (error) {
-    //                     logger.error(error.message);
-    //                     reject();
-    //                 } else if (response.statusCode !== 200) {
-    //                     logger.error("Got status code " + response.statusCode);
-    //                     reject();
-    //                 } else if (!error && response.statusCode == 200) {
-    //                     var charInfo = JSON.parse(body);
-    //                     if(charInfo.level < 100) return;
-    //                     charInfo.className = classMap[charInfo.class];
-    //                     var charAudit = itemAudit(charInfo.items);
-    //                     if(charAudit.totalMissingEnchants > 0 || charAudit.totalMissingGems > 0 || charAudit.averageItemUpgradeRatio < 1){
-    //                         console.log(memberName, charAudit);
-    //                     }
-    //                 }
-    //             })
-    //         });
-    //     })
-    // });
+    //todo add guild param
+    app.get('/wow/guild-audit/',function(req,res) {
+        //todo create a cache for these
+        rp(createGuildUri("Adept"))
+            .then(body => JSON.parse(body))
+            .then((guildInfo) => {
+                return classPromise
+                    .then((classMap) => {
+                        var memberNames = guildInfo.members.filter(function (member) {
+                            return member.rank === 3 || member.rank === 2
+                        }).map(function (member) {
+                            return member.character.name;
+                        }).sort();
+                        var memberPromises = [];
+                        memberNames.forEach((memberName) => {
+                            memberPromises.push(rp(createCharacterUri(memberName, guildInfo.realm))
+                                .then(body => {
+                                    var charInfo = JSON.parse(body);
+                                    if (charInfo.level < 100) return;
+                                    charInfo.class = classMap[charInfo.class];
+                                    charInfo.audit = itemAudit(charInfo.items);
+                                    return charInfo;
+                                })
+                            )
+                        });
+                        return Promise.all(memberPromises);
+                    });
+            })
+            .then(members => {
+                res.render('audit.pug', {members:members});
+            })
+            .catch((error) => {
+                logger.error(error.message);
+                res.send(error.reason);
+            })
+    });
 };
 
 var createCharacterUri = function(character, realm){
