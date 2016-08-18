@@ -3,6 +3,7 @@
  */
 
 var rp = require('request-promise');
+rp = rp.defaults({json:true});
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
@@ -78,9 +79,8 @@ var options = {
 module.exports = function(express){
     app = express;
 
-    var classPromise = rp(classRequestUri)
-        .then(function(body){
-            var classInfo = JSON.parse(body);
+    rp(classRequestUri)
+        .then(function(classInfo){
             var classMap = {};
             classInfo.classes.forEach(function(wowClass){
                 var color = classColors[wowClass.id];
@@ -88,67 +88,63 @@ module.exports = function(express){
                 classMap[wowClass.id] = {name:wowClass.name, color:classColors[wowClass.id]};
             });
             return classMap;
-        }).catch(function(error) {
+        }).
+        then((classMap) => {
+            app.get('/wow/character/:character/:realm?',function(req,res){
+                var character = req.params["character"];
+                var realm = req.params["realm"];
+                if(!character) {
+                    res.status(400);
+                    res.send('Bad character name');
+                }
+                if(!realm) realm = "Frostmane";
+                rp(createCharacterUri(character,realm))
+                    .then(charInfo => {
+                        charInfo.class = classMap[charInfo.class];
+                        var auditInfo = itemAudit(charInfo.items);
+                        res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo), auditInfo:auditInfo});
+                    })
+                    .catch(error => {
+                        logger.error(error);
+                        res.send(error.reason);
+                    })
+            });
+
+            //todo add guild param
+            app.get('/wow/guild-audit/',function(req,res) {
+                //todo create a cache for these
+                rp(createGuildUri("Adept"))
+                    .then(guildInfo => {
+                        guildInfo.members.forEach(member => member.character.class = classMap[member.character.class]);
+                        return guildInfo.members.filter(member => member.rank === 1 || member.rank === 2)
+                            .map(member => member.character);
+                            // .map(member => member.character.name)
+                            // .sort();
+
+                        // var memberPromises = [];
+                        // memberNames.forEach((memberName) => memberPromises.push(getCharacterData(memberName, guildInfo.realm, classMap)));
+                        // return Promise.all(memberPromises);
+                    })
+                    .then(members => {
+                        res.render('audit.pug', {members:members.filter(member => member.level == 100)});
+                    })
+                    .catch(error => {
+                        logger.error(error);
+                        res.send(error.reason);
+                    })
+            })
+        })
+        .catch(function(error) {
             logger.error(error.message);
         });
 
-    app.get('/wow/character/:character/:realm?',function(req,res){
-        var character = req.params["character"];
-        var realm = req.params["realm"];
-        if(!character) {
-            res.status(400);
-            res.send('Bad character name');
-        }
-        if(!realm) realm = "Frostmane";
-        classPromise.then(function(classMap){
-            rp(createCharacterUri(character,realm))
-                .then(function(body){
-                    var charInfo = JSON.parse(body);
-                    charInfo.class = classMap[charInfo.class];
-                    var auditInfo = itemAudit(charInfo.items);
-                    res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo), auditInfo:auditInfo});
-                }).catch(function(error){
-                    logger.error(error.message);
-                    logger.error(character);
-                    logger.error(realm);
-                    res.send(error.reason);
-                })
-        })
-    });
-
-    //todo add guild param
-    app.get('/wow/guild-audit/',function(req,res) {
-        //todo create a cache for these
-        rp(createGuildUri("Adept"))
-            .then(body => JSON.parse(body))
-            .then((guildInfo) => {
-                return classPromise
-                    .then((classMap) => {
-                        var memberNames = guildInfo.members.filter(function (member) {
-                            return member.rank === 1 || member.rank === 2
-                        }).map(function (member) {
-                            return member.character.name;
-                        }).sort();
-                        var memberPromises = [];
-                        memberNames.forEach((memberName) => memberPromises.push(getCharacterData(memberName, guildInfo.realm, classMap)));
-                        return Promise.all(memberPromises);
-                    });
-            })
-            .then(members => {
-                res.render('audit.pug', {members:members.filter(member => member.level == 100)});
-            })
-            .catch((error) => {
-                logger.error(error);
-                res.send(error.reason);
-            })
-    });
 };
 
 var getCharacterData = function(character, realm, classMap, numRetries){
     if(numRetries == undefined || numRetries == null){
         numRetries = 5;
     }
-    return rp({url: createCharacterUri(character, realm),  json: true})
+    return rp(createCharacterUri(character, realm))
         .then(charInfo => {
             logger.debug(charInfo.name);
             charInfo.class = classMap[charInfo.class];

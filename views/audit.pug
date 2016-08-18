@@ -10,10 +10,6 @@ html
                 tr
                     td Character
                     td Class
-                    td iLvl(A)
-                    td iLvl(E)
-                    td Upgrade %
-                    td Audit
             tbody
                 each member in members
                     tr
@@ -21,11 +17,3 @@ html
                             = member.name
                         td
                             = member.class.name
-                        td
-                            = member.items.averageItemLevel
-                        td
-                            = member.items.averageItemLevelEquipped
-                        td
-                            = (member.audit.averageItemUpgradeRatio * 100).toFixed(2) + '%'
-                        td
-                            = member.audit.result
