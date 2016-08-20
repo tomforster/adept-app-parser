@@ -139,9 +139,9 @@ bot.on("message", (message) => {
                         bot.reply(message, "command: " + commandParam + " has an unknown extension.");
                         return;
                     }
-                    if(commandParam === "red" || commandParam === "redlorr"){
-                        return;
-                    }
+                    // if(commandParam === "red" || commandParam === "redlorr"){
+                    //     return;
+                    // }
                     //todo add duplicate discarding
                     get_fileSize(uriParam, err => {
                         if(err){
