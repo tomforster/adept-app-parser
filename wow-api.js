@@ -2,21 +2,16 @@
  * Created by Tom on 28/06/2016.
  */
 
+"use strict";
+
 var rp = require('request-promise');
 rp = rp.defaults({json:true});
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-// var webshot = require('webshot');
 var logger = require("./logger");
 var fs = require('fs');
-
-/*todo:
- * Armory link
- * Specs
- * Wol link
- * Item level
- */
+var characterRepository = require('./repositories/characterRepository');
 
 var imageUrlPathStart = "http://render-api-eu.worldofwarcraft.com/static-render/eu/";
 var characterRequestUriPathStart = "https://eu.api.battle.net/wow/character/";
@@ -68,16 +63,12 @@ var classColors = {
 
 var app = null;
 var MAX_LEVEL = 100;
-var options = {
-    screenSize: {
-        width: 600, height: 200
-    },
-    siteType:'html',
-    customCSS:'body,html{margin:0; padding:0;} .col{padding:5px; display:inline-block; border: 1px solid black;}'
-};
+var ws = null;
 
 module.exports = function(express){
     app = express;
+
+    ws = require('express-ws')(app);
 
     rp(classRequestUri)
         .then(function(classInfo){
@@ -89,77 +80,194 @@ module.exports = function(express){
             });
             return classMap;
         }).
-        then((classMap) => {
-            app.get('/wow/character/:character/:realm?',function(req,res){
-                var character = req.params["character"];
-                var realm = req.params["realm"];
-                if(!character) {
-                    res.status(400);
-                    res.send('Bad character name');
+        then(classMap => {
+
+            var getCharacterFromApi = function(character, realm, numRetries){
+                if(numRetries == undefined || numRetries == null){
+                    numRetries = 5;
                 }
-                if(!realm) realm = "Frostmane";
-                rp(createCharacterUri(character,realm))
+                return rp(createCharacterUri(character, realm))
                     .then(charInfo => {
+                        logger.debug(charInfo.name);
                         charInfo.class = classMap[charInfo.class];
-                        var auditInfo = itemAudit(charInfo.items);
-                        res.render('char-stub.pug',{charInfo:charInfo, raidInfo:getProgression(charInfo), imageUri:getImageUri(charInfo), auditInfo:auditInfo});
+                        charInfo.audit = itemAudit(charInfo.items);
+                        return charInfo;
+                    })
+                    .catch((error) => {
+                        if(numRetries == 0){
+                            logger.error(error);
+                            throw('failed after 5 retries');
+                        }
+                        logger.debug('failed character', character, 'retrying...');
+                        numRetries--;
+                        return getCharacterFromApi(character, realm, numRetries);
+                    })
+            };
+
+            var getGuildFromApi = function(guild, realm, numRetries){
+                if(numRetries == undefined || numRetries == null){
+                    numRetries = 5;
+                }
+                return rp(createGuildUri(guild, realm))
+                    .then(guildInfo => {
+                        return characterRepository.saveGuild(guildInfo.name, guildInfo.realm)
+                            .then(savedGuildInfo => {
+                                guildInfo.members.forEach(member => member.character.class = classMap[member.character.class]);
+                                var characters = guildInfo.members.filter(member => member.rank === 1 || member.rank === 2)
+                                    .map(member => member.character);
+                                return {id:savedGuildInfo.id, characters:characters};
+                            })
+                    })
+                    .catch((error) => {
+                        if(numRetries == 0){
+                            logger.error(error);
+                            throw('failed after 5 retries');
+                        }
+                        logger.debug('failed guild', guild, 'retrying...');
+                        numRetries--;
+                        return getGuildFromApi(guild, realm, numRetries);
+                    })
+            };
+
+            var getCharacterDataWithAudit = function(character, realm){
+                if(character && realm) {
+                    return characterRepository
+                        .fetchCharacter(character, realm)
+                        .then(characterData => {
+                            if(characterData.full_data == null)
+                                return getCharacterFromApi(character, realm)
+                                    .then(savedCharacterData => characterRepository.updateCharacterAudit(characterData.id, savedCharacterData))
+                                    .then(characterData => {
+                                        characterData.full_data.id = characterData.id;
+                                        return characterData.full_data;
+                                    });
+                            characterData.full_data.id = characterData.id;
+                            return Promise.resolve(characterData.full_data)
+                        });
+                }
+                throw "Bad Parameter"
+            };
+
+            var getGuildData = function(guild, realm){
+                if(guild && realm) {
+                    return characterRepository
+                        .fetchGuild(guild, realm)
+                        .then(guildData => {
+                            if(guildData == null){
+                                return getGuildFromApi(guild, realm)
+                                    .then(guildData => {
+                                        var characterPromises = [];
+                                        guildData.characters.forEach(characterData =>
+                                            characterPromises.push(characterRepository.saveSimpleCharacter(characterData.name, characterData.realm, characterData, guildData.id)));
+                                        return Promise.all(characterPromises).then(characters => {
+                                            return {id:guildData.id, characters:characters};
+                                        });
+                                    });
+                            }
+                            return characterRepository.fetchGuildCharacters(guildData.id).then(characters => {
+                                return {id:guildData.id, characters:characters};
+                            })
+                        })
+                        .then(guildData => {
+                            guildData.characters.forEach(characterData => characterData.data.id = characterData.id);
+                            guildData.characters = guildData.characters.map(character => character.data);
+                            return Promise.resolve(guildData);
+                        });
+                }
+            };
+
+            app.get('/wow/audit/:realm/:guild', function(req, res){
+                var guild = req.params.guild;
+                var realm = req.params.realm;
+                if(!guild){
+                    res.status(400);
+                    res.send('Bad guild name');
+                }
+                if(!realm){
+                    res.status(400);
+                    res.send('Bad realm');
+                }
+                getGuildData(guild, realm)
+                    .then(guildData => {
+                        guildData.characters = guildData.characters.filter(member => member.level == 100).sort((a,b) => {
+                            if (a.class.name < b.class.name)
+                                return -1;
+                            if (a.class.name > b.class.name)
+                                return 1;
+                            if(a.name < b.name)
+                                return -1;
+                            if(a.name > b.name)
+                                return 1;
+                            return 0;
+                        });
+                        return characterRepository.fetchTeams(guildData.id).then(teams => {
+                            res.render('audit.pug', {
+                                guildInfo:{
+                                    characters: guildData.characters,
+                                    teams: teams
+                                }
+                            })
+                        })
                     })
                     .catch(error => {
                         logger.error(error);
                         res.send(error.reason);
-                    })
+                    });
             });
 
-            //todo add guild param
-            app.get('/wow/guild-audit/',function(req,res) {
-                //todo create a cache for these
-                rp(createGuildUri("Adept"))
-                    .then(guildInfo => {
-                        guildInfo.members.forEach(member => member.character.class = classMap[member.character.class]);
-                        return guildInfo.members.filter(member => member.rank === 1 || member.rank === 2)
-                            .map(member => member.character);
-                            // .map(member => member.character.name)
-                            // .sort();
-
-                        // var memberPromises = [];
-                        // memberNames.forEach((memberName) => memberPromises.push(getCharacterData(memberName, guildInfo.realm, classMap)));
-                        // return Promise.all(memberPromises);
-                    })
-                    .then(members => {
-                        res.render('audit.pug', {members:members.filter(member => member.level == 100)});
-                    })
-                    .catch(error => {
-                        logger.error(error);
-                        res.send(error.reason);
-                    })
-            })
+            app.ws('/auditsocket', function(ws, req) {
+                logger.info("Audit websocket opened.");
+                ws.on('message', msg => {
+                    var message = JSON.parse(msg);
+                    var header = message.header;
+                    switch(header) {
+                        case 'add' :
+                            var team = message.body.team;
+                            var character = message.body.character;
+                            getCharacterDataWithAudit(character.name, character.realm)
+                                .then(character => {
+                                    return characterRepository.addToTeam(team, character.id).then(() => {
+                                        return character;
+                                    }).catch(error => {
+                                        // already in team
+                                        if (error.constraint && error.constraint === "team_character_uk") {
+                                            return null;
+                                        }
+                                        throw error;
+                                    });
+                                })
+                                .then(character => {
+                                    if (character !== null) {
+                                        ws.send(JSON.stringify({header: 'add', body: {team:team, character:character}}))
+                                    }
+                                })
+                                .catch(error => {
+                                    logger.error(error);
+                                });
+                            break;
+                        case 'team' :
+                            var team = message.body.team;
+                            characterRepository.fetchTeamCharacters(team)
+                                .then(characters => {
+                                    characters.forEach(character => {
+                                        character.full_data.id = character.id;
+                                        character.full_data.lastUpdated = character.audit_last_updated;
+                                    });
+                                    characters = characters.map(characters => characters.full_data);
+                                    ws.send(JSON.stringify({header: 'team', body: {team:team, characters:characters}}))
+                                })
+                                .catch(error => {
+                                    logger.error(error);
+                                });
+                            break;
+                    }
+                })
+            });
         })
         .catch(function(error) {
             logger.error(error.message);
         });
 
-};
-
-var getCharacterData = function(character, realm, classMap, numRetries){
-    if(numRetries == undefined || numRetries == null){
-        numRetries = 5;
-    }
-    return rp(createCharacterUri(character, realm))
-        .then(charInfo => {
-            logger.debug(charInfo.name);
-            charInfo.class = classMap[charInfo.class];
-            charInfo.audit = itemAudit(charInfo.items);
-            return charInfo;
-        })
-        .catch((error) => {
-            if(numRetries == 0){
-                logger(error);
-                throw('failed after 5 retries');
-            }
-            logger.debug('failed character', character, 'retrying...');
-            numRetries--;
-            return getCharacterData(character, realm, classMap, numRetries);
-        })
 };
 
 var createCharacterUri = function(character, realm){

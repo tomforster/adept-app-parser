@@ -1,19 +1,53 @@
-//
-   Created by Tom on 18/08/2016.
-
-html
+<!DOCTYPE html>
+html(ng-app="audit")
     head
         meta(property="title" content="Adept Guild Audit")
-    body
-        table
-            thead
-                tr
-                    td Character
-                    td Class
-            tbody
-                each member in members
+        script.
+            var guildInfo = !{JSON.stringify(guildInfo).replace(/<\//g, '<\\/')};
+        script(src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js")
+        script(src="/audit.js")
+    body(ng-controller="ctrl as c")
+        div(style="display:flex; flex-direction:row")
+            table
+                thead
                     tr
-                        td
-                            = member.name
-                        td
-                            = member.class.name
+                        td Character
+                        td Level
+                        td Class
+                tbody
+                    tr(ng-repeat="member in c.members track by $index" ng-click="c.characterClick(member)")
+                        td(ng-bind="member.name")
+                        td(ng-bind="member.level")
+                        td(ng-bind="member.class.name")
+            table
+                thead
+                    tr
+                        td Name
+                tbody
+                    tr(ng-repeat="team in c.teams track by $index" ng-click="c.teamClick(team)")
+                        td(ng-bind="team.name")
+            table
+                thead
+                    tr
+                        td Character
+                        td Level
+                        td Class
+                        td iLvl(E)
+                        td iLvl(A)
+                        td Audit
+                        td Upgrade %
+                        td Missing Enchants
+                        td Missing Gems
+                        td Last Updated
+                tbody
+                    tr(ng-repeat="auditedMember in c.auditedMembers track by $index")
+                        td(ng-bind="auditedMember.name")
+                        td(ng-bind="auditedMember.level")
+                        td(ng-bind="auditedMember.class.name")
+                        td(ng-bind="auditedMember.items.averageItemLevelEquipped")
+                        td(ng-bind="auditedMember.items.averageItemLevel")
+                        td(ng-bind="auditedMember.audit.result")
+                        td(ng-bind="auditedMember.audit.averageItemUpgradeRatio*100 | number:0")
+                        td(ng-bind="auditedMember.audit.totalMissingEnchants")
+                        td(ng-bind="auditedMember.audit.totalMissingGems")
+                        td(ng-bind="auditedMember.lastUpdated*1000 | date")

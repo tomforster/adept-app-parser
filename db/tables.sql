@@ -4,6 +4,44 @@ CREATE TABLE discord_user (id serial primary key, discord_id varchar(1000) not n
 
 CREATE TABLE user_message_count (id serial PRIMARY KEY, user_id serial, count bigint );
 
-CREATE TABLE audit (id serial PRIMARY KEY, type VARCHAR(30) not null, date bigint not null, user_id serial, channel_id varchar(1000)), is_bot_message boolean default false ;
+CREATE TABLE audit (id serial PRIMARY KEY, type VARCHAR(30) not null, date bigint not null, user_id serial, channel_id varchar(1000), is_bot_message boolean default false);
 
-create index on audit (type, date);
+CREATE INDEX ON audit (type, date);
+
+CREATE TABLE character (
+  id serial primary key,
+  name VARCHAR(100) not null,
+  realm VARCHAR(100) not null,
+  data JSONB not null,
+  full_data JSONB null,
+  last_updated bigint not null,
+  audit_last_updated bigint null,
+  CONSTRAINT character_name_realm_uk unique(name, realm)
+);
+
+CREATE UNIQUE INDEX character_name_realm_idx ON character (name, realm);
+
+CREATE TABLE team (
+  id serial primary key,
+  name VARCHAR(100),
+  guild integer references guild
+);
+
+CREATE TABLE team_character (
+  team integer REFERENCES team,
+  character integer references character,
+  CONSTRAINT team_character_uk UNIQUE (team, character)
+);
+
+CREATE TABLE guild (
+  id serial primary key,
+  name VARCHAR(100) not null,
+  realm VARCHAR(100) not null,
+  last_updated bigint not null
+);
+
+CREATE TABLE guild_character (
+  guild integer REFERENCES guild,
+  character integer references character,
+  CONSTRAINT guild_character_uk UNIQUE (guild, character)
+);
