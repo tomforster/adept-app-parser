@@ -19,9 +19,9 @@ exports.updateCharacterAudit = function(id, data){
     return db.one("update character set full_data = $1, audit_last_updated = $2 where id = $3 returning id, data, last_updated, full_data, audit_last_updated", [data, moment().unix(), id]);
 };
 
-exports.fetchCharacter = function(character, realm){
+exports.fetchCharacter = function(characterId){
     logger.debug('fetching character');
-    return db.oneOrNone("select id, data, full_data, last_updated, audit_last_updated from character where realm = $1 and name = $2", [realm, character]);
+    return db.oneOrNone("select id, data, full_data, last_updated, audit_last_updated from character where id = $1", [characterId]);
 };
 
 exports.addToTeam = function(team, character){
@@ -29,7 +29,7 @@ exports.addToTeam = function(team, character){
 };
 
 exports.removeFromTeam = function(team, character){
-    db.none('delete from team_character where team = $1 and character = $2', [team, character]);
+    return db.none('delete from team_character where team = $1 and character = $2', [team, character]);
 };
 
 exports.fetchGuildCharacters = function(guildId){

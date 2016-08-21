@@ -113,8 +113,7 @@ module.exports = function(express){
                         return characterRepository.saveGuild(guildInfo.name, guildInfo.realm)
                             .then(savedGuildInfo => {
                                 guildInfo.members.forEach(member => member.character.class = classMap[member.character.class]);
-                                var characters = guildInfo.members.filter(member => member.rank === 1 || member.rank === 2)
-                                    .map(member => member.character);
+                                var characters = guildInfo.members.map(member => member.character);
                                 return {id:savedGuildInfo.id, characters:characters};
                             })
                     })
@@ -129,19 +128,21 @@ module.exports = function(express){
                     })
             };
 
-            var getCharacterDataWithAudit = function(character, realm){
-                if(character && realm) {
+            var getCharacterDataWithAudit = function(characterId){
+                if(characterId) {
                     return characterRepository
-                        .fetchCharacter(character, realm)
+                        .fetchCharacter(characterId)
                         .then(characterData => {
                             if(characterData.full_data == null)
-                                return getCharacterFromApi(character, realm)
+                                return getCharacterFromApi(characterData.data.name, characterData.data.realm)
                                     .then(savedCharacterData => characterRepository.updateCharacterAudit(characterData.id, savedCharacterData))
                                     .then(characterData => {
                                         characterData.full_data.id = characterData.id;
+                                        characterData.full_data.lastUpdated = characterData.audit_last_updated;
                                         return characterData.full_data;
                                     });
                             characterData.full_data.id = characterData.id;
+                            characterData.full_data.lastUpdated = characterData.audit_last_updated;
                             return Promise.resolve(characterData.full_data)
                         });
                 }
@@ -223,8 +224,8 @@ module.exports = function(express){
                     switch(header) {
                         case 'add' :
                             var team = message.body.team;
-                            var character = message.body.character;
-                            getCharacterDataWithAudit(character.name, character.realm)
+                            var characterId = message.body.character;
+                            getCharacterDataWithAudit(characterId)
                                 .then(character => {
                                     return characterRepository.addToTeam(team, character.id).then(() => {
                                         return character;
@@ -240,6 +241,17 @@ module.exports = function(express){
                                     if (character !== null) {
                                         ws.send(JSON.stringify({header: 'add', body: {team:team, character:character}}))
                                     }
+                                })
+                                .catch(error => {
+                                    logger.error(error);
+                                });
+                            break;
+                        case 'remove' :
+                            var team = message.body.team;
+                            var characterId = message.body.character;
+                            characterRepository.removeFromTeam(team, characterId)
+                                .then(character => {
+                                        ws.send(JSON.stringify({header: 'remove', body: {team:team, character:characterId}}))
                                 })
                                 .catch(error => {
                                     logger.error(error);
