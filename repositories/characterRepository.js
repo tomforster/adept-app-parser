@@ -53,3 +53,12 @@ exports.fetchTeamCharacters = function(teamId){
     logger.debug("Fetching team characters", teamId);
     return db.manyOrNone("select c.id, c.full_data, c.audit_last_updated from team t join team_character tc on tc.team = t.id join character c on tc.character = c.id where t.id = $1", [teamId]);
 };
+
+exports.saveTeam = function(guildId, name){
+    return db.one("insert into team (guild, name) VALUES ($1, $2) returning id, guild, name", [guildId, name]);
+};
+
+exports.removeTeam = function(teamId){
+    return db.none("delete from team_character where team = $1", [teamId])
+        .then(() => db.none("delete from team where id = $1", [teamId]));
+};

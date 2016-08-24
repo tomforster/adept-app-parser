@@ -204,6 +204,8 @@ module.exports = function(express){
                         return characterRepository.fetchTeams(guildData.id).then(teams => {
                             res.render('audit.pug', {
                                 guildInfo:{
+                                    name: guildData.name,
+                                    id: guildData.id,
                                     characters: guildData.characters,
                                     teams: teams
                                 }
@@ -222,7 +224,7 @@ module.exports = function(express){
                     var message = JSON.parse(msg);
                     var header = message.header;
                     switch(header) {
-                        case 'add' :
+                        case 'team.addCharacter' :
                             var team = message.body.team;
                             var characterId = message.body.character;
                             getCharacterDataWithAudit(characterId)
@@ -239,25 +241,25 @@ module.exports = function(express){
                                 })
                                 .then(character => {
                                     if (character !== null) {
-                                        ws.send(JSON.stringify({header: 'add', body: {team:team, character:character}}))
+                                        ws.send(JSON.stringify({header: 'team.addCharacter', body: {team:team, character:character}}))
                                     }
                                 })
                                 .catch(error => {
                                     logger.error(error);
                                 });
                             break;
-                        case 'remove' :
+                        case 'team.removeCharacter' :
                             var team = message.body.team;
                             var characterId = message.body.character;
                             characterRepository.removeFromTeam(team, characterId)
                                 .then(character => {
-                                        ws.send(JSON.stringify({header: 'remove', body: {team:team, character:characterId}}))
+                                        ws.send(JSON.stringify({header: 'team.removeCharacter', body: {team:team, character:characterId}}))
                                 })
                                 .catch(error => {
                                     logger.error(error);
                                 });
                             break;
-                        case 'team' :
+                        case 'team.list' :
                             var team = message.body.team;
                             characterRepository.fetchTeamCharacters(team)
                                 .then(characters => {
@@ -266,12 +268,19 @@ module.exports = function(express){
                                         character.full_data.lastUpdated = character.audit_last_updated;
                                     });
                                     characters = characters.map(characters => characters.full_data);
-                                    ws.send(JSON.stringify({header: 'team', body: {team:team, characters:characters}}))
+                                    ws.send(JSON.stringify({header: 'team.list', body: {team:team, characters:characters}}))
                                 })
                                 .catch(error => {
                                     logger.error(error);
                                 });
                             break;
+                        case 'team.create' :
+                            var teamName = message.body.name;
+                            var guildId = message.body.guild;
+                            characterRepository.saveTeam(guildId, teamName)
+                                .then(team => {
+                                    ws.send(JSON.stringify({header: 'team.create', body: {team:team}}));
+                                })
                     }
                 })
             });

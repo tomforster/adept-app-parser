@@ -8,6 +8,7 @@ angular.module('audit', ['ui.bootstrap'])
 
     .controller('ctrl', ['$scope', '$uibModal', function($scope, $uibModal) {
         this.members = guildInfo.characters;
+        this.currentGuild = guildInfo;
         this.teams = guildInfo.teams;
         this.auditedMembers = [];
         this.currentTeam = null;
@@ -29,7 +30,7 @@ angular.module('audit', ['ui.bootstrap'])
             ws.onmessage = event => {
                 var message = JSON.parse(event.data);
                 switch(message.header){
-                    case 'add':
+                    case 'team.addCharacter':
                         $scope.$apply(() => {
                             console.log(message.body);
                             if(this.currentTeam && this.currentTeam.id === message.body.team){
@@ -37,7 +38,7 @@ angular.module('audit', ['ui.bootstrap'])
                             }
                         });
                         break;
-                    case 'remove':
+                    case 'team.removeCharacter':
                         console.log(message.body);
                         if(this.currentTeam && this.currentTeam.id === message.body.team){
                             for(var i = this.auditedMembers.length - 1; i >= 0; i--) {
@@ -48,12 +49,24 @@ angular.module('audit', ['ui.bootstrap'])
                                 }
                             }
                         }
-                    case 'team':
+                    case 'team.list':
                         $scope.$apply(() => {
                             console.log(message.body);
                             if(this.currentTeam && this.currentTeam.id === message.body.team){
                                 this.auditedMembers.push.apply(this.auditedMembers, message.body.characters);
                             }
+                        });
+                        break;
+                    case 'team.create':
+                        console.log(message.body);
+                        var newTeam = false;
+                        for(var i = this.teams.length - 1; i >= 0; i--) {
+                            if (this.teams[i].id === message.body.team.id) {
+                                newTeam = true;
+                            }
+                        }
+                        $scope.$apply(() => {
+                            if (!newTeam) this.teams.push(message.body.team);
                         });
                         break;
                 }
@@ -63,7 +76,7 @@ angular.module('audit', ['ui.bootstrap'])
         this.characterClick = (character) => {
             if(this.currentTeam !== null) {
                 wsPromise.then(ws => {
-                    ws.send(JSON.stringify({header: 'add', body: {team: this.currentTeam.id, character: character.id}}));
+                    ws.send(JSON.stringify({header: 'team.addCharacter', body: {team: this.currentTeam.id, character: character.id}}));
                 })
             }
         };
@@ -71,7 +84,7 @@ angular.module('audit', ['ui.bootstrap'])
         this.characterRemove = (character) => {
             if(this.currentTeam !== null) {
                 wsPromise.then(ws => {
-                    ws.send(JSON.stringify({header: 'remove', body: {team: this.currentTeam.id, character: character.id}}));
+                    ws.send(JSON.stringify({header: 'team.removeCharacter', body: {team: this.currentTeam.id, character: character.id}}));
                 })
             }
         };
@@ -84,7 +97,7 @@ angular.module('audit', ['ui.bootstrap'])
                 this.currentTeam = team;
                 this.auditedMembers.length = 0;
                 wsPromise.then(ws => {
-                    ws.send(JSON.stringify({header: 'team', body: {team: this.currentTeam.id}}));
+                    ws.send(JSON.stringify({header: 'team.list', body: {team: this.currentTeam.id}}));
                 });
             }
         };
@@ -114,6 +127,9 @@ angular.module('audit', ['ui.bootstrap'])
             this.createTeam = (teamName) => {
                 if(this.isValidTeamName(teamName)) {
                     console.log(teamName);
+                    wsPromise.then(ws => {
+                        ws.send(JSON.stringify({header: 'team.create', body: {name: teamName, guild: this.currentGuild.id}}));
+                    });
                     guildModal.close();
                 }
             };

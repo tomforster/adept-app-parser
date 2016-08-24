@@ -24,7 +24,8 @@ CREATE UNIQUE INDEX character_name_realm_idx ON character (name, realm);
 CREATE TABLE team (
   id serial primary key,
   name VARCHAR(100),
-  guild integer references guild
+  guild integer references guild,
+  constraint team_name_guild_uk UNIQUE (name, guild)
 );
 
 CREATE TABLE team_character (
