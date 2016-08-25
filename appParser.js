@@ -5,21 +5,25 @@ function AppInfo() {
     this.location = "";
     this.timediff = "";
     this.vouch = "";
-    this.charname = "";
-    this.charclass = "";
-    this.armoryurl = "";
     this.refer = "";
-
     this.alts = "";
     this.timeInWow = "";
     this.guildHistory = "";
-    this.teams = "";
-    this.hardcore = false;
-    this.social = false;
 
-    this.differentCharHC = false;
+    this.charname = "";
+    this.charclass = "";
+    this.armoryurl = "";
+
+    this.teams = ""; //not useful
+
+    this.hardcore = false; //no need to add to db
+    this.social = false; //no need to add to db
+
+    this.differentCharHC = false; //no need to add to db
+
     this.charnameHC = "";
     this.charclassHC = "";
+    this.specsHC = ""; //no need to add to db
     this.armoryurlHC = "";
     this.mainSpecsHC = [];
     this.offSpecsHC = [];
@@ -29,16 +33,14 @@ function AppInfo() {
     this.motivationHC = "";
     this.logsUrlHC = "";
 
-    this.differentCharSC = false;
+    this.differentCharSC = false; //no need to add to db
+
     this.charnameSC = "";
     this.charclassSC = "";
+    this.specsSC = ""; //no need to add to db
     this.armoryurlSC = "";
     this.mainSpecsSC = [];
     this.offSpecsSC = [];
-    
-    this.specsHC = "";
-    this.specsSC = "";
-    
     this.favouriteContentSC = "";
     this.classSC = "";
     this.addonsSC = "";
@@ -49,7 +51,7 @@ function AppInfo() {
     this.whyAccept = "";
     this.net = "";
 
-    this.wol = "";
+    this.wol = ""; //no need to add to db
 }
 
 exports.parseText = function(text) {

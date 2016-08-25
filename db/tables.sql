@@ -46,3 +46,9 @@ CREATE TABLE guild_character (
   character integer references character,
   CONSTRAINT guild_character_uk UNIQUE (guild, character)
 );
+
+CREATE TABLE application (
+  id SERIAL PRIMARY KEY,
+  data JSONB not null,
+  date_received BIGINT not null
+)
