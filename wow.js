@@ -5,7 +5,7 @@
 var mailin = require('mailin');
 var appParser = require('./appParser.js');
 var phantomScripts = require('./phantomScripts.js');
-var applicationRepository = require('repositories/applicationRepository');
+var applicationRepository = require('./repositories/applicationRepository');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
