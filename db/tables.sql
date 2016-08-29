@@ -51,4 +51,4 @@ CREATE TABLE application (
   id SERIAL PRIMARY KEY,
   data JSONB not null,
   date_received BIGINT not null
-)
+);
