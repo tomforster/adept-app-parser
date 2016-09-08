@@ -48,6 +48,10 @@ module.exports = function(app){
         catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/')
     }, 30000);
 
+    setInterval(function(){
+        catpics3ImageCache = updateImageCache(catpics3ImageCache, '/home/node/security3/','/catimg3/')
+    }, 30000);
+
     app.get('/img/:tagId',auth, function(req,res) {
         logger.info('Saved image request');
         res.sendFile('/home/node/img/'+req.params["tagId"]);
@@ -60,6 +64,11 @@ module.exports = function(app){
     app.get('/catimg2/:tagId',auth, function(req,res) {
         logger.info('Camera 2 image request');
         res.sendFile('/home/node/security2/'+req.params["tagId"]);
+    });
+
+    app.get('/catimg3/:tagId',auth, function(req,res) {
+        logger.info('Camera 3 image request');
+        res.sendFile('/home/node/security3/'+req.params["tagId"]);
     });
 
     app.get('/catpics/:numberImgs?',auth,function(req,res) {
@@ -78,6 +87,15 @@ module.exports = function(app){
         number = Math.min(number,IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
         res.render('gallery.pug', {images : catpics2ImageCache.slice(0,number)});
+    });
+
+    app.get('/catpics3/:numberImgs?',auth,function(req,res) {
+        logger.info('Cat camera 3 page request.');
+        var number = parseInt(req.params["numberImgs"],10);
+        number = isNaN(number) ? 16 : number;
+        number = Math.min(number,IMAGE_CACHE_SIZE);
+        number = Math.max(1, number);
+        res.render('gallery.pug', {images : catpics3ImageCache.slice(0,number)});
     });
 
     app.get('/catpicsold/',auth,function(req,res) {
@@ -109,6 +127,7 @@ module.exports = function(app){
 
 var catpicsImageCache = [];
 var catpics2ImageCache = [];
+var catpics3ImageCache = [];
 
 function updateImageCache (imageCache, dir,requestStr){
     logger.info("Checking if any updated images for "+requestStr);
