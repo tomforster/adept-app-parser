@@ -12,13 +12,13 @@ html(ng-app="pics")
             div.row
                 div.col-lg-12
                     h1.page-header Cat Cam Gallery
-                        div.btn-group.pull-right(style="margin-right:5px")
-                            a.btn.btn-default(href="/catpics") Living Room
-                            a.btn.btn-default(href="/catpics2") Kitchen
-                            a.btn.btn-default(href="/catpics3") Bedroom
                         button.btn.btn-default.pull-right(ng-click="c.snapshot()" ng-disabled="c.snapshotInProgress")
                             i.fa.fa-spinner.fa-pulse.fa-fw(ng-show="c.snapshotInProgress")
                             span(ng-show="!c.snapshotInProgress") Snapshot
+                        div.btn-group.pull-right(style="margin-right:10px")
+                            a.btn.btn-default(href="/catpics") Living Room
+                            a.btn.btn-default(href="/catpics2") Kitchen
+                            a.btn.btn-default(href="/catpics3") Bedroom
 
                 div
                     each image in images
