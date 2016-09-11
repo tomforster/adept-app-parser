@@ -7,3 +7,5 @@ TODO:
 * add in request video
 * email on no images received for set period
 * make image deletion policy less strict
+* alert on possible app post failure
+* cull dead links
