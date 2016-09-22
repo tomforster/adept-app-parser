@@ -57,15 +57,6 @@ bot.on("message", (message) => {
                 logger.info('Audit message');
                 break;
             case 'spammers':
-                userMessageCountRepository.fetchTop10().then(result => {
-                    if(result && result.length > 0){
-                        var opMessage = "Top 10 most active Discord users (by messages sent):\n";
-                        result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
-                        return bot.sendMessage(message.channel, opMessage);
-                    }
-                }).catch(error => logger.error(error));
-                break;
-            case 'spammers_beta':
                 var duration = parseDuration(params.join(' '));
                 if(params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server){
                     auditRepository.top10UsersForServerByMessageCountWithDuplicateDetection(message.server.channels.map(channel => channel.id), duration).then(result => {
@@ -119,7 +110,7 @@ bot.on("message", (message) => {
                             var opMessage = "Saved images for command "+commandParam+":\n";
                             var count = 1;
                             results.forEach(img => {
-                                opMessage += "\n" + count + ": <" + img.url + ">";
+                                opMessage += "\n" + count + ": <" + img.url + "> [" + img.uploader + "]";
                                 count++;
                             });
                             return bot.sendMessage(message.channel, opMessage);

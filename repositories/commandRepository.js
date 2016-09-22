@@ -2,28 +2,29 @@
  * Created by Tom on 25/06/2016.
  */
 
+"use strict";
+
 var db = require('./../db.js').db;
 var moment = require('moment');
 
 var logger = require("../logger");
 
 exports.fetch = function(command){
-    logger.info("fetching",command);
+    logger.debug("fetching", command);
     if(command && typeof command === 'string' && command.length>0){
-        return db.any("select command, url, date_added from command where command=($1)", [command]);
+        return db.any("select command, url, c.date_added, du.username as uploader from command c join discord_user du on c.user_id = du.discord_id where command=($1)", [command]);
     }else{
-        logger.info("type of command incorrect!");
+        logger.debug("type of command incorrect!");
         return [];
     }
 };
 
 exports.random = function(){
-    "use strict";
-    logger.info("fetching random");
+    logger.debug("fetching random");
     return db.one("SELECT count(*) from command").then(result => db.one("SELECT command, url, date_added FROM command OFFSET floor(random()*$1) LIMIT 1", [result.count]));
 };
 
 exports.save = function(command, url, user_id){
-    logger.info("saving", command);
+    logger.debug("saving", command);
     return db.none("insert into command(type, command, url, date_added, user_id) values ($1, $2, $3, $4, $5)", ['image', command, url, moment().unix(), user_id]);
 };
