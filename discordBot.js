@@ -40,7 +40,9 @@ bot.on("message", (message) => {
         var commandParam;
         switch(keyword){
             case 'sheet':
-                bot.reply(message, "<https://docs.google.com/spreadsheets/d/1XNQMaZN-DD2rr3q_Pe68g4fj5_sgtCkhVGAhVf8Mskc/>");
+                if(config.sheetUrl) {
+                    bot.reply(message, "<" + config.sheetUrl + ">");
+                }
                 break;
             case 'roll' :
                 if(params.length > 0){
