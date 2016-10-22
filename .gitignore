@@ -2,3 +2,4 @@ config.json
 config/
 node_modules/
 .idea
+/adept-app-parser.iml
