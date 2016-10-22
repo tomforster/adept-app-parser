@@ -7,7 +7,7 @@ angular.module('pics',[])
     this.snapshot = function(){
         $http({
             method: 'POST',
-            url: '/snapshot/1'});
+            url: '/snapshot/livingroom'});
         self.snapshotInProgress = true;
         setTimeout(function(){
             self.snapshotInProgress = false;

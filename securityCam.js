@@ -15,9 +15,9 @@ var router = require('express').Router();
 var IMAGE_CACHE_SIZE = 64;
 
 var cameras = [
-    { name: '1', directory: '/home/node/security/', recentImages: [], default:true},
-    { name: '2', directory: '/home/node/security2/', recentImages: [], default:false},
-    { name: '3', directory: '/home/node/security3/', recentImages: [], default:false}
+    { name: 'livingroom', directory: '/home/node/security/', recentImages: [], default:true},
+    { name: 'kitchen', directory: '/home/node/security2/', recentImages: [], default:false},
+    { name: 'bedroom', directory: '/home/node/security3/', recentImages: [], default:false}
 ];
 
 module.exports = function(ws){
@@ -33,7 +33,7 @@ module.exports = function(ws){
 
     router.get('/images/:camera/:tagId', function(req,res) {
         var cameraName = req.params["camera"];
-        log.info(`Cat camera ${cameraName} image request.`);
+        log.debug(`Cat camera ${cameraName} image request.`);
         var camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
@@ -47,7 +47,7 @@ module.exports = function(ws){
         number = number && number.match(/^\d+$/) ? Number(number) : 16;
         number = Math.min(number, IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
-        log.info(`Cat camera ${cameraName} page request.`);
+        log.debug(`Cat camera ${cameraName} page request.`);
         var camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
@@ -55,17 +55,17 @@ module.exports = function(ws){
         res.render('gallery.pug', {images : camera.recentImages.slice(0,number)});
     });
 
-    router.post('/snapshot/1/',function(req,res){
-        log.info('Snapshot camera 1');
+    router.post('/snapshot/livingroom/',function(req,res){
+        log.info('Snapshot livingroom camera');
         exec('snapshot-cam-1.sh',
             function (error, stdout, stderr) {
                 if (error !== null) {
-                    log.info(error);
+                    log.error(error);
                 } else {
                     log.info('stdout: ' + stdout);
                     log.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        updateImageCache(getCameraByName("1"), ws);
+                        updateImageCache(getCameraByName("livingroom"), ws);
                     }, 3000);
                 }
             }
