@@ -28,9 +28,9 @@ log.info("Api:", config.enableApi);
 var wow = require('./wow')(config.enableDiscordBot, config.enableMail);
 app.use('/parser', wow);
 
-if(config.enableApi){
-    require('./wow-api')(app);
-}
+// if(config.enableApi){
+//     require('./wow-api')(app);
+// }
 
 app.get('/robots.txt',function(req,res){
     log.info('Robot detected.');
