@@ -9,7 +9,7 @@ var rp = require('request-promise');
 
 var MAX_SIZE = 5000000;
 
-var bot = new Discord.Client();
+var bot = new Discord.Client({ bot: false });
 var commandRepository = require('./repositories/commandRepository');
 var userRepository = require('./repositories/userRepository');
 var auditRepository = require('./repositories/auditRepository');
