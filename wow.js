@@ -14,7 +14,7 @@ const log = require('better-logs')('wow');
 var router = require('express').Router();
 
 module.exports = function(startBot, startMail){
-    router.get('/parser', function(req, res) {
+    router.get('/', function(req, res) {
         log.info('Parser request');
         res.sendFile(path.join(__dirname,'/public/parser.html'));
     });
