@@ -9,7 +9,7 @@ rp = rp.defaults({json:true});
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var logger = require("./logger");
+const log = require('better-logs')('wowapi');
 var fs = require('fs');
 var characterRepository = require('./repositories/characterRepository');
 
@@ -88,17 +88,17 @@ module.exports = function(express){
                 }
                 return rp(createCharacterUri(character, realm))
                     .then(charInfo => {
-                        logger.debug(charInfo.name);
+                        log.debug(charInfo.name);
                         charInfo.class = classMap[charInfo.class];
                         charInfo.audit = itemAudit(charInfo.items);
                         return charInfo;
                     })
                     .catch((error) => {
                         if(numRetries == 0){
-                            logger.error(error);
+                            log.error(error);
                             throw('failed after 5 retries');
                         }
-                        logger.debug('failed character', character, 'retrying...');
+                        log.debug('failed character', character, 'retrying...');
                         numRetries--;
                         return getCharacterFromApi(character, realm, numRetries);
                     })
@@ -119,10 +119,10 @@ module.exports = function(express){
                     })
                     .catch((error) => {
                         if(numRetries == 0){
-                            logger.error(error);
+                            log.error(error);
                             throw('failed after 5 retries');
                         }
-                        logger.debug('failed guild', guild, 'retrying...');
+                        log.debug('failed guild', guild, 'retrying...');
                         numRetries--;
                         return getGuildFromApi(guild, realm, numRetries);
                     })
@@ -213,13 +213,13 @@ module.exports = function(express){
                         })
                     })
                     .catch(error => {
-                        logger.error(error);
+                        log.error(error);
                         res.send(error.reason);
                     });
             });
 
             app.ws('/auditsocket', function(ws, req) {
-                logger.info("Audit websocket opened.");
+                log.info("Audit websocket opened.");
                 ws.on('message', msg => {
                     var message = JSON.parse(msg);
                     var header = message.header;
@@ -245,7 +245,7 @@ module.exports = function(express){
                                     }
                                 })
                                 .catch(error => {
-                                    logger.error(error);
+                                    log.error(error);
                                 });
                             break;
                         case 'team.removeCharacter' :
@@ -256,7 +256,7 @@ module.exports = function(express){
                                         ws.send(JSON.stringify({header: 'team.removeCharacter', body: {team:team, character:characterId}}))
                                 })
                                 .catch(error => {
-                                    logger.error(error);
+                                    log.error(error);
                                 });
                             break;
                         case 'team.list' :
@@ -271,7 +271,7 @@ module.exports = function(express){
                                     ws.send(JSON.stringify({header: 'team.list', body: {team:team, characters:characters}}))
                                 })
                                 .catch(error => {
-                                    logger.error(error);
+                                    log.error(error);
                                 });
                             break;
                         case 'team.create' :
@@ -286,7 +286,7 @@ module.exports = function(express){
             });
         })
         .catch(function(error) {
-            logger.error(error.message);
+            log.error(error.message);
         });
 
 };

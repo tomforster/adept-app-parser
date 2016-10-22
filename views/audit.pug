@@ -7,7 +7,6 @@ html(ng-app="audit")
         script.
             var guildInfo = !{JSON.stringify(guildInfo).replace(/<\//g, '<\\/')};
         script(src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js")
-        script(src="/libs/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js")
         script(src="https://use.fontawesome.com/ca8b035f76.js")
         script(src="/audit.js")
     body(ng-controller="ctrl as c").container

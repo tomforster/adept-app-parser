@@ -3,7 +3,7 @@ var path = require("path");
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantomScripts = require('./phantomScripts');
-var logger = require("./logger");
+const log = require('better-logs')('discord');
 var validUrl = require('valid-url');
 var rp = require('request-promise');
 
@@ -12,24 +12,16 @@ var MAX_SIZE = 5000000;
 var bot = new Discord.Client();
 var commandRepository = require('./repositories/commandRepository');
 var userRepository = require('./repositories/userRepository');
-var userMessageCountRepository = require('./repositories/userMessageCountRepository');
 var auditRepository = require('./repositories/auditRepository');
 var allowable_extensions = ['jpeg','jpg','png','gif'];
 var humanizeDuration = require('humanize-duration');
 
 var parseDuration = require('parse-duration');
 
-var lastMessageUserId = "";
-
 bot.on("message", (message) => {
     //increment message count
     logUserDetails(message.author).then(user => {
-        if(lastMessageUserId !== user.id) {
-            userMessageCountRepository.increment(user.id).catch(error => logger.error(error));
-        }
-        lastMessageUserId = user.id;
-
-        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user)).catch(error => logger.error(error));
+        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user)).catch(error => log.error(error));
     });
     if(message.mentions.length > 0) return;
     if(message.author.equals(bot.user)) return;
@@ -55,11 +47,11 @@ bot.on("message", (message) => {
                         }
                     }
                 }
-                bot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => logger.error(error));
+                bot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
                 break;
             case 'audit':
                 runAudit(message);
-                logger.info('Audit message');
+                log.info('Audit message');
                 break;
             case 'spammers':
                 var duration = parseDuration(params.join(' '));
@@ -73,7 +65,7 @@ bot.on("message", (message) => {
                         } else if (result.length == 0) {
                             return bot.sendMessage(message.channel, "No eligible messages found.");
                         }
-                    }).catch(error => logger.error(error));
+                    }).catch(error => log.error(error));
                 } else {
                     auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id, duration).then(result => {
                         if (result && result.length > 0) {
@@ -84,23 +76,23 @@ bot.on("message", (message) => {
                         } else if (result.length == 0) {
                             return bot.sendMessage(message.channel, "No eligible messages found.");
                         }
-                    }).catch(error => logger.error(error));
+                    }).catch(error => log.error(error));
                 }
                 break;
             case 'random':
                 commandRepository
                     .random()
                     .then(img => {
-                        logger.info("fetched random filename: "+img.url);
+                        log.info("fetched random filename: "+img.url);
                         get_fileSize(img.url, err => {
                             if(err){
-                                return bot.reply(message, "Image is too large :(").catch(error => logger.error(error));
+                                return bot.reply(message, "Image is too large :(").catch(error => log.error(error));
                             }else{
                                 return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), "Here's your random image: !" + img.command);
                             }
                         });
                     })
-                    .catch(err => logger.error(err));
+                    .catch(err => log.error(err));
 
                 break;
             case 'list':
@@ -110,7 +102,7 @@ bot.on("message", (message) => {
                     commandRepository
                         .fetch(commandParam.toLowerCase())
                         .then(results => {
-                            logger.info("fetched list of "+ results.length +" values for " + commandParam);
+                            log.info("fetched list of "+ results.length +" values for " + commandParam);
                             if (results.length == 0) return;
                             var opMessage = "Saved images for command "+commandParam+":\n";
                             var count = 1;
@@ -119,7 +111,7 @@ bot.on("message", (message) => {
                                 count++;
                             });
                             return bot.sendMessage(message.channel, opMessage);
-                        }).catch(error => logger.error(error));
+                        }).catch(error => log.error(error));
                 }
                 break;
             case 'save':
@@ -146,7 +138,7 @@ bot.on("message", (message) => {
                             commandRepository
                                 .save(commandParam, uriParam, message.author.id)
                                 .then(() => bot.reply(message, "new command: " + commandParam + " has been added successfully."))
-                                .catch(err => logger.info(err));
+                                .catch(err => log.info(err));
                         }
                     });
                 }
@@ -166,16 +158,16 @@ bot.on("message", (message) => {
                             }else{
                                 img = results[0];
                             }
-                            logger.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
+                            log.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
                             get_fileSize(img.url, err => {
                                 if(err){
-                                    return bot.reply(message, "Image is too large :(").catch(error => logger.error(error));
+                                    return bot.reply(message, "Image is too large :(").catch(error => log.error(error));
                                 }else{
                                     return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop());
                                 }
                             });
                         })
-                        .catch(err => logger.error(err));
+                        .catch(err => log.error(err));
                 }
         }
     }
@@ -197,9 +189,9 @@ function get_fileSize(url, callback) {
 }
 
 var getParams = function(messageString, command) {
-    logger.info("getting params");
+    log.info("getting params");
     var words = messageString.split(' ');
-    logger.info("words:",words);
+    log.info("words:",words);
     var commandIndex = words.indexOf('!'+command);
     if (commandIndex == (words.length - 1) || commandIndex < 0) {
         return [];
@@ -208,7 +200,7 @@ var getParams = function(messageString, command) {
     for (var i = commandIndex + 1; i < words.length; i++) {
         results.push(words[i]);
     }
-    logger.info(results);
+    log.info(results);
     return results;
 };
 
@@ -234,23 +226,23 @@ function logUserDetails(discordUser){
             }
             return user;
         }
-    }).catch(error => logger.error(error));
+    }).catch(error => log.error(error));
 }
 
 bot.on("ready", () => {
-    logger.info("Bot started up!");
+    log.info("Bot started up!");
     bot.users.forEach((discordUser) => {
         logUserDetails(discordUser);
     })
 });
 
 bot.on("serverNewMember", (server, discordUser) => {
-    logger.info("Saving details on new member", discordUser.username);
+    log.info("Saving details on new member", discordUser.username);
     logUserDetails(discordUser);
 });
 
 bot.on("presence", (oldUser, discordUser) => {
-    logger.info("Member presence updated!", discordUser.username);
+    log.info("Member presence updated!", discordUser.username);
     logUserDetails(discordUser);
 });
 
@@ -258,7 +250,7 @@ var runAudit = function(message){
     bot.sendMessage(message.channel, 'One second...');
 
     phantomScripts.readAudit().then(auditInfo => {
-        logger.info("Audit promise returned");
+        log.info("Audit promise returned");
         var bads = auditInfo.characterData.filter(player => player.audit !== '0' || player.upgrades !== '100');
         var opString = "";
         bads.forEach(bad => {
@@ -275,7 +267,7 @@ var runAudit = function(message){
         if(auditInfo.lastCheck.length > 0){
             opString += " (Data last refreshed: " + auditInfo.lastCheck +')';
         }
-        logger.info(opString);
+        log.info(opString);
         bot.sendMessage(message.channel, opString);
     });
 };

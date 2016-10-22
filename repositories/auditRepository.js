@@ -5,11 +5,11 @@
 var db = require('./../db.js').db;
 var moment = require('moment');
 
-var logger = require("../logger");
+const log = require('better-logs')('audit_repo');
 
 exports.logMessageAudit = function(userId, channelId, isBotMessage){
     isBotMessage = !!isBotMessage;
-    logger.debug("saving message to archive for channel");
+    log.debug("saving message to archive for channel");
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("insert into audit (type, user_id, channel_id, date, is_bot_message) values ($1, $2, $3, $4, $5) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix(), isBotMessage])
     }
@@ -17,7 +17,7 @@ exports.logMessageAudit = function(userId, channelId, isBotMessage){
 };
 
 exports.top10UsersForChannelByMessageCountWithDuplicateDetection = function(channelId, duration){
-    logger.debug("Fetching top 10 users by message count with dupe detection for channel", channelId);
+    log.debug("Fetching top 10 users by message count with dupe detection for channel", channelId);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         if(duration && duration > 0 && typeof duration === 'number'){
             var start = moment().subtract(duration, 'milliseconds').unix();
@@ -61,7 +61,7 @@ limit 10;`, [channelId])
 };
 
 exports.top10UsersForServerByMessageCountWithDuplicateDetection = function(channelIds, duration){
-    logger.debug("Fetching top 10 users by message count with dupe detection for channels", channelIds);
+    log.debug("Fetching top 10 users by message count with dupe detection for channels", channelIds);
     if (channelIds && channelIds.length > 0) {
         if(duration && duration > 0 && typeof duration === 'number'){
             var start = moment().subtract(duration, 'milliseconds').unix();

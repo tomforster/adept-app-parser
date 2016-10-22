@@ -2,135 +2,93 @@
  * Created by Tom on 28/06/2016.
  */
 
+'use strict';
+
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var fs = require('fs');
-var basicAuth = require('basic-auth');
 var _ = require('underscore');
 var exec = require('child_process').exec;
-var logger = require("./logger");
-
-var auth = function (req, res, next) {
-    function unauthorized(res) {
-        res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-        return res.send(401);
-    }
-
-    var user = basicAuth(req);
-
-    if (!user || !user.name || !user.pass) {
-        return unauthorized(res);
-    }
-
-    if (user.name === config.username && user.pass === config.password) {
-        return next();
-    } else {
-        return unauthorized(res);
-    }
-};
-
-var ws = null;
+const log = require('better-logs')('camera');
+var router = require('express').Router();
 var IMAGE_CACHE_SIZE = 64;
 
-module.exports = function(app){
+var cameras = [
+    { name: '1', directory: '/home/node/security/', recentImages: []},
+    { name: '2', directory: '/home/node/security2/', recentImages: []},
+    { name: '3', directory: '/home/node/security3/', recentImages: []}
+];
 
-    ws = require('express-ws')(app);
+module.exports = function(ws){
 
-    catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
-    catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/');
-
+    updateImageCaches(ws);
     setInterval(function(){
-        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/')
+        updateImageCaches(ws);
     }, 30000);
 
-    setInterval(function(){
-        catpics2ImageCache = updateImageCache(catpics2ImageCache, '/home/node/security2/','/catimg2/')
-    }, 30000);
+    router.get('/img/:camera/:tagId', function(req,res) {
+        var camera = req.params["camera"];
+        if(!camera.match(/^\d+$/)) {
+            log.info(`Bad cat camera image request (${camera}).`);
+            return res.status(404);
+        }
+        log.info(`Cat camera ${camera} image request.`);
 
-    setInterval(function(){
-        catpics3ImageCache = updateImageCache(catpics3ImageCache, '/home/node/security3/','/catimg3/')
-    }, 30000);
-
-    app.get('/img/:tagId',auth, function(req,res) {
-        logger.info('Saved image request');
-        res.sendFile('/home/node/img/'+req.params["tagId"]);
-    });
-    app.get('/catimg/:tagId',auth, function(req,res) {
-        logger.info('Camera 1 image request');
         res.sendFile('/home/node/security/'+req.params["tagId"]);
     });
 
-    app.get('/catimg2/:tagId',auth, function(req,res) {
-        logger.info('Camera 2 image request');
-        res.sendFile('/home/node/security2/'+req.params["tagId"]);
-    });
-
-    app.get('/catimg3/:tagId',auth, function(req,res) {
-        logger.info('Camera 3 image request');
-        res.sendFile('/home/node/security3/'+req.params["tagId"]);
-    });
-
-    app.get('/catpics/:numberImgs?',auth,function(req,res) {
-        logger.info('Cat camera 1 page request.');
+    router.get('/cams/:camera/:numberImgs?', function(req,res) {
+        var camera = req.params["camera"];
+        if(!camera.match(/^\d+$/)) {
+            log.warn(`Bad cat camera page request (${camera}).`);
+            return res.status(404);
+        }
+        log.info(`Cat camera ${camera} page request.`);
         var number = parseInt(req.params["numberImgs"],10);
-        number = isNaN(number) ? 16 : number;
-        number = Math.min(number,IMAGE_CACHE_SIZE);
+        number = !number.match(/^\d+$/) ? 16 : number;
+        number = Math.min(number, IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
-        res.render('gallery.pug', {images : catpicsImageCache.slice(0,number)});
+        if(imageCaches.hasOwnProperty(camera)){
+            res.render('gallery.pug', {images : imageCaches[camera].slice(0,number)});
+        }
+        return res.status(404);
     });
 
-    app.get('/catpics2/:numberImgs?',auth,function(req,res) {
-        logger.info('Cat camera 2 page request.');
-        var number = parseInt(req.params["numberImgs"],10);
-        number = isNaN(number) ? 16 : number;
-        number = Math.min(number,IMAGE_CACHE_SIZE);
-        number = Math.max(1, number);
-        res.render('gallery.pug', {images : catpics2ImageCache.slice(0,number)});
-    });
-
-    app.get('/catpics3/:numberImgs?',auth,function(req,res) {
-        logger.info('Cat camera 3 page request.');
-        var number = parseInt(req.params["numberImgs"],10);
-        number = isNaN(number) ? 16 : number;
-        number = Math.min(number,IMAGE_CACHE_SIZE);
-        number = Math.max(1, number);
-        res.render('gallery.pug', {images : catpics3ImageCache.slice(0,number)});
-    });
-
-    app.get('/catpicsold/',auth,function(req,res) {
-        logger.info('Old cat images list');
-        res.send(getFiles('/home/node/security/'));
-    });
-
-    app.post('/snapshot/1/',function(req,res){
-        logger.info('Snapshot camera 1');
+    router.post('/snapshot/1/',function(req,res){
+        log.info('Snapshot camera 1');
         exec('snapshot-cam-1.sh',
             function (error, stdout, stderr) {
                 if (error !== null) {
-                    logger.info(error);
+                    log.info(error);
                 } else {
-                    logger.info('stdout: ' + stdout);
-                    logger.info('stderr: ' + stderr);
+                    log.info('stdout: ' + stdout);
+                    log.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        catpicsImageCache = updateImageCache(catpicsImageCache, '/home/node/security/','/catimg/');
+                        imageCaches[1] = updateImageCache(1, '/home/node/security/','/img/', ws);
                     }, 3000);
                 }
             }
         );
     });
 
-    app.ws('/catpicsocket', function(ws, req) {
-        logger.info("Websocket opened.");
+    router.ws('/socket', function(ws, req) {
+        log.debug("Cat socket opened.");
     });
+
+    return router;
 };
 
-var catpicsImageCache = [];
-var catpics2ImageCache = [];
-var catpics3ImageCache = [];
+function updateImageCaches(ws){
+    cameras.forEach(camera => updateImageCache(camera, ws));
+}
 
-function updateImageCache (imageCache, dir,requestStr){
-    logger.info("Checking if any updated images for "+requestStr);
+function updateImageCache(camera, ws){
+    log.debug(`Checking if any updated images for ${camera.name}`);
+    var imageCache = camera.recentImages;
+    var dir = camera.directory;
+    var requestStr = `/img/${imageCache.name}/`;
+
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg' && file.charAt(0) !== '.'});
@@ -145,18 +103,18 @@ function updateImageCache (imageCache, dir,requestStr){
         }
     });
     var newImageCache = files_.slice(0,IMAGE_CACHE_SIZE);
-    if(_.isEqual(imageCache, newImageCache)) return imageCache;
-    logger.info("New images found, image cache updated.");
+    if(_.isEqual(imageCache, newImageCache)) return;
+    log.debug("New images found, image cache updated.");
+    camera.recentImages = newImageCache;
     setTimeout(function(){
-        broadcastRefresh();
+        broadcastRefresh(ws);
     },100);
-    return newImageCache;
 }
 
-function broadcastRefresh(){
-    logger.info("sending refresh");
-    ws.getWss('/catpics').clients.forEach(function (client) {
-        logger.info("refreshing "+client.toString());
+function broadcastRefresh(ws){
+    log.debug("Sending refresh");
+    ws.getWss('/socket').clients.forEach(function (client) {
+        log.debug("Refreshing "+client.toString());
         client.send('refresh');
     });
 }
@@ -189,21 +147,4 @@ function getImageType(str){
 
 function getExtension(filename) {
     return filename.split('.').pop();
-}
-
-function getFiles (dir){
-    var files_ = "<html><body>";
-    var files = fs.readdirSync(dir);
-    files.sort(function(a, b) {
-        return fs.statSync(dir + b).mtime.getTime() -
-            fs.statSync(dir + a).mtime.getTime();
-    });
-    files.slice(0,100).forEach(function(file){
-        var name = dir + '/' + file;
-        if (!fs.statSync(name).isDirectory()){
-            files_ +=("<a href='catimg/"+file+"'>"+file+"</a><br>");
-        }
-    });
-    files_ += "</body></html>";
-    return files_;
 }

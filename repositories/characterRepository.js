@@ -6,10 +6,10 @@
 
 var db = require('./../db.js').db;
 var moment = require('moment');
-var logger = require("../logger");
+const log = require('better-logs')('character_repo');
 
 exports.saveSimpleCharacter = function(character, realm, data, guildId){
-    logger.debug("saving character:", character, realm);
+    log.debug("saving character:", character, realm);
     return db.one("insert into character(name, realm, data, last_updated) values ($1, $2, $3, $4) on conflict on constraint character_name_realm_uk do update set data = EXCLUDED.data returning id", [character, realm, data, moment().unix()])
         .then(result => db.one('insert into guild_character (guild, character) VALUES ($1, $2) on conflict on constraint guild_character_uk do update set guild = EXCLUDED.guild returning character', [guildId, result.id]))
         .then(result => db.one('select * from character where id = $1 limit 1', [result.character]));
@@ -20,7 +20,7 @@ exports.updateCharacterAudit = function(id, data){
 };
 
 exports.fetchCharacter = function(characterId){
-    logger.debug('fetching character');
+    log.debug('fetching character');
     return db.oneOrNone("select id, data, full_data, last_updated, audit_last_updated from character where id = $1", [characterId]);
 };
 
@@ -33,7 +33,7 @@ exports.removeFromTeam = function(team, character){
 };
 
 exports.fetchGuildCharacters = function(guildId){
-    logger.debug("Fetching guild characters", guildId);
+    log.debug("Fetching guild characters", guildId);
     return db.manyOrNone("select c.id, c.data, c.last_updated from guild g join guild_character gc on gc.guild = g.id join character c on gc.character = c.id where g.id = $1", [guildId]);
 };
 
@@ -50,7 +50,7 @@ exports.fetchTeams = function(guildId){
 };
 
 exports.fetchTeamCharacters = function(teamId){
-    logger.debug("Fetching team characters", teamId);
+    log.debug("Fetching team characters", teamId);
     return db.manyOrNone("select c.id, c.full_data, c.audit_last_updated from team t join team_character tc on tc.team = t.id join character c on tc.character = c.id where t.id = $1", [teamId]);
 };
 

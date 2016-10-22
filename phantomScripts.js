@@ -2,10 +2,10 @@ var env = process.env.NODE_ENV || "development";
 var path = require('path');
 var config = require(path.join(__dirname,'config/config.json'))[env];
 var phantom = require('phantom');
-var logger = require("./logger");
+const log = require('better-logs')('headless');
 
 var postApp = function(mailObj){
-    logger.info('Posting Adept App');
+    log.info('Posting Adept App');
     var username = config.forumUsername;
     var password = config.forumPassword;
     return new Promise(function(fulfill,reject) {
@@ -17,13 +17,13 @@ var postApp = function(mailObj){
             _page = page;
             return _page.open(config.forumUrl);
         }).then(function(status) {
-            logger.info("opened page? status: ", status);
+            log.info("opened page? status: ", status);
             if (status.indexOf('success') == -1) {
                 reject('Did not load');
-                logger.error("Failed to load page");
+                log.error("Failed to load page");
                 _ph.exit();
             }
-            logger.info("logging in as " + username + "...");
+            log.info("logging in as " + username + "...");
             _page.evaluate(function (mailObj, username, password) {
                 var usernameElement = document.querySelector('#username');
                 if (!usernameElement) {
@@ -36,14 +36,14 @@ var postApp = function(mailObj){
             },mailObj, username, password)
                 .then( function(result) {
                 if (!result) {
-                    logger.info('No username detected');
+                    log.info('No username detected');
                     _ph.exit();
                     reject();
                     return;
                 }
-                logger.info("waiting for load...");
+                log.info("waiting for load...");
                 setTimeout(function () {
-                    logger.info("finished waiting, posting app:");
+                    log.info("finished waiting, posting app:");
                     _page.evaluate(function (mailObj) {
                         document.querySelector('#subject').value = mailObj.title;
                         document.querySelector('#message').value = mailObj.body;
@@ -55,14 +55,14 @@ var postApp = function(mailObj){
                                 return document.URL.split('&sid')[0]
                             }).then(function (url) {
                                 if (url.indexOf('t=') > -1) {
-                                    logger.info('app posted!');
-                                    logger.info(url);
+                                    log.info('app posted!');
+                                    log.info(url);
                                     fulfill(url);
                                 } else {
                                     reject();
-                                    logger.info("Possibly did not upload");
+                                    log.info("Possibly did not upload");
                                 }
-                                logger.info('Exiting');
+                                log.info('Exiting');
                                 ph.exit();
                             });
                         }, 5000);
@@ -74,7 +74,7 @@ var postApp = function(mailObj){
 };
 
 var readAudit = function(){
-    logger.info("Starting audit read");
+    log.info("Starting audit read");
     return new Promise(function(resolve,reject){
         var auditUrl = "http://www.guildaudit.com/g/9146";
         var _ph, _page;
@@ -86,13 +86,13 @@ var readAudit = function(){
             _page = page;
             return _page.open(auditUrl);
         }).then(function(status) {
-            logger.info("opened page? status: ", status);
+            log.info("opened page? status: ", status);
             if (status.indexOf('success') == -1) {
                 reject('Did not load');
-                logger.error("Failed to load page");
+                log.error("Failed to load page");
                 _ph.exit();
             }
-            logger.info("Reading data");
+            log.info("Reading data");
             _page.evaluate(function () {
                 var auditData = {characterData:[], lastCheck:""};
                 var names = $(".characterRow .nameLink").map(function (index, value) {
@@ -114,7 +114,7 @@ var readAudit = function(){
                 auditData.lastCheck = lastCheck.split(': ').pop();
                 return auditData;
             }).then(function (auditData) {
-                logger.info("Got audit data");
+                log.info("Got audit data");
                 resolve(auditData);
                 _ph.exit();
             });

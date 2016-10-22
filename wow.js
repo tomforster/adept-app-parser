@@ -9,16 +9,17 @@ var applicationRepository = require('./repositories/applicationRepository');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-var logger = require("./logger");
+const log = require('better-logs')('wow');
 
-var discordBot = null;
+var router = require('express').Router();
 
-module.exports = function(app, startBot, startMail){
-    app.get('/parser', function(req, res) {
-        logger.info('parserReq');
+module.exports = function(startBot, startMail){
+    router.get('/parser', function(req, res) {
+        log.info('Parser request');
         res.sendFile(path.join(__dirname,'/public/parser.html'));
     });
 
+    var discordBot = null;
     if(startBot){
         discordBot = require('./discordBot.js');
     }
@@ -29,18 +30,18 @@ module.exports = function(app, startBot, startMail){
             host: '0.0.0.0',
             disableWebhook: true
         },function(err){
-            if(err) logger.info(err);
+            if(err) log.info(err);
         });
 
         mailin.on('startMessage', function (connection) {
-            logger.info(JSON.stringify(connection));
+            log.info(JSON.stringify(connection));
         });
 
         mailin.on('message', function (connection, data, content) {
             if(connection.envelope.rcptTo.filter(function(rcpt){
                     return rcpt.address == config.appEmail
                 }).length < 1){
-                logger.info('bad email: '+JSON.stringify(connection.envelope.rcptTp));
+                log.info('bad email: '+JSON.stringify(connection.envelope.rcptTp));
                 return;
             }
             var cheerio = require('cheerio');
@@ -60,7 +61,7 @@ module.exports = function(app, startBot, startMail){
             });
             str = str.replace(/\s{2,}/g, ' ');
             var mailObj = appParser.parseText(str);
-            logger.info('Title:'+mailObj.title);
+            log.info('Title:'+mailObj.title);
 
             phantomScripts.postApp(mailObj).then(function(url){
                 if(discordBot) {
@@ -71,4 +72,5 @@ module.exports = function(app, startBot, startMail){
             applicationRepository.save(mailObj.raw);
         });
     }
+    return router;
 };
