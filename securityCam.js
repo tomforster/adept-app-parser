@@ -103,8 +103,8 @@ function updateImageCache(camera, ws){
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg' && file.charAt(0) !== '.'});
     files.sort(function(a, b) {
-        return fs.statSync(dir + a).mtime.getTime() -
-            fs.statSync(dir + b).mtime.getTime();
+        return fs.statSync(dir + b).mtime.getTime() -
+            fs.statSync(dir + a).mtime.getTime();
     });
     files.forEach(function(file){
         var name = dir + '/' + file;
