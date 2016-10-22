@@ -15,9 +15,9 @@ var router = require('express').Router();
 var IMAGE_CACHE_SIZE = 64;
 
 var cameras = [
-    { name: '1', directory: '/home/node/security/', recentImages: []},
-    { name: '2', directory: '/home/node/security2/', recentImages: []},
-    { name: '3', directory: '/home/node/security3/', recentImages: []}
+    { name: '1', directory: '/home/node/security/', recentImages: [], default:true},
+    { name: '2', directory: '/home/node/security2/', recentImages: [], default:false},
+    { name: '3', directory: '/home/node/security3/', recentImages: [], default:false}
 ];
 
 module.exports = function(ws){
@@ -27,32 +27,32 @@ module.exports = function(ws){
         updateImageCaches(ws);
     }, 30000);
 
-    router.get('/img/:camera/:tagId', function(req,res) {
-        var camera = req.params["camera"];
-        if(!camera.match(/^\d+$/)) {
-            log.info(`Bad cat camera image request (${camera}).`);
-            return res.status(404);
-        }
-        log.info(`Cat camera ${camera} image request.`);
-
-        res.sendFile('/home/node/security/'+req.params["tagId"]);
+    router.get('/', function(req,res){
+        log.info('!!!');
     });
 
-    router.get('/cams/:camera/:numberImgs?', function(req,res) {
-        var camera = req.params["camera"];
-        if(!camera.match(/^\d+$/)) {
-            log.warn(`Bad cat camera page request (${camera}).`);
-            return res.status(404);
+    router.get('/images/:camera/:tagId', function(req,res) {
+        var cameraName = req.params["camera"];
+        log.info(`Cat camera ${cameraName} image request.`);
+        var camera = getCameraByName(cameraName);
+        if(!camera){
+            camera = getDefaultCamera()
         }
-        log.info(`Cat camera ${camera} page request.`);
-        var number = parseInt(req.params["numberImgs"],10);
-        number = !number.match(/^\d+$/) ? 16 : number;
+        res.sendFile(camera.directory + req.params["tagId"]);
+    });
+
+    router.get('/cams/:camera?/:numberImgs?', function(req,res) {
+        var cameraName = req.params["camera"];
+        var number = req.params["numberImgs"];
+        number = number && number.match(/^\d+$/) ? Number(number) : 16;
         number = Math.min(number, IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
-        if(imageCaches.hasOwnProperty(camera)){
-            res.render('gallery.pug', {images : imageCaches[camera].slice(0,number)});
+        log.info(`Cat camera ${cameraName} page request.`);
+        var camera = getCameraByName(cameraName);
+        if(!camera){
+            camera = getDefaultCamera()
         }
-        return res.status(404);
+        res.render('gallery.pug', {images : camera.recentImages.slice(0,number)});
     });
 
     router.post('/snapshot/1/',function(req,res){
@@ -65,7 +65,7 @@ module.exports = function(ws){
                     log.info('stdout: ' + stdout);
                     log.info('stderr: ' + stderr);
                     setTimeout(function(){
-                        imageCaches[1] = updateImageCache(1, '/home/node/security/','/img/', ws);
+                        updateImageCache(getCameraByName("1"), ws);
                     }, 3000);
                 }
             }
@@ -79,6 +79,16 @@ module.exports = function(ws){
     return router;
 };
 
+function getDefaultCamera(){
+    var camera = cameras.find(camera => camera.default);
+    if(!camera) throw "No default camera found!";
+    return camera;
+}
+
+function getCameraByName(name){
+    return cameras.find(camera => camera.name === name);
+}
+
 function updateImageCaches(ws){
     cameras.forEach(camera => updateImageCache(camera, ws));
 }
@@ -87,14 +97,14 @@ function updateImageCache(camera, ws){
     log.debug(`Checking if any updated images for ${camera.name}`);
     var imageCache = camera.recentImages;
     var dir = camera.directory;
-    var requestStr = `/img/${imageCache.name}/`;
+    var requestStr = `/images/${camera.name}/`;
 
     var files_ = [];
     var files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg' && file.charAt(0) !== '.'});
     files.sort(function(a, b) {
-        return fs.statSync(dir + b).mtime.getTime() -
-            fs.statSync(dir + a).mtime.getTime();
+        return fs.statSync(dir + a).mtime.getTime() -
+            fs.statSync(dir + b).mtime.getTime();
     });
     files.forEach(function(file){
         var name = dir + '/' + file;

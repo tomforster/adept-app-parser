@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const router = express.Router();
 const path = require('path');
 const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname,'config/config.json'))[env];
@@ -42,8 +43,17 @@ app.use(auth.connect(basic));
 
 if(config.enableCam){
     var securityCam = require('./securityCam')(ws);
-    app.use('/cats', securityCam);
+    app.use('/', securityCam);
 }
+
+app.use('/', router);
+
+// no match from router -> 404
+app.use((req, res, next) => {
+    const err = new Error(req.url + ' not found');
+    err.status = 404;
+    next(err);
+});
 
 app.listen(config.port,function(){
 });
