@@ -27,10 +27,6 @@ module.exports = function(ws){
         updateImageCaches(ws);
     }, 30000);
 
-    router.get('/', function(req,res){
-        log.info('!!!');
-    });
-
     router.get('/images/:camera/:tagId', function(req,res) {
         var cameraName = req.params["camera"];
         log.debug(`Cat camera ${cameraName} image request.`);
