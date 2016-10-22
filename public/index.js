@@ -7,7 +7,7 @@ var app = angular.module('appParser',[]);
 app.directive("parser",function(){
     return{
         restrict:'E',
-        templateUrl:"partials/parser.html",
+        templateUrl:"/partials/parser.html",
         controller:function(){
             var opline = "";
             var self = this;
