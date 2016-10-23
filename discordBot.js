@@ -49,10 +49,10 @@ bot.on("message", (message) => {
                 }
                 bot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
                 break;
-            case 'audit':
-                runAudit(message);
-                log.info('Audit message');
-                break;
+            // case 'audit':
+            //     runAudit(message);
+            //     log.info('Audit message');
+            //     break;
             case 'spammers':
                 var duration = parseDuration(params.join(' '));
                 if(params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server){
@@ -246,31 +246,31 @@ bot.on("presence", (oldUser, discordUser) => {
     logUserDetails(discordUser);
 });
 
-var runAudit = function(message){
-    bot.sendMessage(message.channel, 'One second...');
-
-    phantomScripts.readAudit().then(auditInfo => {
-        log.info("Audit promise returned");
-        var bads = auditInfo.characterData.filter(player => player.audit !== '0' || player.upgrades !== '100');
-        var opString = "";
-        bads.forEach(bad => {
-            if(bad.upgrades !== '100'){
-                opString += bad.name + " is only " +bad.upgrades +"% upgraded. ";
-            }
-            if(bad.audit !== '0'){
-                opString += bad.name + " is missing an enchant or a gem! ";
-            }
-        });
-        if(bads.length == 0){
-            opString += 'I must be malfunctioning, everyone passed the audit! :o'
-        }
-        if(auditInfo.lastCheck.length > 0){
-            opString += " (Data last refreshed: " + auditInfo.lastCheck +')';
-        }
-        log.info(opString);
-        bot.sendMessage(message.channel, opString);
-    });
-};
+// var runAudit = function(message){
+//     bot.sendMessage(message.channel, 'One second...');
+//
+//     phantomScripts.readAudit().then(auditInfo => {
+//         log.info("Audit promise returned");
+//         var bads = auditInfo.characterData.filter(player => player.audit !== '0' || player.upgrades !== '100');
+//         var opString = "";
+//         bads.forEach(bad => {
+//             if(bad.upgrades !== '100'){
+//                 opString += bad.name + " is only " +bad.upgrades +"% upgraded. ";
+//             }
+//             if(bad.audit !== '0'){
+//                 opString += bad.name + " is missing an enchant or a gem! ";
+//             }
+//         });
+//         if(bads.length == 0){
+//             opString += 'I must be malfunctioning, everyone passed the audit! :o'
+//         }
+//         if(auditInfo.lastCheck.length > 0){
+//             opString += " (Data last refreshed: " + auditInfo.lastCheck +')';
+//         }
+//         log.info(opString);
+//         bot.sendMessage(message.channel, opString);
+//     });
+// };
 
 exports.newAppMessage = function(title,url){
     bot.sendMessage(bot.channels.get("name","guild"),"New Application Posted: "+ title + " " + url);

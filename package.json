@@ -17,7 +17,6 @@
     "parse-duration": "0.1.1",
     "pg": "^6.0.1",
     "pg-promise": "^4.8.1",
-    "phantom": "2.1.8",
     "pug": "2.0.0-beta3",
     "request-promise": "^3.0.0",
     "underscore": "1.8.3",

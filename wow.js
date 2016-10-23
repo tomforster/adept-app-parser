@@ -67,6 +67,9 @@ module.exports = function(startBot, startMail){
                 if(discordBot) {
                     discordBot.newAppMessage(mailObj.title, url);
                 }
+            }).catch(function(err){
+                log.error(err);
+                log.error("Failed to save new application");
             });
 
             applicationRepository.save(mailObj.raw);
