@@ -34,7 +34,6 @@ var postApp = function(mailObj){
             .click('[type=submit][name=post]')
             .wait('.postbody')
             .url()
-            .end()
         })
 };
 
