@@ -1,6 +1,6 @@
 {
   "name": "adept-app-parser",
-  "version": "1.2",
+  "version": "1.2.1",
   "main": "server.js",
   "dependencies": {
     "angular": "1.5.7",
