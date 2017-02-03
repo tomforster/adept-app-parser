@@ -15,9 +15,9 @@ var router = require('express').Router();
 var IMAGE_CACHE_SIZE = 64;
 
 var cameras = [
-    { name: 'livingroom', directory: '/home/node/security/', recentImages: [], default:true},
-    { name: 'kitchen', directory: '/home/node/security2/', recentImages: [], default:false},
-    { name: 'bedroom', directory: '/home/node/security3/', recentImages: [], default:false}
+    { name: 'livingroom', directory: '/home/node/security/', recentImages: [], default:true, displayName: "Living Room Camera"},
+    { name: 'kitchen', directory: '/home/node/security2/', recentImages: [], default:false, displayName: "Kitchen Camera"},
+    { name: 'bedroom', directory: '/home/node/security3/', recentImages: [], default:false, displayName: "Bedroom Camera"}
 ];
 
 module.exports = function(ws){
@@ -48,7 +48,7 @@ module.exports = function(ws){
         if(!camera){
             camera = getDefaultCamera()
         }
-        res.render('gallery.pug', {images : camera.recentImages.slice(0,number)});
+        res.render('gallery.pug', {title: camera.displayName, images : camera.recentImages.slice(0,number)});
     });
 
     router.post('/snapshot/livingroom/',function(req,res){
