@@ -48,6 +48,7 @@ module.exports = function(ws){
         if(!camera){
             camera = getDefaultCamera()
         }
+        log.info(camera.displayName);
         res.render('gallery.pug', {title: camera.displayName, images : camera.recentImages.slice(0,number)});
     });
 
