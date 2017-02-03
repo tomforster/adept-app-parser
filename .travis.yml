@@ -10,7 +10,6 @@ after_success:
 - eval "$(ssh-agent -s)"
 - chmod 600 /tmp/deploy_rsa
 - ssh-add /tmp/deploy_rsa
-- chmod +x scripts/deploy.sh
 - ssh $SSH_PATH deploy-adept.sh
 env:
   matrix:
