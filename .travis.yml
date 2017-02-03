@@ -1,6 +1,9 @@
 language: node_js
 node_js:
 - '6'
+cache:
+  directories:
+  - node_modules # NPM packages
 after_success:
 - openssl aes-256-cbc -K $encrypted_f4f02678f555_key -iv $encrypted_f4f02678f555_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
 - eval "$(ssh-agent -s)"
