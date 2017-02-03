@@ -1,3 +1,6 @@
 language: node_js
 node_js:
-  - "6"
+- '6'
+before_install:
+- openssl aes-256-cbc -K $encrypted_f4f02678f555_key -iv $encrypted_f4f02678f555_iv
+  -in deploy_rsa.enc -out /mnt/c/Users/Tom/deploy_rsa -d
