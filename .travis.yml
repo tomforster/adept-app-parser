@@ -12,6 +12,6 @@ dd:
 deploy:
   provider: script
   skip_cleanup: true
-  script: chmod +x scripts/deploy.sh && scripts/deploy.sh
+  script: chmod +x scripts/deploy.sh && scripts/deploy.sh $SSH_PATH $DEPLOY_DIR
   on:
     branch: master
