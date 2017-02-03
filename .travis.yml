@@ -1,17 +1,13 @@
 language: node_js
 node_js:
 - '6'
-before_deploy:
-- openssl aes-256-cbc -K $encrypted_f4f02678f555_key -iv $encrypted_f4f02678f555_iv
-  -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+after_success:
+- openssl aes-256-cbc -K $encrypted_f4f02678f555_key -iv $encrypted_f4f02678f555_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
 - eval "$(ssh-agent -s)"
 - chmod 600 /tmp/deploy_rsa
 - ssh-add /tmp/deploy_rsa
+- chmod +x scripts/deploy.sh
+- rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR $SSH_PATH:$DEPLOY_DIR
+- ssh $SSH_PATH deploy-adept.sh
 dd:
   secure: S2tisq1i2hFb95WQP3PN7q9wMErOo0oGqF542BxqBj9oaZzMQWAXPEAatdI8s7lVIhMtOK69ofXuhQYaXmD7RruS/+Kiy9C1sW0+kIYXNvUWPeSbDHv8UoAwOX+KSNI0JaYsFT5oSWr9iyRo1hJIerdEMj842n3n+wSfYeKuvnvKRIpvP5DZgp2HMn0YpCMTm8jByRP4b0nRDEtSqHqAkz/3ErecD10OojzJdtKffpwrBrXxYXk09gOPBg9uliCpgN+OsXQvFBDKCho+x5HfUOzQ0waeWLUTRdfYJtwowZAlx9aFKuOlBdlc/tsh2H4/G7bngSE7Hakhh+7iVedtZ2wkNZn8XbPoXWSI5dY7eOEOLPnP11XCycwvlug9dfckG7Qx5i/bycB1WQjSn1e4A7XEFZb/Y/zxlR96p4DvLx2zhkgEb62D7q7xzK/r2JsF2LCjEY0fBw9d0FSymdMj90DENwod5b7Ik35wqe9hBYJt4MchJxWaiGI7TQgTZ+pab8Pe+0g7yfInVxZ0EcD357N+mUNcIKBmmXX8lcODpsd8pLAQ/sIOYhtrtFhXsbXxDMUmVBQ5FVd+su94ky8ykRyZ85u9vjfM5x3kP/EEsQKWd2z5vfxZPm2zcOFWtcMo2XzxL8MgYaSQOe22zsDdm/LwWinF6eRhwU7KnHwMaDY=
-deploy:
-  provider: script
-  skip_cleanup: true
-  script: chmod +x scripts/deploy.sh && scripts/deploy.sh $SSH_PATH $DEPLOY_DIR
-  on:
-    branch: master
