@@ -1,9 +1,7 @@
 #!/bin/bash
 
-echo $DEPLOY_DIR
+rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR $1:$2
 
-rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR $SSH_PATH:$DEPLOY_DIR
-
-ssh $SSH_PATH << 'ENDSSH'
+ssh $1 << 'ENDSSH'
 deploy-adept.sh
 ENDSSH
