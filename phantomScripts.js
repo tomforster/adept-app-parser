@@ -23,7 +23,7 @@ var postApp = function(mailObj){
                     .insert('#username', username)
                     .insert('#password', password)
                     .wait(2000)
-                    .click('.button1[name=login]')
+                    .click('.button[name=login]')
                     .wait('#subject')
             }
         }).then(function(){
