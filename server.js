@@ -7,7 +7,7 @@ const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname,'config/config.json'))[env];
 const log = require('better-logs')('server');
 const fs = require('fs');
-// log.output(fs.createWriteStream('log.txt'));
+log.output(fs.createWriteStream('log.txt'));
 const app = express();
 const ws = require('express-ws')(app);
 var auth = require('http-auth');
