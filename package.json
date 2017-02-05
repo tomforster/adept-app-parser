@@ -22,6 +22,7 @@
     "pug": "2.0.0-beta3",
     "request-promise": "^3.0.0",
     "underscore": "1.8.3",
+    "username": "2.3.0",
     "valid-url": "^1.0.9",
     "websocket": "1.0.23"
   }
