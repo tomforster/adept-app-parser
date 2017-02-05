@@ -18,12 +18,6 @@ var basic = auth.basic({
     }
 );
 
-const username = require('username');
-
-username().then(username => {
-    console.log("The current users username: ", username);
-});
-
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
