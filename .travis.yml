@@ -33,4 +33,4 @@ addons:
 #      - g++-4.8
 
 install: false
-script: 1
+script: true
