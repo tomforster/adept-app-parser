@@ -8,14 +8,12 @@ const config = require(path.join(__dirname,'config/config.json'))[env];
 const log = require('better-logs')('server');
 const fs = require('fs');
 log.output(fs.createWriteStream('log.txt'));
-const GithubWebHook = require('express-github-webhook');
-let webhookHandler = GithubWebHook({ path: '/deploy', secret: config.github });
 let bodyParser = require('body-parser');
 
 const app = express();
 const ws = require('express-ws')(app);
-var auth = require('http-auth');
-var basic = auth.basic({
+let auth = require('http-auth');
+let basic = auth.basic({
         realm: "Admin Area"
     }, (username, password, callback) => {
         callback(username === config.username && password === config.password);
@@ -27,27 +25,23 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
 app.use(bodyParser.json()); // must use bodyParser in express
-app.use(webhookHandler); // use our middleware
 
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
 log.info("Cam:", config.enableCam);
 log.info("Api:", config.enableApi);
 
-var wow = require('./wow')(config.enableDiscordBot, config.enableMail);
+let wow = require('./wow')(config.enableDiscordBot, config.enableMail);
 app.use('/parser', wow);
 
 // if(config.enableApi){
 //     require('./wow-api')(app);
 // }
 
-webhookHandler.on('*', function (repo, data) {
-    console.log(repo, data);
-});
-
-webhookHandler.on('error', function (repo, data) {
-    console.log(repo, data);
-
+app.post('/deploy', function (req, res) {
+    console.log(req);
+    res.status(200);
+    res.send('OK');
 });
 
 app.get('/robots.txt',function(req,res){
@@ -59,7 +53,7 @@ app.get('/robots.txt',function(req,res){
 app.use(auth.connect(basic));
 
 if(config.enableCam){
-    var securityCam = require('./securityCam')(ws);
+    let securityCam = require('./securityCam')(ws);
     app.use('/', securityCam);
 }
 
@@ -72,8 +66,8 @@ app.use((req, res, next) => {
     next(err);
 });
 
-var appParser = require('./appParser.js');
-var phantomScripts = require('./phantomScripts.js');
+let appParser = require('./appParser.js');
+let phantomScripts = require('./phantomScripts.js');
 
 app.listen(config.port,function(){
     // var mail = fs.readFileSync('samplemail.txt', 'utf-8');
