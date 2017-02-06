@@ -9,7 +9,7 @@ const log = require('better-logs')('server');
 const fs = require('fs');
 log.output(fs.createWriteStream('log.txt'));
 const GithubWebHook = require('express-github-webhook');
-let webhookHandler = GithubWebHook({ path: '/deploy', secret: env.github });
+let webhookHandler = GithubWebHook({ path: '/deploy', secret: config.github });
 let bodyParser = require('body-parser');
 
 const app = express();
