@@ -229,7 +229,13 @@ bot.on("presence", (oldUser, discordUser) => {
 });
 
 exports.newAppMessage = function(title,url){
-    bot.channels.get("name","guild").sendMessage("New Application Posted: "+ title + " " + url);
+    let adeptGuild = bot.guilds.find("name", "Adept");
+    if(adeptGuild){
+        let guildChannel = adeptGuild.channels.find("name", "guild");
+        if(guildChannel){
+            guildChannel.sendMessage("New Application Posted: "+ title + " " + url);
+        }
+    }
 };
 
 bot.login(config.discordToken).catch(error => log.error(error));
