@@ -117,15 +117,16 @@ bot.on("message", (message) => {
                     //     return;
                     // }
                     //todo add duplicate discarding
-                    get_fileSize(uriParam, err => {
+                    return get_fileSize(uriParam).then(err => {
                         if (err) {
-                            return message.reply("Image is too large :(");
+                            return message.reply("the image is too large :(");
                         } else {
                             return commandRepository
                                 .save(commandParam, uriParam, message.author.id)
                                 .then(() => message.reply("new command: " + commandParam + " has been added successfully."))
-                                .catch(err => log.info(err));
                         }
+                    }).catch(() => {
+                        return message.reply("bad url or something ¯\\_(ツ)_/¯");
                     });
                 }
                 else {
