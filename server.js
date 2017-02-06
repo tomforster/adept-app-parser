@@ -8,6 +8,10 @@ const config = require(path.join(__dirname,'config/config.json'))[env];
 const log = require('better-logs')('server');
 const fs = require('fs');
 log.output(fs.createWriteStream('log.txt'));
+const GithubWebHook = require('express-github-webhook');
+let webhookHandler = GithubWebHook({ path: '/deploy', secret: env.github });
+let bodyParser = require('body-parser');
+
 const app = express();
 const ws = require('express-ws')(app);
 var auth = require('http-auth');
@@ -22,6 +26,8 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
+app.use(bodyParser.json()); // must use bodyParser in express
+app.use(webhookHandler); // use our middleware
 
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
@@ -34,6 +40,10 @@ app.use('/parser', wow);
 // if(config.enableApi){
 //     require('./wow-api')(app);
 // }
+
+webhookHandler.on('push', function (repo, data) {
+    log.info(repo, data);
+});
 
 app.get('/robots.txt',function(req,res){
     log.info('Robot detected.');
