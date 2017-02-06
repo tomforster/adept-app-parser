@@ -132,7 +132,6 @@ bot.on("message", (message) => {
                 else {
                     return;
                 }
-                break;
             }
             case "delete":
                 if (params.length < 2) return;
@@ -146,7 +145,7 @@ bot.on("message", (message) => {
                     message.react("✅");
                     return commandRepository.safeDelete(commandParam, idParam).then(() => {
                         return message.reply("successfully deleted image for command " + commandParam +".");
-                    }).catch(error => {
+                    }).catch(() => {
                         return message.reply("failed to deleted image for command " + commandParam +".");
                     });
 
