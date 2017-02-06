@@ -7,7 +7,7 @@ var moment = require('moment');
 
 const log = require('better-logs')('user_repo');
 
-exports.fetch = function(id){
+exports.fetchAll = function(id){
     log.info("fetching", id);
     return db.oneOrNone("select id, discord_id, username, date_added from discord_user where id=($1)", [id]);
 };

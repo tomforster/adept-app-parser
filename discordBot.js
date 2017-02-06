@@ -1,22 +1,21 @@
-var Discord = require("discord.js");
-var path = require("path");
-var env = process.env.NODE_ENV || "development";
-var config = require(path.join(__dirname,'config/config.json'))[env];
-var phantomScripts = require('./phantomScripts');
+const Discord = require("discord.js");
+const path = require("path");
+const env = process.env.NODE_ENV || "development";
+const config = require(path.join(__dirname, 'config/config.json'))[env];
+const phantomScripts = require('./phantomScripts');
 const log = require('better-logs')('discord');
-var validUrl = require('valid-url');
-var rp = require('request-promise');
+const validUrl = require('valid-url');
+const rp = require('request-promise');
 
-var MAX_SIZE = 5000000;
+const commandRepository = require('./repositories/commandRepository');
+const userRepository = require('./repositories/userRepository');
+const auditRepository = require('./repositories/auditRepository');
+const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
+const humanizeDuration = require('humanize-duration');
+const parseDuration = require('parse-duration');
 
-var bot = new Discord.Client({ bot: false });
-var commandRepository = require('./repositories/commandRepository');
-var userRepository = require('./repositories/userRepository');
-var auditRepository = require('./repositories/auditRepository');
-var allowable_extensions = ['jpeg','jpg','png','gif'];
-var humanizeDuration = require('humanize-duration');
-
-var parseDuration = require('parse-duration');
+const MAX_SIZE = 5000000;
+const bot = new Discord.Client();
 
 bot.on("message", (message) => {
     //increment message count
@@ -25,106 +24,93 @@ bot.on("message", (message) => {
     });
     if(message.mentions.length > 0) return;
     if(message.author.equals(bot.user)) return;
-    var matches = message.content.match(/!(\w+)/);
+    if(message.author.bot) return;
+    let matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
-        var keyword= matches[1];
-        var params = getParams(message.content, keyword);
-        var commandParam;
-        switch(keyword){
+        let keyword= matches[1];
+        let params = getParams(message.content, keyword);
+        let commandParam;
+        switch(keyword) {
             case 'sheet':
-                if(config.sheetUrl) {
-                    bot.reply(message, "<" + config.sheetUrl + ">");
+                if (config.sheetUrl) {
+                    message.reply("<" + config.sheetUrl + ">");
                 }
                 break;
             case 'roll' :
-                if(params.length > 0){
-                    if(!isNaN(params[0])){
-                        var upperBound = +params[0];
+                if (params.length > 0) {
+                    if (!isNaN(params[0])) {
+                        let upperBound = +params[0];
                         //is this an int
-                        if(upperBound % 1 === 0 && upperBound < Number.MAX_VALUE && upperBound > 0){
-                            bot.reply(message, "you rolled " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
+                        if (upperBound % 1 === 0 && upperBound < Number.MAX_VALUE && upperBound > 0) {
+                            message.reply("you rolled " + Math.ceil(Math.random() * upperBound) + " (1 - " + upperBound + ")");
                             return;
                         }
                     }
                 }
-                bot.reply(message, "you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
+                message.reply("you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
                 break;
-            // case 'audit':
-            //     runAudit(message);
-            //     log.info('Audit message');
-            //     break;
             case 'spammers':
-                var duration = parseDuration(params.join(' '));
-                if(params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server){
+                let duration = parseDuration(params.join(' '));
+                if (params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server) {
                     auditRepository.top10UsersForServerByMessageCountWithDuplicateDetection(message.server.channels.map(channel => channel.id), duration).then(result => {
                         if (result && result.length > 0) {
-                            var opMessage = `Top 10 most active users in the server #${message.server.name} for `;
+                            let opMessage = `Top 10 most active users in the server #${message.server.name} for `;
                             opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
                             result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
-                            return bot.sendMessage(message.channel, opMessage);
+                            return message.channel.sendMessage(opMessage);
                         } else if (result.length == 0) {
-                            return bot.sendMessage(message.channel, "No eligible messages found.");
+                            return message.channel.sendMessage("No eligible messages found.");
                         }
                     }).catch(error => log.error(error));
                 } else {
                     auditRepository.top10UsersForChannelByMessageCountWithDuplicateDetection(message.channel.id, duration).then(result => {
                         if (result && result.length > 0) {
-                            var opMessage = `Top 10 most active users in the channel #${message.channel.name} for `;
+                            let opMessage = `Top 10 most active users in the channel #${message.channel.name} for `;
                             opMessage += duration > 0 ? ("the last " + humanizeDuration(duration) + ":\n") : "all time:\n";
                             result.forEach(messageCount => opMessage += "\n" + messageCount.username + ": " + messageCount.count);
-                            return bot.sendMessage(message.channel, opMessage);
+                            return message.channel.sendMessage(opMessage);
                         } else if (result.length == 0) {
-                            return bot.sendMessage(message.channel, "No eligible messages found.");
+                            return message.channel.sendMessage("No eligible messages found.");
                         }
                     }).catch(error => log.error(error));
                 }
                 break;
             case 'random':
-                commandRepository
-                    .random()
-                    .then(img => {
-                        log.info("fetched random filename: "+img.url);
-                        get_fileSize(img.url, err => {
-                            if(err){
-                                return bot.reply(message, "Image is too large :(").catch(error => log.error(error));
-                            }else{
-                                return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop(), "Here's your random image: !" + img.command);
-                            }
-                        });
-                    })
-                    .catch(err => log.error(err));
-
-                break;
-            case 'list':
-                if(params.length < 1) return;
+                message.react("✅");
+                return getImage().then(img =>
+                    message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), "Here's your random image: !" + img.command)
+                );
+            case 'list': {
+                if (params.length < 1) return;
                 commandParam = params[0].toLowerCase();
-                if(commandParam && typeof commandParam === 'string' && commandParam.length > 0){
+                if (commandParam && typeof commandParam === 'string' && commandParam.length > 0) {
                     commandRepository
-                        .fetch(commandParam.toLowerCase())
+                        .fetchAll(commandParam.toLowerCase())
                         .then(results => {
-                            log.info("fetched list of "+ results.length +" values for " + commandParam);
-                            if (results.length == 0) return;
-                            var opMessage = "Saved images for command "+commandParam+":\n";
-                            var count = 1;
+                            log.info("fetched list of " + results.length + " values for " + commandParam);
+                            if (!results || results.length == 0) return;
+                            let opMessage = "Saved images for command " + commandParam + ":\n";
+                            let count = 1;
                             results.forEach(img => {
                                 opMessage += "\n" + count + ": <" + img.url + "> [" + img.uploader + "]";
                                 count++;
                             });
-                            return bot.sendMessage(message.channel, opMessage);
+                            return message.channel.sendMessage(opMessage);
                         }).catch(error => log.error(error));
                 }
                 break;
-            case 'save':
-                if(params.length < 2) return;
+            }
+            case 'save': {
+                if (params.length < 2) return;
                 commandParam = params[0].toLowerCase();
-                var uriParam = params[1];
-                if(commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
-                    if(commandParam.indexOf('!') >= 0){
-                        bot.reply(message, "command: " + commandParam + " should not contain exclamation marks.");
+                let uriParam = params[1];
+                if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
+                    if (commandParam.indexOf('!') >= 0) {
+                        message.reply("command: " + commandParam + " should not contain exclamation marks.");
                         return;
                     }
                     if (allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
-                        bot.reply(message, "command: " + commandParam + " has an unknown extension.");
+                        message.reply("command: " + commandParam + " has an unknown extension.");
                         return;
                     }
                     // if(commandParam === "red" || commandParam === "redlorr"){
@@ -132,86 +118,81 @@ bot.on("message", (message) => {
                     // }
                     //todo add duplicate discarding
                     get_fileSize(uriParam, err => {
-                        if(err){
-                            bot.reply(message, "Image is too large :(");
-                        }else{
+                        if (err) {
+                            message.reply("Image is too large :(");
+                        } else {
                             commandRepository
                                 .save(commandParam, uriParam, message.author.id)
-                                .then(() => bot.reply(message, "new command: " + commandParam + " has been added successfully."))
+                                .then(() => message.reply("new command: " + commandParam + " has been added successfully."))
                                 .catch(err => log.info(err));
                         }
                     });
                 }
-                else{
+                else {
                     return;
                 }
                 break;
+            }
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
-                    commandRepository
-                        .fetch(keyword.toLowerCase())
-                        .then(results => {
-                            var img = {};
-                            if(results.length == 0) return;
-                            else if(results.length > 1){
-                                img = results[Math.floor(Math.random()*results.length)];
-                            }else{
-                                img = results[0];
-                            }
-                            log.info("fetched " + keyword.toLowerCase() + ", filename: "+img.url);
-                            get_fileSize(img.url, err => {
-                                if(err){
-                                    return bot.reply(message, "Image is too large :(").catch(error => log.error(error));
-                                }else{
-                                    return bot.sendFile(message.channel, img.url, "image." + img.url.split('.').pop());
-                                }
-                            });
-                        })
-                        .catch(err => log.error(err));
+                    message.react("✅");
+                    return getImage(keyword.toLowerCase()).then(img =>
+                        message.channel.sendFile(img.url, "image." + img.url.split('.').pop())
+                    );
                 }
         }
     }
 });
 
-//todo convert to promise
-function get_fileSize(url, callback) {
-    rp({
-        url: url,
-        method: "HEAD"
-    }).then(headRes => {
-        var size = headRes['content-length'];
-        if (size > MAX_SIZE) {
-            callback(true);
-        } else {
-            callback();
+function getImage(command){
+    return commandRepository.random(command).then(img => {
+        if(!img) return;
+        log.info("fetched " + img.command.toLowerCase() + ", filename: "+img.url);
+        return get_fileSize(img.url).then(result => {
+            if(result){
+                return img;
+            }else{
+                throw "Image is too large :(";
+            }
+        }).catch(() => {
+            return commandRepository.delete(img.id).then(() => {
+                throw 404
+            });
+        });
+    }).catch(err => {
+        log.error(err);
+        if(err === 404){
+            return getImage(command)
         }
+        throw "Unknown image";
     });
 }
 
-var getParams = function(messageString, command) {
+function get_fileSize(url) {
+    return rp({
+        url: url,
+        method: "HEAD"
+    }).then(headRes => {
+        let size = headRes['content-length'];
+        return size <= MAX_SIZE;
+    });
+}
+
+let getParams = function(messageString, command) {
     log.info("getting params");
-    var words = messageString.split(' ');
+    let words = messageString.split(' ');
     log.info("words:",words);
-    var commandIndex = words.indexOf('!'+command);
+    let commandIndex = words.indexOf('!'+command);
     if (commandIndex == (words.length - 1) || commandIndex < 0) {
         return [];
     }
-    var results = [];
-    for (var i = commandIndex + 1; i < words.length; i++) {
+    let results = [];
+    for (let i = commandIndex + 1; i < words.length; i++) {
         results.push(words[i]);
     }
     log.info(results);
     return results;
 };
-
-var login = function(){
-    bot.login(config.discordEmail, config.discordPassword)
-        .catch(error => setTimeout(login, 30 * 1000));
-};
-
-login();
-
-bot.on("disconnected", login);
 
 function logUserDetails(discordUser){
     //is this user currently in the db?
@@ -233,7 +214,8 @@ bot.on("ready", () => {
     log.info("Bot started up!");
     bot.users.forEach((discordUser) => {
         logUserDetails(discordUser);
-    })
+    });
+    bot.user.setAvatar("./avatar.jpg").catch(error => console.log(error));
 });
 
 bot.on("serverNewMember", (server, discordUser) => {
@@ -246,32 +228,8 @@ bot.on("presence", (oldUser, discordUser) => {
     logUserDetails(discordUser);
 });
 
-// var runAudit = function(message){
-//     bot.sendMessage(message.channel, 'One second...');
-//
-//     phantomScripts.readAudit().then(auditInfo => {
-//         log.info("Audit promise returned");
-//         var bads = auditInfo.characterData.filter(player => player.audit !== '0' || player.upgrades !== '100');
-//         var opString = "";
-//         bads.forEach(bad => {
-//             if(bad.upgrades !== '100'){
-//                 opString += bad.name + " is only " +bad.upgrades +"% upgraded. ";
-//             }
-//             if(bad.audit !== '0'){
-//                 opString += bad.name + " is missing an enchant or a gem! ";
-//             }
-//         });
-//         if(bads.length == 0){
-//             opString += 'I must be malfunctioning, everyone passed the audit! :o'
-//         }
-//         if(auditInfo.lastCheck.length > 0){
-//             opString += " (Data last refreshed: " + auditInfo.lastCheck +')';
-//         }
-//         log.info(opString);
-//         bot.sendMessage(message.channel, opString);
-//     });
-// };
-
 exports.newAppMessage = function(title,url){
-    bot.sendMessage(bot.channels.get("name","guild"),"New Application Posted: "+ title + " " + url);
+    bot.channels.get("name","guild").sendMessage("New Application Posted: "+ title + " " + url);
 };
+
+bot.login(config.discordToken).catch(error => log.error(error));

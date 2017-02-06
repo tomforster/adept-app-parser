@@ -12,7 +12,7 @@ const app = express();
 const ws = require('express-ws')(app);
 var auth = require('http-auth');
 var basic = auth.basic({
-        realm: "Simon Area."
+        realm: "Admin Area"
     }, (username, password, callback) => {
         callback(username === config.username && password === config.password);
     }
