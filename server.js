@@ -41,7 +41,7 @@ app.use('/parser', wow);
 //     require('./wow-api')(app);
 // }
 
-webhookHandler.on('push', function (repo, data) {
+webhookHandler.on('*', function (repo, data) {
     log.info(repo, data);
 
 });
