@@ -49,7 +49,7 @@ app.post('/deploy', function (req, res) {
 
     let sig = req.header('x-hub-signature');
 
-    console.log(req);
+    console.log(req.body);
 
     let computedSig = new Buffer(signBlob(req.body));
 
