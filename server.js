@@ -24,7 +24,7 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
-app.use(bodyParser.json()); // must use bodyParser in express
+app.use(bodyParser.raw()); // must use bodyParser in express
 
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
@@ -38,10 +38,32 @@ app.use('/parser', wow);
 //     require('./wow-api')(app);
 // }
 
+const crypto = require('crypto');
+var bufferEq = require('buffer-equal-constant-time');
+
+function signBlob (blob) {
+    return 'sha1=' + crypto.createHmac('sha1', config.github).update(blob).digest('hex')
+}
+
 app.post('/deploy', function (req, res) {
+
+    let sig = req.header('x-hub-signature');
+
     console.log(req);
-    res.status(200);
-    res.send('OK');
+
+    let computedSig = new Buffer(signBlob(req.body));
+
+    if (!bufferEq(new Buffer(sig), computedSig)){
+        console.log('not equal');
+        res.status(401).send();
+    }
+
+    res.status(200).send('OK');
+
+    if(req.header('x-github-event') === 'push'){
+        //redeploy script
+        console.log('!!!');
+    }
 });
 
 app.get('/robots.txt',function(req,res){
