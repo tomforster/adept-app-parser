@@ -138,8 +138,8 @@ bot.on("message", (message) => {
                 commandParam = params[0].toLowerCase();
                 let idParam = params[1];
                 if (commandParam && typeof commandParam === 'string' && commandParam.length > 1 && idParam && !isNaN(idParam)) {
-                    if(commandParam.charAt(0) !== '!') return;
-                    commandParam = commandParam.slice(1);
+                    if(commandParam.charAt(0) === '!')
+                        commandParam = commandParam.slice(1);
                     let guildUser = message.guild.members.get(message.author.id);
                     if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
                     message.react("✅");
