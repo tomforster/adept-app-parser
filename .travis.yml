@@ -26,7 +26,7 @@ addons:
   ssh_known_hosts:
     secure: MrQr5rBsNB8ToH5AD09Lg94TrlotCoGdh0xV7WDGtgc0GpEgeJzCTadmRDLxXVDRsNZmqNPrKYBBQ6cFAAmpwHYRjNJwB8nNaTovlufweRCkRclPINUlI4GvuicERVesV7tPML3lLMfIEOwoZz/NwoQqO42xA+pF3xtYy9tOrhvla7yUKvzLlvgGN1u38gzOoLTo4KiaAzI5Q+g3OHaZ1VyYaQazIUzufvPB+1i8R11q0Xz31xpyjgoskRvMn/Ac0ADEbJnlL+OQo/zjkhMIViJOWlXiDrdcUwv6KdeGawITi03tNCF0zk4iyjWa2ZDvA88GiVD2REREVRwKbgjKzlmSj5O0gd8rx2CgS3NzFlBIZ1ISGCgBRx8G9sDHft4QcubwHBJd4/nxJElyp0bzInwl4pRn2eAru/r9ydjFS5LWCICxdvHV4I4EhaAr/a9Vwf7mifT8wmXyFFtCaxM8FIZBF0QzcTI+puT8TxRTkZ5MZz2FK4WzZcvTiCe+XD7N5PNjwUbKf5wjTGFeugAzfz+8qvsdZwbGO8Bp364DBDhcph6vfFfpLc8H71SSiOAbXQVo4gnbC4/3GzSTqenSGdWQqzzxLK6nsU3O0x5K2iqKmtSmBX7xPKEuki5CxtE8hR/eVHkbf62n0ibAMVqZJANX0d8M4Kw6qo85pm5Immo=
   apt:
-      sources:
-        - ubuntu-toolchain-r-test
-      packages:
-        - g++-4.8
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
