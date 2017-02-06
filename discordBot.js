@@ -117,8 +117,8 @@ bot.on("message", (message) => {
                     //     return;
                     // }
                     //todo add duplicate discarding
-                    return get_fileSize(uriParam).then(err => {
-                        if (err) {
+                    return get_fileSize(uriParam).then(result => {
+                        if (!result) {
                             return message.reply("the image is too large :(");
                         } else {
                             return commandRepository
