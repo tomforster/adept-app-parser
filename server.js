@@ -24,7 +24,7 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
-app.use(bodyParser.raw()); // must use bodyParser in express
+app.use(bodyParser.text()); // must use bodyParser in express
 
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
