@@ -45,6 +45,10 @@ webhookHandler.on('*', function (repo, data) {
     console.log(repo, data);
 });
 
+webhookHandler.on('error', function (repo, data) {
+    console.log(repo, data);
+});
+
 app.get('/robots.txt',function(req,res){
     log.info('Robot detected.');
     res.type('text/plain');
