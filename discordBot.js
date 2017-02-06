@@ -94,7 +94,7 @@ bot.on("message", (message) => {
                             let opMessage = "Saved images for command " + commandParam + ":\n";
                             let count = 1;
                             results.forEach(img => {
-                                opMessage += "\n" + count + ": <" + img.url + "> [" + img.uploader + "]";
+                                opMessage += "\n" + count + ": <" + img.url + "> (" + img.id + ") [" + img.uploader + "]";
                                 count++;
                             });
                             return message.channel.sendMessage(opMessage);
@@ -133,12 +133,31 @@ bot.on("message", (message) => {
                 }
                 break;
             }
+            case "delete":
+                if (params.length < 2) return;
+                commandParam = params[0].toLowerCase();
+                let idParam = params[1];
+                if (commandParam && typeof commandParam === 'string' && commandParam.length > 1 && idParam && !isNaN(idParam)) {
+                    if(commandParam.charAt(0) !== '!') return;
+                    commandParam = commandParam.slice(1);
+                    let guildUser = message.guild.members.get(message.author.id);
+                    if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
+                    message.react("✅");
+                    return commandRepository.safeDelete(commandParam, idParam).then(() => {
+                        return message.reply("successfully deleted image for command " + commandParam +".");
+                    }).catch(error => {
+                        return message.reply("failed to deleted image for command " + commandParam +".");
+                    });
+
+
+                }
+                break;
             default:
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
-                    message.react("✅");
-                    return getImage(keyword.toLowerCase()).then(img =>
-                        sendImage(message, img)
-                    );
+                    return getImage(keyword.toLowerCase()).then(img => {
+                        message.react("✅");
+                        return sendImage(message, img)
+                    });
                 }
         }
     }

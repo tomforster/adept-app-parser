@@ -37,3 +37,8 @@ exports.delete = function(id){
     log.debug("deleting", id);
     return db.none("update command set is_deleted = true where id = $1", [id]);
 };
+
+exports.safeDelete = function(command, id){
+    log.debug("deleting", id);
+    return db.none("update command set is_deleted = true where id = $1 and command = $2", [id, command]);
+};
