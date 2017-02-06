@@ -39,7 +39,7 @@ app.use('/parser', wow);
 // }
 
 const crypto = require('crypto');
-var bufferEq = require('buffer-equal-constant-time');
+const bufferEq = require('buffer-equal-constant-time');
 
 function signBlob (blob) {
     return 'sha1=' + crypto.createHmac('sha1', config.github).update(blob).digest('hex')
@@ -49,10 +49,7 @@ app.post('/deploy', function (req, res) {
 
     let sig = req.header('x-hub-signature');
 
-    console.log(req);
-    console.log(req.body);
-
-    let computedSig = new Buffer(signBlob(req.body));
+    let computedSig = new Buffer(signBlob(req));
 
     if (!bufferEq(new Buffer(sig), computedSig)){
         console.log('not equal');
