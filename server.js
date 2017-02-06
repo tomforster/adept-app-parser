@@ -43,7 +43,6 @@ app.use('/parser', wow);
 
 webhookHandler.on('*', function (repo, data) {
     log.info(repo, data);
-
 });
 
 app.get('/robots.txt',function(req,res){
