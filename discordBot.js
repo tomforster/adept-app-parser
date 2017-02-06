@@ -17,6 +17,8 @@ const parseDuration = require('parse-duration');
 const MAX_SIZE = 5000000;
 const bot = new Discord.Client();
 
+const messageCache = {};
+
 bot.on("message", (message) => {
     //increment message count
     logUserDetails(message.author).then(user => {
@@ -78,7 +80,7 @@ bot.on("message", (message) => {
             case 'random':
                 message.react("✅");
                 return getImage().then(img =>
-                    message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), "Here's your random image: !" + img.command)
+                    sendImage(message, img, "Here's your random image: !" + img.command)
                 );
             case 'list': {
                 if (params.length < 1) return;
@@ -106,12 +108,10 @@ bot.on("message", (message) => {
                 let uriParam = params[1];
                 if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
                     if (commandParam.indexOf('!') >= 0) {
-                        message.reply("command: " + commandParam + " should not contain exclamation marks.");
-                        return;
+                        return message.reply("command: " + commandParam + " should not contain exclamation marks.");
                     }
                     if (allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
-                        message.reply("command: " + commandParam + " has an unknown extension.");
-                        return;
+                        return message.reply("command: " + commandParam + " has an unknown extension.");
                     }
                     // if(commandParam === "red" || commandParam === "redlorr"){
                     //     return;
@@ -119,9 +119,9 @@ bot.on("message", (message) => {
                     //todo add duplicate discarding
                     get_fileSize(uriParam, err => {
                         if (err) {
-                            message.reply("Image is too large :(");
+                            return message.reply("Image is too large :(");
                         } else {
-                            commandRepository
+                            return commandRepository
                                 .save(commandParam, uriParam, message.author.id)
                                 .then(() => message.reply("new command: " + commandParam + " has been added successfully."))
                                 .catch(err => log.info(err));
@@ -137,7 +137,7 @@ bot.on("message", (message) => {
                 if(keyword && typeof keyword === 'string' && keyword.length > 0){
                     message.react("✅");
                     return getImage(keyword.toLowerCase()).then(img =>
-                        message.channel.sendFile(img.url, "image." + img.url.split('.').pop())
+                        sendImage(message, img)
                     );
                 }
         }
@@ -166,6 +166,20 @@ function getImage(command){
         }
         throw "Unknown image";
     });
+}
+
+function sendImage(message, img, text){
+    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(result => {
+        addToMessageCache(result, img);
+        return result;
+    });
+}
+
+function addToMessageCache(message, img){
+    if(Object.keys(messageCache).length > 1000){
+        Object.keys(messageCache).sort((key1, key2) => messageCache[key1].time - messageCache[key2].time).slice(500).forEach(key => delete messageCache[key]);
+    }
+    messageCache[message.id] = {img:img, time:new Date().getTime()};
 }
 
 function get_fileSize(url) {
@@ -226,6 +240,31 @@ bot.on("serverNewMember", (server, discordUser) => {
 bot.on("presence", (oldUser, discordUser) => {
     log.info("Member presence updated!", discordUser.username);
     logUserDetails(discordUser);
+});
+
+bot.on("messageReactionAdd", (messageReaction, user) => {
+    if(!user || !messageReaction){
+        return;
+    }
+    let message = messageReaction.message;
+    if(!message.author.equals(bot.user)) return;
+
+    let guildUser = message.guild.members.get(user.id);
+    if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
+    if(messageReaction.emoji.name === "❎"){
+        let id = message.id;
+        if(messageCache.hasOwnProperty(id)){
+            let img = (messageCache[id].img);
+            commandRepository.delete(img.id).then(() => {
+                message.channel.sendMessage("Deleted image for command "+ (img.command));
+                message.delete();
+                delete messageCache[id];
+            });
+        }
+        else{
+            messageReaction.message.channel.sendMessage("Cannot delete image, too much time has passed or I restarted recently :(")
+        }
+    }
 });
 
 exports.newAppMessage = function(title,url){
