@@ -54,7 +54,7 @@ app.post('/deploy', function(req, res){
         res.status(401).end();
         return;
     }
-    if(req.header["X-GitHub-Event"] !== 'push'){
+    if(req.headers["x-github-event"] !== 'push'){
         log.info("Github webhook not a push, ignoring");
         res.status(200).end();
         return;
@@ -73,7 +73,7 @@ app.post('/deploy', function(req, res){
     const deploySh = spawn('sh', [ 'deploy-adept.sh' ], {
         cwd: process.env.HOME,
         env: Object.assign({}, process.env, { PATH: process.env.PATH + ':/usr/local/bin' })
-    })
+    }).on('error', (err => console.log(err)));
 });
 
 app.get('/robots.txt',function(req,res){
