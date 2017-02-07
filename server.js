@@ -71,7 +71,7 @@ app.post('/deploy', function(req, res){
     log.info("Redeploying...");
 
     //redeploy
-    childProcess.exec('/usr/local/bin/deploy-adept.sh',
+    childProcess.exec('/usr/local/bin/deploy-adept.sh > ~/deployop.log',
         function (error, stdout, stderr) {
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
