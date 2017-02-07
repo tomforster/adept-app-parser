@@ -8,7 +8,7 @@ const config = require(path.join(__dirname,'config/config.json'))[env];
 const log = require('better-logs')('server');
 const fs = require('fs');
 log.output(fs.createWriteStream('log.txt'));
-let bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 
 const app = express();
 const ws = require('express-ws')(app);
@@ -24,7 +24,8 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
-app.use(bodyParser.raw()); // must use bodyParser in express
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
@@ -38,30 +39,41 @@ app.use('/parser', wow);
 //     require('./wow-api')(app);
 // }
 
-const crypto = require('crypto');
-const bufferEq = require('buffer-equal-constant-time');
-
-function signBlob (blob) {
-    return 'sha1=' + crypto.createHmac('sha1', config.github).update(blob).digest('hex')
+const bufferEq = require("buffer-equal-constant-time");
+const crypto = require("crypto");
+function signData(secret, data) {
+    return 'sha1=' + crypto.createHmac('sha1', secret).update(data).digest('hex');
 }
+const { spawn } = require('child_process')
 
-app.post('/deploy', function (req, res) {
-
-    let sig = req.header('x-hub-signature');
-
-    let computedSig = new Buffer(signBlob(req));
-
-    if (!bufferEq(new Buffer(sig), computedSig)){
-        console.log('not equal');
-        res.status(401).send();
+app.post('/deploy', function(req, res){
+    log.info("Github webhook received");
+    let sig = req.header("x-hub-signature");
+    if(!req.body || !sig) {
+        log.info("Github webhook invalid message");
+        res.status(401).end();
+        return;
     }
-
-    res.status(200).send('OK');
-
-    if(req.header('x-github-event') === 'push'){
-        //redeploy script
-        console.log('!!!');
+    if(req.header["X-GitHub-Event"] !== 'push'){
+        log.info("Github webhook not a push, ignoring");
+        res.status(200).end();
+        return;
     }
+    const result = bufferEq(new Buffer(signData(config.github, JSON.stringify(req.body))), new Buffer(sig));
+    if(result) {
+        log.info("Github webhook verified");
+        res.status(200).end();
+    }else{
+        log.info("Github webhook wrong sha1");
+        res.status(401).end();
+        return;
+    }
+    log.info("Redeploying...");
+    //redeploy
+    const deploySh = spawn('sh', [ 'deploy-adept.sh' ], {
+        cwd: process.env.HOME,
+        env: Object.assign({}, process.env, { PATH: process.env.PATH + ':/usr/local/bin' })
+    })
 });
 
 app.get('/robots.txt',function(req,res){
