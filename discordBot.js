@@ -89,7 +89,7 @@ bot.on("message", (message) => {
                     commandRepository
                         .fetchAll(commandParam.toLowerCase())
                         .then(results => {
-                            log.info("fetched list of " + results.length + " values for " + commandParam);
+                            log.info("fetched list of " + results.length + " images for " + commandParam);
                             if (!results || results.length == 0) return;
                             let opMessage = "Saved images for command " + commandParam + ":\n";
                             let count = 1;
