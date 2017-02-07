@@ -46,7 +46,7 @@ function signData(secret, data) {
     return 'sha1=' + crypto.createHmac('sha1', secret).update(data).digest('hex');
 }
 
-app.post('/deploy', function(req, res){
+app.post('/github', function(req, res){
     log.info("Github webhook received");
     let sig = req.header("x-hub-signature");
     if(!req.body || !sig) {
@@ -71,7 +71,7 @@ app.post('/deploy', function(req, res){
     log.info("Redeploying...");
 
     //redeploy
-    // childProcess.spawn('sh', ['-c', '/usr/local/bin/deploy-adept.sh > ~/deployop.log'], {detached: true, stdio: 'ignore'})
+    childProcess.spawn('sh', ['-c', 'git pull && npm install && pm2 restart appbot'], [], {detached: true})
 });
 
 app.get('/robots.txt',function(req,res){
