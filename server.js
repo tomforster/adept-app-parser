@@ -71,7 +71,7 @@ app.post('/deploy', function(req, res){
     log.info("Redeploying...");
 
     //redeploy
-    childProcess.exec('/usr/bin/deploy-deploy.sh',
+    childProcess.exec('/usr/local/bin/deploy-deploy.sh',
         function (error, stdout, stderr) {
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
