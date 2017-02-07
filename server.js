@@ -71,14 +71,7 @@ app.post('/deploy', function(req, res){
     log.info("Redeploying...");
 
     //redeploy
-    childProcess.exec('/usr/local/bin/deploy-adept.sh > ~/deployop.log',
-        function (error, stdout, stderr) {
-            console.log('stdout: ' + stdout);
-            console.log('stderr: ' + stderr);
-            if (error !== null) {
-                console.log('exec error: ' + error);
-            }
-        });
+    childProcess.spawn('sh', ['-c', '/usr/local/bin/deploy-adept.sh > ~/deployop.log'], {detached: true, stdio: 'inherit'})
 });
 
 app.get('/robots.txt',function(req,res){
