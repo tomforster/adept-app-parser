@@ -69,6 +69,7 @@ app.post('/deploy', function(req, res){
         return;
     }
     log.info("Redeploying...");
+
     //redeploy
     const deploySh = spawn('sh', [ 'deploy-adept.sh' ], {
         cwd: process.env.HOME,
