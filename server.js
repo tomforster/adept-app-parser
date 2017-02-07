@@ -9,6 +9,7 @@ const log = require('better-logs')('server');
 const fs = require('fs');
 log.output(fs.createWriteStream('log.txt'));
 const bodyParser = require("body-parser");
+const childProcess = require("child_process");
 
 const app = express();
 const ws = require('express-ws')(app);
@@ -24,7 +25,7 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/libs/", express.static(path.join(__dirname,"node_modules")));
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 log.info("Bot:", config.enableDiscordBot);
@@ -44,7 +45,6 @@ const crypto = require("crypto");
 function signData(secret, data) {
     return 'sha1=' + crypto.createHmac('sha1', secret).update(data).digest('hex');
 }
-const { spawn } = require('child_process')
 
 app.post('/deploy', function(req, res){
     log.info("Github webhook received");
@@ -71,10 +71,14 @@ app.post('/deploy', function(req, res){
     log.info("Redeploying...");
 
     //redeploy
-    const deploySh = spawn('sh', [ 'deploy-adept.sh' ], {
-        cwd: process.env.HOME,
-        env: Object.assign({}, process.env, { PATH: process.env.PATH + ':/usr/local/bin' })
-    }).on('error', (err => console.log(err)));
+    childProcess.exec('/usr/bin/deploy-deploy.sh',
+        function (error, stdout, stderr) {
+            console.log('stdout: ' + stdout);
+            console.log('stderr: ' + stderr);
+            if (error !== null) {
+                console.log('exec error: ' + error);
+            }
+        });
 });
 
 app.get('/robots.txt',function(req,res){
