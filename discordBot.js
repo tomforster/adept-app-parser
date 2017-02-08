@@ -78,10 +78,10 @@ bot.on("message", (message) => {
                 }
                 break;
             case 'random':
-                message.react("✅");
-                return getImage().then(img =>
-                    sendImage(message, img, "Here's your random image: !" + img.command)
-                );
+                return getImage().then(img => {
+                    message.react("✅");
+                    sendImage(message, img, "Here's your random image: !" + img.command);
+                });
             case 'list': {
                 if (params.length < 1) return;
                 commandParam = params[0].toLowerCase();
@@ -171,7 +171,7 @@ function getImage(command){
             if(result){
                 return img;
             }else{
-                throw "Image is too large :(";
+                throw "Image is too large or removed :(";
             }
         }).catch(() => {
             return commandRepository.delete(img.id).then(() => {
@@ -207,6 +207,9 @@ function get_fileSize(url) {
         method: "HEAD"
     }).then(headRes => {
         let size = headRes['content-length'];
+        if(size === "503"){
+            return false;
+        }
         return size <= MAX_SIZE;
     });
 }
