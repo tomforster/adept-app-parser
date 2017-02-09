@@ -19,6 +19,29 @@ const bot = new Discord.Client();
 
 const messageCache = {};
 
+const magicEightResponses = [
+    'it is certain',
+    'it is decidedly so',
+    'without a doubt',
+    'yes — definitely',
+    'you may rely on it',
+    'as I see it, yes',
+    'most likely',
+    'outlook good',
+    'yes',
+    'signs point to yes',
+    'reply hazy, try again',
+    'ask again later',
+    'better not tell you now',
+    'cannot predict now',
+    'concentrate and ask again',
+    'don’t count on it',
+    'my reply is no',
+    'my sources say no',
+    'outlook not so good',
+    'very doubtful'
+];
+
 bot.on("message", (message) => {
     //increment message count
     logUserDetails(message.author).then(user => {
@@ -51,6 +74,10 @@ bot.on("message", (message) => {
                 }
                 message.reply("you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
                 break;
+            case '8ball': {
+                message.reply(magicEightResponses[Math.ceil(Math.random()*magicEightResponses.length)]);
+                break;
+            }
             case 'spammers':
                 let duration = parseDuration(params.join(' '));
                 if (params.filter(param => param.toLowerCase() === 'all').length > 0 && message.server) {
