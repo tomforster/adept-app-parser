@@ -75,7 +75,7 @@ bot.on("message", (message) => {
                 message.reply("you rolled " + Math.ceil(Math.random() * 6) + " (1 - " + 6 + ")").catch(error => log.error(error));
                 break;
             case '8ball': {
-                message.reply(magicEightResponses[Math.ceil(Math.random()*magicEightResponses.length)]);
+                message.reply(magicEightResponses[Math.floor(Math.random()*magicEightResponses.length)]);
                 break;
             }
             case 'spammers':
