@@ -29,10 +29,13 @@ bot.on("message", (message) => {
         let params = getParams(message.content, keyword);
         log.debug("Detected params:", params);
 
-        let command = commands.find(command => command.name === keyword);
-        if(!command) {
-            command = commands.find(command => command.name === "default");
+        let command, commandIndex = Object.keys(commands).find(commandKey => {let command = commands[commandKey]; return command.name === keyword});
+        if(!commandIndex){
+            command =  commands.default;
+        }else{
+            command = commands[commandIndex];
         }
+
         log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
         return command.run(message, params, keyword).catch(err => log.error(err));
     }
