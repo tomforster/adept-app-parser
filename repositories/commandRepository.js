@@ -12,7 +12,7 @@ const log = require('better-logs')('command_repo');
 exports.fetchAll = function (command){
     log.debug("fetching", command);
     if(command && typeof command === 'string' && command.length>0){
-        return db.any("select c.id as id, c.command, url, c.date_added, du.username as uploader from command c join discord_user du on c.user_id = du.discord_id where command=($1) and is_deleted = false", [command]);
+        return db.any("select c.id as id, c.command, url, c.date_added, du.username as uploader from command c join discord_user du on c.user_id = du.discord_id where command=($1) and is_deleted = false order by c.date_added", [command]);
     }else{
         log.debug("type of command incorrect!");
         return [];
