@@ -170,8 +170,12 @@ bot.on("message", (message) => {
                     let guildUser = message.guild.members.get(message.author.id);
                     if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
                     message.react("✅");
-                    return commandRepository.safeDelete(commandParam, idParam).then(() => {
-                        return message.reply("successfully deleted image for command " + commandParam +".");
+                    return commandRepository.safeDelete(commandParam, idParam).then((result) => {
+                        if(result && result > 0){
+                            return message.reply("successfully deleted image for command " + commandParam +".");
+                        }else{
+                            return message.reply("unable to find any image for command " + commandParam + " with id " + idParam + ".");
+                        }
                     }).catch(() => {
                         return message.reply("failed to deleted image for command " + commandParam +".");
                     });

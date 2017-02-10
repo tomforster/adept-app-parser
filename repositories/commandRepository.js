@@ -35,10 +35,10 @@ exports.save = function(command, url, user_id){
 
 exports.delete = function(id){
     log.debug("deleting", id);
-    return db.none("update command set is_deleted = true where id = $1", [id]);
+    return db.result("update command set is_deleted = true where id = $1", [id]).then(result => result.rowCount);
 };
 
 exports.safeDelete = function(command, id){
     log.debug("deleting", id);
-    return db.none("update command set is_deleted = true where id = $1 and command = $2", [id, command]);
+    return db.result("update command set is_deleted = true where id = $1 and command = $2", [id, command]).then(result => result.rowCount);
 };
