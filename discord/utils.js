@@ -55,7 +55,9 @@ function getFileSize(url) {
 }
 
 class MessageCache {
-    cache = [];
+    constructor() {
+        this.cache = [];
+    }
 
     add(message, img){
         if(Object.keys(this.cache).length > 1000){
