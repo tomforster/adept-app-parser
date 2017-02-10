@@ -1,0 +1,56 @@
+/**
+ * @author Tom Forster <tom.forster@mpec.co.uk>
+ *         Date: 10/02/2017
+ */
+
+const log = require('better-logs')('discord');
+const commandRepository = require('./../repositories/commandRepository');
+const rp = require('request-promise');
+import {addToMessageCache} from "./discordBot";
+
+const MAX_SIZE = 5000000;
+export const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
+
+function getImage(command){
+    return commandRepository.random(command).then(img => {
+        if(!img) return;
+        log.info("fetched " + img.command.toLowerCase() + ", filename: "+img.url);
+        return get_fileSize(img.url).then(result => {
+            if(result){
+                return img;
+            }else{
+                throw "Image is too large or removed :(";
+            }
+        }).catch(() => {
+            return commandRepository.delete(img.id).then(() => {
+                throw 404
+            });
+        });
+    }).catch(err => {
+        log.error(err);
+        if(err === 404){
+            return getImage(command)
+        }
+        throw "Unknown image";
+    });
+}
+
+export function sendImage(message, img, text){
+    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(result => {
+        addToMessageCache(result, img);
+        return result;
+    });
+}
+
+export function get_fileSize(url) {
+    return rp({
+        url: url,
+        method: "HEAD"
+    }).then(headRes => {
+        let size = headRes['content-length'];
+        if(size === "503"){
+            return false;
+        }
+        return size <= MAX_SIZE;
+    });
+}

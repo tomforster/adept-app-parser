@@ -21,7 +21,7 @@ module.exports = function(startBot, startMail){
 
     var discordBot = null;
     if(startBot){
-        discordBot = require('./discordBot.js');
+        discordBot = require('./discord/discordBot.js');
     }
 
     if(startMail){
