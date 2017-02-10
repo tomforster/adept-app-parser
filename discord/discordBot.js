@@ -113,7 +113,7 @@ function logUserDetails(discordUser){
     }).catch(error => log.error(error));
 }
 
-exports.newAppMessage = function(title,url){
+module.exports.newAppMessage = function(title,url){
     let adeptGuild = bot.guilds.find("name", "Adept");
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
