@@ -31,10 +31,11 @@ bot.on("message", (message) => {
         logger.debug("Detected params:", params);
 
         let command = commands.find(command => command.name === keyword);
-        if(command) {
-            log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
-            return command.run(message, params, keyword).catch(err => log.error(err));
+        if(!command) {
+            command = commands.find(command => command.name === "default");
         }
+        log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
+        return command.run(message, params, keyword).catch(err => log.error(err));
     }
 
 });
