@@ -5,7 +5,7 @@
 
 const humanizeDuration = require('humanize-duration');
 const parseDuration = require('parse-duration');
-const auditRepository = require('./../repositories/auditRepository');
+const auditRepository = require('../../repositories/auditRepository');
 
 function run(message, params) {
     let duration = parseDuration(params.join(' '));

@@ -2,7 +2,7 @@
  * @author Tom Forster <tom.forster@mpec.co.uk>
  *         Date: 10/02/2017
  */
-import * as commandRepository from "../../repositories/commandRepository";
+const commandRepository = require("../../repositories/commandRepository");
 
 function run(message, params){
     let guildUser = message.guild.members.get(message.author.id);

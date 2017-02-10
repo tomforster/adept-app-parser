@@ -3,5 +3,5 @@
  *         Date: 10/02/2017
  */
 
-var requireDirectory = require('require-directory');
+const requireDirectory = require('require-directory');
 module.exports = requireDirectory(module);

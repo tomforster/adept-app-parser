@@ -4,8 +4,8 @@
  */
 
 const validUrl = require('valid-url');
-import {allowable_extensions, get_fileSize} from "../utils";
-import * as commandRepository from "../../repositories/commandRepository";
+const utils = require('../utils');
+const commandRepository = require("../../repositories/commandRepository.js");
 
 function run(message, params){
     if (params.length === 2) {
@@ -15,12 +15,12 @@ function run(message, params){
             if (commandParam.indexOf('!') >= 0) {
                 return message.reply("command: " + commandParam + " should not contain exclamation marks.");
             }
-            if (allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
+            if (utils.allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
                 return message.reply("command: " + commandParam + " has an unknown extension.");
             }
 
             //todo add duplicate discarding?
-            return get_fileSize(uriParam).then(result => {
+            return utils.getFileSize(uriParam).then(result => {
                 if (!result) {
                     return message.reply("the image is too large :(");
                 } else {

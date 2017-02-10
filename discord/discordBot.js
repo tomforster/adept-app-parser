@@ -26,9 +26,9 @@ bot.on("message", (message) => {
     let matches = message.content.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
-        logger.debug("Detected command:", keyword);
+        log.debug("Detected command:", keyword);
         let params = getParams(message.content, keyword);
-        logger.debug("Detected params:", params);
+        log.debug("Detected params:", params);
 
         let command = commands.find(command => command.name === keyword);
         if(!command) {

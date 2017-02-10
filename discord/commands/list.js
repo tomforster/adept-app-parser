@@ -3,7 +3,7 @@
  *         Date: 10/02/2017
  */
 
-let commandRepository = require("../../repositories/commandRepository");
+const commandRepository = require("../../repositories/commandRepository");
 const log = require('better-logs')('discord');
 
 function run(message, params) {

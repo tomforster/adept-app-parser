@@ -9,13 +9,13 @@ const rp = require('request-promise');
 import {addToMessageCache} from "./discordBot";
 
 const MAX_SIZE = 5000000;
-export const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
+const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
 
 function getImage(command){
     return commandRepository.random(command).then(img => {
         if(!img) return;
         log.info("fetched " + img.command.toLowerCase() + ", filename: "+img.url);
-        return get_fileSize(img.url).then(result => {
+        return getFileSize(img.url).then(result => {
             if(result){
                 return img;
             }else{
@@ -35,14 +35,14 @@ function getImage(command){
     });
 }
 
-export function sendImage(message, img, text){
+function sendImage(message, img, text){
     return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(result => {
         addToMessageCache(result, img);
         return result;
     });
 }
 
-export function get_fileSize(url) {
+function getFileSize(url) {
     return rp({
         url: url,
         method: "HEAD"
@@ -54,3 +54,10 @@ export function get_fileSize(url) {
         return size <= MAX_SIZE;
     });
 }
+
+module.exports = {
+    getFileSize,
+    sendImage,
+    allowable_extensions,
+    getImage
+};
