@@ -6,7 +6,6 @@
 const log = require('better-logs')('discord');
 const commandRepository = require('./../repositories/commandRepository');
 const rp = require('request-promise');
-import {addToMessageCache} from "./discordBot";
 
 const MAX_SIZE = 5000000;
 const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
@@ -37,7 +36,7 @@ function getImage(command){
 
 function sendImage(message, img, text){
     return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(result => {
-        addToMessageCache(result, img);
+        messageCache.add(result, img);
         return result;
     });
 }
@@ -55,9 +54,42 @@ function getFileSize(url) {
     });
 }
 
+class MessageCache {
+    cache = [];
+
+    add(message, img){
+        if(Object.keys(this.cache).length > 1000){
+            Object.keys(this.cache).sort((key1, key2) => this.cache[key1].time - this.cache[key2].time).slice(500).forEach(key => delete this.cache[key]);
+        }
+        this.cache[message.id] = {img:img, time:new Date().getTime()};
+    };
+
+    find(id){
+        if(this.cache.hasOwnProperty(id)){
+            return (messageCache[id]);
+        }
+        else{
+            return null;
+        }
+    }
+
+    remove(id){
+        if(this.cache.hasOwnProperty(id)){
+            delete this.cache[id];
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+}
+
+let messageCache = new MessageCache();
+
 module.exports = {
     getFileSize,
     sendImage,
     allowable_extensions,
-    getImage
+    getImage,
+    messageCache
 };

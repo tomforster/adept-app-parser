@@ -8,11 +8,10 @@ const log = require('better-logs')('discord');
 const commandRepository = require('./../repositories/commandRepository');
 const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
+const messageCache = require('./utils').messageCache;
 
 const commands = require("./commands");
 const bot = new Discord.Client();
-
-const messageCache = {};
 
 bot.on("message", (message) => {
 
@@ -69,15 +68,15 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
     if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
     if(messageReaction.emoji.name === "❎"){
         let id = message.id;
-        if(messageCache.hasOwnProperty(id)){
-            let img = (messageCache[id].img);
+        let originalImageData = messageCache.find(id);
+        if(originalImageData){
+            let img = originalImageData.img;
             commandRepository.delete(img.id).then(() => {
                 message.channel.sendMessage("Deleted image for command "+ (img.command));
                 message.delete();
-                delete messageCache[id];
+                messageCache.remove(id);
             });
-        }
-        else{
+        } else{
             messageReaction.message.channel.sendMessage("Cannot delete image, too much time has passed or I restarted recently :(")
         }
     }
@@ -124,10 +123,3 @@ exports.newAppMessage = function(title,url){
     }
     return Promise.resolve();
 };
-
-export function addToMessageCache(message, img){
-    if(Object.keys(messageCache).length > 1000){
-        Object.keys(messageCache).sort((key1, key2) => messageCache[key1].time - messageCache[key2].time).slice(500).forEach(key => delete messageCache[key]);
-    }
-    messageCache[message.id] = {img:img, time:new Date().getTime()};
-}
