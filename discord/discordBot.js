@@ -10,7 +10,7 @@ const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
 const messageCache = require('./utils').messageCache;
 
-const commands = require('./utils').commands;
+const commands = require('./commandList');
 const bot = new Discord.Client();
 
 bot.on("message", (message) => {

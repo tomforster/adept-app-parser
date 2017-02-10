@@ -6,7 +6,7 @@ function run(message, params) {
     let opMessage = "";
     // if(params.length !== 1) {
         opMessage = "Available command list:\n\n";
-        const commands = require('../utils').commands;
+        const commands = require('../commandList');
         Object.keys(commands).forEach(key => {
             let command = commands[key];
             if (command.names.length > 0) {

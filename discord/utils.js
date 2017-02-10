@@ -9,7 +9,6 @@ const rp = require('request-promise');
 
 const MAX_SIZE = 5000000;
 const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
-const commands = require("./commands");
 
 function getImage(command){
     return commandRepository.random(command).then(img => {
@@ -95,5 +94,4 @@ module.exports = {
     allowable_extensions,
     getImage,
     messageCache,
-    commands: commands
 };
