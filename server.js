@@ -68,10 +68,14 @@ app.post('/github', function(req, res){
         res.status(401).end();
         return;
     }
-    log.info("Redeploying...");
-
-    //redeploy
-    childProcess.spawn('sh', ['-c', 'git pull && npm install && pm2 restart appbot'], [], {detached: true})
+    log.info("Checking branch...");
+    if(req.body.ref === "refs/heads/master") {
+        //redeploy
+        log.info("Redeploying...");
+        childProcess.spawn('sh', ['-c', 'git pull && npm install && pm2 restart appbot'], [], {detached: true})
+    }else{
+        log.info("Not master commit, ignoring.");
+    }
 });
 
 app.get('/robots.txt',function(req,res){
