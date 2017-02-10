@@ -13,6 +13,7 @@ function run(message, params) {
 }
 
 module.exports = {
-    name: "sheet",
+    names: ["sheet"],
+    description: "Displays a link to the Red Squad spreadsheet.",
     run
 };

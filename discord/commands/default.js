@@ -14,6 +14,7 @@ function run(message, params, keyword){
 }
 
 module.exports = {
-    name:'default',
+    names: [],
+    isDefault: true,
     run
 };

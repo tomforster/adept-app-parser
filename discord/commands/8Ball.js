@@ -31,6 +31,7 @@ function run(message, params){
 }
 
 module.exports = {
-    name: "8ball",
+    names: ["8ball"],
+    description: "Ask Appbot a question, then consult the magic eight ball.",
     run
 };

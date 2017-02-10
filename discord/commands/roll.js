@@ -16,6 +16,7 @@ function run(message, params) {
 }
 
 module.exports = {
-    name: "roll",
+    names: ["roll"],
+    description: "Performs a random dice roll.",
     run
 };

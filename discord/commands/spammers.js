@@ -35,6 +35,7 @@ function run(message, params) {
 }
 
 module.exports = {
-    name: "spammers",
+    names: ["spammers"],
+    description: "Displays postcount statistics.",
     run: run
 };

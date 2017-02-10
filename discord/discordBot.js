@@ -10,7 +10,7 @@ const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
 const messageCache = require('./utils').messageCache;
 
-const commands = require("./commands");
+const commands = require('./utils').commands;
 const bot = new Discord.Client();
 
 bot.on("message", (message) => {
@@ -29,7 +29,7 @@ bot.on("message", (message) => {
         let params = getParams(message.content, keyword);
         log.debug("Detected params:", params);
 
-        let command, commandIndex = Object.keys(commands).find(commandKey => {let command = commands[commandKey]; return command.name === keyword});
+        let command, commandIndex = Object.keys(commands).find(commandKey => commands[commandKey].names.indexOf(keyword) >= 0);
         if(!commandIndex){
             command =  commands.default;
         }else{
@@ -126,3 +126,5 @@ module.exports.newAppMessage = function(title,url){
     }
     return Promise.resolve();
 };
+
+module.exports.commands = commands;

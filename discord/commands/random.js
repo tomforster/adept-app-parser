@@ -12,6 +12,7 @@ function run(message, params) {
 }
 
 module.exports = {
-    name: "random",
+    names: ["random"],
+    description: "Displays a random image.",
     run: run
 };

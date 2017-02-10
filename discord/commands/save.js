@@ -41,6 +41,7 @@ function run(message, params){
 }
 
 module.exports = {
-    name: "save",
+    names: ["save"],
+    description: "Saves an image for a given command.",
     run
 };

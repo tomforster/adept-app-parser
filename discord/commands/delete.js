@@ -36,6 +36,7 @@ function run(message, params){
 }
 
 module.exports = {
-    name: "delete",
+    names: ["delete"],
+    description: "Deletes an image for a given command. [Requires Admin Permission]",
     run
 };

@@ -29,6 +29,7 @@ function run(message, params) {
 }
 
 module.exports = {
-    name: "list",
+    names: ["list"],
+    description: "Lists the available images for a given command.",
     run
 };
