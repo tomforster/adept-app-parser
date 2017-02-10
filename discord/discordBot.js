@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const path = require("path");
 const env = process.env.NODE_ENV || "development";
-const config = require(path.join(__dirname, 'config/config.json'))[env];
+const config = require(path.join(__dirname, '../config/config.json'))[env];
 const phantomScripts = require('./../phantomScripts');
 const log = require('better-logs')('discord');
 
