@@ -7,8 +7,8 @@ const validUrl = require('valid-url');
 const utils = require('../utils');
 const commandRepository = require("../../repositories/commandRepository.js");
 
-function run(message, params){
-    if (params.length === 2) {
+function run(message, params, keyword){
+    if (keyword.indexOf('@') < 0 && params.length === 2) {
         let commandParam = params[0].toLowerCase();
         let uriParam = params[1];
         if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
