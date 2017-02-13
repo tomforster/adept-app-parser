@@ -23,7 +23,7 @@ bot.on("message", (message) => {
 
     if(message.author.equals(bot.user) || message.author.bot) return;
 
-    let matches = message.content.match(/!(\w+)/);
+    let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
         logger.debug("Detected command:", keyword);
@@ -34,7 +34,7 @@ bot.on("message", (message) => {
         if(!command) {
             command = commands.find(command => command.name === "default");
         }
-        log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
+        log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
         return command.run(message, params, keyword).catch(err => log.error(err));
     }
 
