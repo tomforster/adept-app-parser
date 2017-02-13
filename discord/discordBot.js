@@ -21,7 +21,7 @@ bot.on("message", (message) => {
     });
 
     if(message.author.equals(bot.user) || message.author.bot) return;
-    if(message.author.id.equals("76632586725621760")) log.debug("t detected");
+    if(message.author.id === "76632586725621760") log.debug("t detected");
 
     let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
