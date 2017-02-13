@@ -7,8 +7,8 @@ const validUrl = require('valid-url');
 import {allowable_extensions, get_fileSize} from "../utils";
 import * as commandRepository from "../../repositories/commandRepository";
 
-function run(message, params){
-    if (params.length === 2) {
+function run(message, params, keyword){
+    if (keyword.indexOf('@') < 0 && params.length === 2) {
         let commandParam = params[0].toLowerCase();
         let uriParam = params[1];
         if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
