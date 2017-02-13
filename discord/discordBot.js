@@ -36,7 +36,6 @@ bot.on("message", (message) => {
             command = commands[commandIndex];
         }
 
-        log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
         log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
         return command.run(message, params, keyword).catch(err => log.error(err));
     }
