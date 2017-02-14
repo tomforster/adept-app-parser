@@ -22,9 +22,9 @@ exports.fetchAll = function (command){
 exports.random = function(command){
     log.debug("fetching random");
     if(!command) {
-        return db.one("SELECT count(*) from command where is_deleted = false").then(result => db.one("SELECT id, command, url, date_added FROM command where is_deleted = false OFFSET floor(random()*$1) LIMIT 1", [result.count]));
+        return db.oneOrNone("SELECT count(*) from command where is_deleted = false").then(result => db.one("SELECT id, command, url, date_added FROM command where is_deleted = false OFFSET floor(random()*$1) LIMIT 1", [result.count]));
     }else{
-        return db.one("SELECT count(*) from command where command=($1) and is_deleted = false", [command]).then(result => db.one("SELECT id, command, url, date_added FROM command where is_deleted = false and command=$2 OFFSET floor(random()*$1) LIMIT 1", [result.count, command]));
+        return db.oneOrNone("SELECT count(*) from command where command=($1) and is_deleted = false", [command]).then(result => db.one("SELECT id, command, url, date_added FROM command where is_deleted = false and command=$2 OFFSET floor(random()*$1) LIMIT 1", [result.count, command]));
     }
 };
 
