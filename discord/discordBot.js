@@ -21,8 +21,14 @@ bot.on("message", (message) => {
     });
 
     if(message.author.equals(bot.user) || message.author.bot) return;
+    if(message.author.id === "76632586725621760"){
+        log.debug("t detected");
+        if(Math.random() < 0.1) {
+            message.react('💩');
+        }
+    }
 
-    let matches = message.content.match(/!(\w+)/);
+    let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
         log.debug("Detected command:", keyword);
@@ -36,7 +42,7 @@ bot.on("message", (message) => {
             command = commands[commandIndex];
         }
 
-        log.info("running command",command,"for user",message.author.username,"with id",message.author.id);
+        log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
         return command.run(message, params, keyword).catch(err => log.error(err));
     }
 

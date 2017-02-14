@@ -10,6 +10,9 @@ const commandRepository = require("../../repositories/commandRepository.js");
 function run(message, params){
     if (params.length === 2) {
         let commandParam = params[0].toLowerCase();
+        if(commandParam.indexOf('@') > -1){
+            return message.reply("you cant add images for commands containing @ symbols.")
+        }
         let uriParam = params[1];
         if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
             if (commandParam.indexOf('!') >= 0) {
