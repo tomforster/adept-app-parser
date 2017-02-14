@@ -85,6 +85,10 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
     }
 });
 
+bot.on("disconnect", (closeEvent)=> {
+    log.info("Bot disconnected", closeEvent);
+});
+
 bot.login(config.discordToken).catch(error => log.error(error));
 
 let getParams = function(messageString, command) {
