@@ -15,7 +15,7 @@ module.exports = {
         if(!processedParams || processedParams.length < 2) {
             return message.reply("I need more than one option to choose from!");
         }
-        return message.reply("the winner is: " + processedParams[Math.floor(Math.random()*params.length)] + '.');
+        return message.reply("the winner is: " + processedParams[Math.floor(Math.random()*processedParams.length)] + '.');
 
     }
 };
