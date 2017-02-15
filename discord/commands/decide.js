@@ -4,14 +4,19 @@
 
 module.exports = {
     names: ['choose', 'decide'],
-    description: 'Picks one of the given options',
-    run: (message, params, keyword) => {
-        if(params.length < 2) {
+    description: 'Picks one of the given options.',
+    run: (message, params) => {
+        let paramsString = params.join(' ');
+        let processedParams = paramsString.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g);
+        if(!processedParams || processedParams.length < 2) {
             return message.reply("I need more than one option to choose from!");
-        }else if(params.length > 10){
-            return message.reply("too many options, can't decide :(");
-        }else{
-            return message.reply("the winner is: " + params[Math.floor(Math.random()*params.length)]);
         }
+        processedParams = processedParams.map(param => param.replace(/"/g, '').trim()).filter(param => param.length !== 0);
+        console.log(processedParams);
+        if(!processedParams || processedParams.length < 2) {
+            return message.reply("I need more than one option to choose from!");
+        }
+        return message.reply("the winner is: " + processedParams[Math.floor(Math.random()*params.length)] + '.');
+
     }
 };
