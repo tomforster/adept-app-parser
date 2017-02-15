@@ -11,7 +11,7 @@ module.exports = {
         }else if(params.length > 10){
             return message.reply("too many options, can't decide :(");
         }else{
-            return message.reply("I pick " + params[Math.floor(Math.random()*params.length)]);
+            return message.reply("the winner is: " + params[Math.floor(Math.random()*params.length)]);
         }
     }
 };
