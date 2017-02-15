@@ -12,7 +12,6 @@ module.exports = {
             return message.reply("I need more than one option to choose from!");
         }
         processedParams = processedParams.map(param => param.replace(/"/g, '').trim()).filter(param => param.length !== 0);
-        console.log(processedParams);
         if(!processedParams || processedParams.length < 2) {
             return message.reply("I need more than one option to choose from!");
         }
