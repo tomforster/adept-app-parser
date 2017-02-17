@@ -1,10 +1,5 @@
 'use strict';
 
-const pmx = require('pmx').init({
-    network: false, // Network monitoring at the application level
-    custom_probes : false
-});
-
 const express = require('express');
 const router = express.Router();
 const path = require('path');
