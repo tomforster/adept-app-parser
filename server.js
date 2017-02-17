@@ -1,5 +1,7 @@
 'use strict';
 
+process.env['MODULE_DEBUG'] = true;
+
 const pmx = require('pmx').init({
     network: true, // Network monitoring at the application level
 });
