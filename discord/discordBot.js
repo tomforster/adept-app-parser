@@ -13,8 +13,6 @@ const messageCache = require('./utils').messageCache;
 const commands = require('./commandList');
 const bot = new Discord.Client();
 
-const pmx = require('pmx');
-
 bot.on("message", (message) => {
 
     //increment message count
@@ -45,7 +43,6 @@ bot.on("message", (message) => {
         }
 
         log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
-        pmx.emit("message:command", {keyword: keyword, user: message.author.username, userId: message.author.id});
         return command.run(message, params, keyword).catch(err => log.error(err));
     }
 

@@ -1,11 +1,8 @@
 'use strict';
 
-process.env['MODULE_DEBUG'] = true;
-
 const pmx = require('pmx').init({
     network: false, // Network monitoring at the application level
-    http: false,
-    custom_probes: false
+    custom_probes : false
 });
 
 const express = require('express');
@@ -110,8 +107,6 @@ app.use((req, res, next) => {
 
 let appParser = require('./appParser.js');
 let phantomScripts = require('./phantomScripts.js');
-
-pmx.emit("start",{date:new Date().toISOString()});
 
 app.listen(config.port,function(){
     // var mail = fs.readFileSync('samplemail.txt', 'utf-8');
