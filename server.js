@@ -4,7 +4,8 @@ process.env['MODULE_DEBUG'] = true;
 
 const pmx = require('pmx').init({
     network: false, // Network monitoring at the application level
-    http: false
+    http: false,
+    custom_probes: false
 });
 
 const express = require('express');
