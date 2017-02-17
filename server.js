@@ -112,6 +112,8 @@ let appParser = require('./appParser.js');
 let phantomScripts = require('./phantomScripts.js');
 
 app.listen(config.port,function(){
+    pmx.emit("start",{date:new Date().toISOString()});
+
     // var mail = fs.readFileSync('samplemail.txt', 'utf-8');
     // var mailObj = appParser.parseText(mail);
     // phantomScripts.postApp(mailObj).then(function(url){
