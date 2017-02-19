@@ -103,3 +103,11 @@ limit 10;`, [channelIds])
     }
     return Promise.reject("Invalid Argument");
 };
+
+exports.logCharacterStatsAudit = function(character){
+    if(typeof character === "object" && character.constructor !== Array) {
+        return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), moment().unix()]);
+    }else{
+        return Promise.reject("Invalid Argument");
+    }
+};

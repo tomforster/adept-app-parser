@@ -7,7 +7,8 @@ const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname,'config/config.json'))[env];
 const log = require('better-logs')('server');
 const fs = require('fs');
-log.output(fs.createWriteStream('log.txt'));
+let timestamp = new Date().getTime();
+log.output(fs.createWriteStream('log-'+timestamp+'.txt'));
 const bodyParser = require("body-parser");
 const childProcess = require("child_process");
 
@@ -31,14 +32,14 @@ app.use(bodyParser.json());
 log.info("Bot:", config.enableDiscordBot);
 log.info("Mail:", config.enableMail);
 log.info("Cam:", config.enableCam);
-log.info("Api:", config.enableApi);
+log.info("Api:", config.enableWOWApi);
 
 let wow = require('./wow')(config.enableDiscordBot, config.enableMail);
 app.use('/parser', wow);
 
-// if(config.enableApi){
-//     require('./wow-api')(app);
-// }
+if(config.enableWOWApi && config.guildName){
+    require('./wow-api')(config.guildName);
+}
 
 const bufferEq = require("buffer-equal-constant-time");
 const crypto = require("crypto");
