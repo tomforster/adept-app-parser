@@ -8,6 +8,6 @@ var moment = require('moment');
 const log = require('better-logs')('application_repo');
 
 exports.save = function(application){
-    log.debug("Saving application", application.name);
+    log.info("Saving application", application.name);
     return db.one("insert into application (data, date_received) VALUES ($1, $2) returning id", [application, moment().unix()]);
 };

@@ -13,7 +13,7 @@ function run(message, params) {
             return commandRepository
                 .fetchAll(commandParam)
                 .then(results => {
-                    log.debug("fetched list of " + results.length + " images for " + commandParam);
+                    log.info("fetched list of " + results.length + " images for " + commandParam);
                     if (!results || results.length == 0) return;
                     let opMessage = "Saved images for command " + commandParam + ":\n";
                     let count = 1;

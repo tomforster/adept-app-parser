@@ -17,7 +17,7 @@ var postApp = function(mailObj){
                 .innerText;
         })
         .then(function(title){
-            log.debug("loaded page", title);
+            log.info("loaded page", title);
             if (title.indexOf('Login') > -1) {
                 return nightmare
                     .insert('#username', username)
@@ -27,7 +27,7 @@ var postApp = function(mailObj){
                     .wait('#subject')
             }
         }).then(function(){
-            log.debug("loaded post page");
+            log.info("loaded post page");
             return nightmare.insert('#subject', mailObj.title)
             .insert('#message', mailObj.body)
             .wait(2000)

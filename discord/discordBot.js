@@ -18,24 +18,16 @@ bot.on("message", (message) => {
     //increment message count
     logUserDetails(message.author).then(user => {
         auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user))
-            .then(result => log.debug(result))
             .catch(error => log.error(error));
     });
 
     if(message.author.equals(bot.user) || message.author.bot) return;
-    // if(message.author.id === "76632586725621760"){
-    //     log.debug("t detected");
-    //     if(Math.random() < 0.1) {
-            // message.react('💩');
-        // }
-    // }
-
     let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
-        log.debug("Detected command:", keyword);
+        log.info("Detected command:", keyword);
         let params = getParams(message.content, keyword);
-        log.debug("Detected params:", params);
+        log.info("Detected params:", params);
 
         let command, commandIndex = Object.keys(commands).find(commandKey => commands[commandKey].names.indexOf(keyword) >= 0);
         if(!commandIndex){

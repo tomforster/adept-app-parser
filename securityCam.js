@@ -29,7 +29,7 @@ module.exports = function(ws){
 
     router.get('/images/:camera/:tagId', function(req,res) {
         var cameraName = req.params["camera"];
-        log.debug(`Cat camera ${cameraName} image request.`);
+        log.info(`Cat camera ${cameraName} image request.`);
         var camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
@@ -43,7 +43,7 @@ module.exports = function(ws){
         number = number && number.match(/^\d+$/) ? Number(number) : 16;
         number = Math.min(number, IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
-        log.debug(`Cat camera ${cameraName} page request.`);
+        log.info(`Cat camera ${cameraName} page request.`);
         var camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
@@ -70,7 +70,7 @@ module.exports = function(ws){
     });
 
     router.ws('/socket', function(ws, req) {
-        log.debug("Cat socket opened.");
+        log.info("Cat socket opened.");
     });
 
     return router;
@@ -91,7 +91,7 @@ function updateImageCaches(ws){
 }
 
 function updateImageCache(camera, ws){
-    log.debug(`Checking if any updated images for ${camera.name}`);
+    log.info(`Checking if any updated images for ${camera.name}`);
     var imageCache = camera.recentImages;
     var dir = camera.directory;
     var requestStr = `/images/${camera.name}/`;
@@ -111,7 +111,7 @@ function updateImageCache(camera, ws){
     });
     var newImageCache = files_.slice(0,IMAGE_CACHE_SIZE);
     if(_.isEqual(imageCache, newImageCache)) return;
-    log.debug("New images found, image cache updated.");
+    log.info("New images found, image cache updated.");
     camera.recentImages = newImageCache;
     setTimeout(function(){
         broadcastRefresh(ws);
@@ -119,9 +119,9 @@ function updateImageCache(camera, ws){
 }
 
 function broadcastRefresh(ws){
-    log.debug("Sending refresh");
+    log.info("Sending refresh");
     ws.getWss('/socket').clients.forEach(function (client) {
-        log.debug("Refreshing "+client.toString());
+        log.info("Refreshing "+client.toString());
         client.send('refresh');
     });
 }
