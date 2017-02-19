@@ -17,7 +17,9 @@ bot.on("message", (message) => {
 
     //increment message count
     logUserDetails(message.author).then(user => {
-        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user)).catch(error => log.error(error));
+        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user))
+            .then(result => log.debug(result))
+            .catch(error => log.error(error));
     });
 
     if(message.author.equals(bot.user) || message.author.bot) return;
