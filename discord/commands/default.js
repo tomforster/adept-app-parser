@@ -11,6 +11,7 @@ function run(message, params, keyword){
             return utils.sendImage(message, img)
         });
     }
+    return Promise.resolve();
 }
 
 module.exports = {

@@ -16,17 +16,26 @@ const bot = new Discord.Client();
 bot.on("message", (message) => {
 
     //increment message count
-    logUserDetails(message.author).then(user => {
-        auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user))
-            .catch(error => log.error(error));
-    });
+    let userDetailsPromise = logUserDetails(message.author);
+
+    userDetailsPromise
+        .then(user => auditRepository.logMessageAudit(user.id, message.channel.id, message.author.equals(bot.user)))
+        .catch(err => log.error(err));
 
     if(message.author.equals(bot.user) || message.author.bot) return;
     let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
+        if(keyword.length > 50){
+            log.warn("command:", keyword, "too long");
+            return
+        }
         log.info("Detected command:", keyword);
         let params = getParams(message.content, keyword);
+        if(params.join(',').length > 500){
+            log.warn("params list:", params.join(','), "too long");
+            return
+        }
         log.info("Detected params:", params);
 
         let command, commandIndex = Object.keys(commands).find(commandKey => commands[commandKey].names.indexOf(keyword) >= 0);
@@ -37,7 +46,8 @@ bot.on("message", (message) => {
         }
 
         log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
-        return command.run(message, params, keyword).catch(err => log.error(err));
+        let commandPromise = command.run(message, params, keyword);
+        Promise.all([userDetailsPromise, commandPromise]).then(result => auditRepository.logCommandAudit(result[0].id, message.channel.id, keyword, params)).catch(err => log.error(err));
     }
 
 });

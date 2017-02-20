@@ -18,8 +18,11 @@ function run(message, params){
             if (commandParam.indexOf('!') >= 0) {
                 return message.reply("command: " + commandParam + " should not contain exclamation marks.");
             }
+            if (commandParam.length > 50) {
+                return message.reply("command: " + commandParam + " is too long. Max command length is 50 characters.");
+            }
             if (utils.allowable_extensions.indexOf(uriParam.split('.').pop().toLowerCase()) == -1) {
-                return message.reply("command: " + commandParam + " has an unknown extension.");
+                return message.reply("image: " + uriParam + " has an unknown extension.");
             }
 
             //todo add duplicate discarding?

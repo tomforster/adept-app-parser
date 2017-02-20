@@ -9,7 +9,7 @@ const log = require('better-logs')('audit_repo');
 
 exports.logMessageAudit = function(userId, channelId, isBotMessage){
     isBotMessage = !!isBotMessage;
-    log.info("saving message to archive for channel");
+    log.info("saving message to audit");
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("insert into audit (type, user_id, channel_id, date, is_bot_message) values ($1, $2, $3, $4, $5) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix(), isBotMessage])
     }
@@ -105,9 +105,18 @@ limit 10;`, [channelIds])
 };
 
 exports.logCharacterStatsAudit = function(character){
+    log.info("saving character stat request to audit");
     if(typeof character === "object" && character.constructor !== Array) {
         return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), moment().unix()]);
     }else{
         return Promise.reject("Invalid Argument");
     }
+};
+
+exports.logCommandAudit = function(userId, channelId, command, params){
+    log.info("saving command to audit");
+    if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array) {
+        return db.one("insert into audit (type, user_id, channel_id, date, command, params) values ($1, $2, $3, $4, $5, $6) RETURNING id;", ['command', userId, channelId, moment().unix(), command, params.join(',')]);
+    }
+    return Promise.reject("Invalid Argument");
 };
