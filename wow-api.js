@@ -76,7 +76,7 @@ function getCharacterStats(guild, realm){
                 });
                 return Promise.all(promises);
             }).then(results => {
-                log.info("Completed character stats run, got stats for", results.length, "characters");
+                log.info("Completed character stats run, got stats for " + results.length + " characters");
                 return results.sort((a,b) => b.name - a.name);
             })
     });

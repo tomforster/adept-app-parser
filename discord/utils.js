@@ -13,7 +13,7 @@ const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
 function getImage(command){
     return commandRepository.random(command).then(img => {
         if(!img) return;
-        log.info("fetched " + img.command.toLowerCase() + ", filename: "+img.url);
+        log.info("fetched file: ", img.command.toLowerCase(), img.url);
         return getFileSize(img.url).then(result => {
             if(result){
                 return img;
