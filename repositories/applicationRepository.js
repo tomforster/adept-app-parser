@@ -2,10 +2,9 @@
  * Created by Tom on 01/08/2016.
  */
 
-var db = require('./../db.js').db;
-var moment = require('moment');
-
-const log = require('better-logs')('application_repo');
+const db = require('./../db.js').db;
+const moment = require('../node_modules/moment');
+const log = require('bristol');
 
 exports.save = function(application){
     log.info("Saving application", application.name);

@@ -4,7 +4,7 @@
  */
 
 const commandRepository = require("../../repositories/commandRepository");
-const log = require('better-logs')('discord');
+const log = require('bristol');
 
 function run(message, params) {
     if (params.length === 1) {

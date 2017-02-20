@@ -5,10 +5,16 @@ const router = express.Router();
 const path = require('path');
 const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname,'config/config.json'))[env];
-const log = require('better-logs')('server');
-const fs = require('fs');
+const log = require('bristol');
+const palin = require('palin');
+const currentDir = __dirname.split("/").length > 1 ? __dirname.split("/").pop() : __dirname.split("\\").pop();
+log.addTarget('console').withFormatter(palin, {
+    rootFolderName: currentDir
+});
 let timestamp = new Date().getTime();
-log.output(fs.createWriteStream('log-'+timestamp+'.txt'));
+log.addTarget('file', {file:'log-'+timestamp+'.txt'}).withFormatter(palin, {
+    rootFolderName: currentDir
+});
 const bodyParser = require("body-parser");
 const childProcess = require("child_process");
 

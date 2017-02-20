@@ -9,7 +9,7 @@ var applicationRepository = require('./repositories/applicationRepository');
 var path = require('path');
 var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname,'config/config.json'))[env];
-const log = require('better-logs')('wow');
+const log = require('bristol');
 
 var router = require('express').Router();
 

@@ -1,14 +1,14 @@
-var env = process.env.NODE_ENV || "development";
-var path = require('path');
-var config = require(path.join(__dirname,'config/config.json'))[env];
-var Nightmare = require('nightmare');
-var nightmare = Nightmare({ images: false });
-const log = require('better-logs')('headless');
+const env = process.env.NODE_ENV || "development";
+const path = require('path');
+const config = require(path.join(__dirname,'config/config.json'))[env];
+const Nightmare = require('nightmare');
+const nightmare = Nightmare({ images: false });
+const log = require('bristol');
 
-var postApp = function(mailObj){
+const postApp = function(mailObj){
     log.info('Posting Adept App');
-    var username = config.forumUsername;
-    var password = config.forumPassword;
+    const username = config.forumUsername;
+    const password = config.forumPassword;
     return nightmare
         .goto(config.forumUrl)
         .wait('#phpbb')

@@ -5,7 +5,7 @@
 const db = require('./../db.js').db;
 const moment = require('../node_modules/moment');
 
-const log = require('better-logs')('audit_repo');
+const log = require('bristol');
 
 exports.logMessageAudit = function(userId, channelId, isBotMessage){
     isBotMessage = !!isBotMessage;

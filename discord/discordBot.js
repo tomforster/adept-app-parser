@@ -3,7 +3,7 @@ const path = require("path");
 const env = process.env.NODE_ENV || "development";
 const config = require(path.join(__dirname, '../config/config.json'))[env];
 const phantomScripts = require('./../phantomScripts');
-const log = require('better-logs')('discord');
+const log = require('bristol');
 
 const commandRepository = require('./../repositories/commandRepository');
 const userRepository = require('./../repositories/userRepository');
@@ -45,7 +45,7 @@ bot.on("message", (message) => {
             command = commands[commandIndex];
         }
 
-        log.info("running command",keyword,"for user",message.author.username,"with id",message.author.id);
+        log.info("running command, user, id",keyword,message.author.username,message.author.id);
         let commandPromise = command.run(message, params, keyword);
         Promise.all([userDetailsPromise, commandPromise]).then(result => auditRepository.logCommandAudit(result[0].id, message.channel.id, keyword, params)).catch(err => log.error(err));
     }

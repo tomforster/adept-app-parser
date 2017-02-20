@@ -4,7 +4,7 @@
 */
 
 "use strict";
-const log = require('better-logs')('wowapi');
+const log = require('bristol');
 const rp = require('request-promise').defaults({json:true});
 const path = require('path');
 const config = require(path.join(__dirname,'config/config.json'))[process.env.NODE_ENV || "development"];

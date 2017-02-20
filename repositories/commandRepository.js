@@ -4,10 +4,9 @@
 
 "use strict";
 
-var db = require('./../db.js').db;
-var moment = require('moment');
-
-const log = require('better-logs')('command_repo');
+const db = require('./../db.js').db;
+const moment = require('../node_modules/moment');
+const log = require('bristol');
 
 exports.fetchAll = function (command){
     log.info("fetching", command);

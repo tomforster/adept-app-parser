@@ -3,7 +3,7 @@
  *         Date: 10/02/2017
  */
 
-const log = require('better-logs')('discord');
+const log = require('bristol');
 const commandRepository = require('./../repositories/commandRepository');
 const rp = require('request-promise');
 

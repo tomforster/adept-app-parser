@@ -10,7 +10,7 @@ var config = require(path.join(__dirname,'config/config.json'))[env];
 var fs = require('fs');
 var _ = require('underscore');
 var exec = require('child_process').exec;
-const log = require('better-logs')('camera');
+const log = require('bristol');
 var router = require('express').Router();
 var IMAGE_CACHE_SIZE = 64;
 
