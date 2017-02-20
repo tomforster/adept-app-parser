@@ -2,8 +2,8 @@
  * Created by Tom on 15/08/2016.
  */
 
-var db = require('./../db.js').db;
-var moment = require('moment');
+const db = require('./../db.js').db;
+const moment = require('../node_modules/moment');
 
 const log = require('better-logs')('audit_repo');
 
