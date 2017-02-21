@@ -8,10 +8,12 @@ const db = require('./../db.js').db;
 const moment = require('../node_modules/moment');
 const log = require('bristol');
 
-exports.fetchAll = function (command){
+exports.fetchAll = function (command, limit, offset){
+    // if(!limit) limit = "ALL";
+    if(!offset) offset = 0;
     log.info("fetching", command);
     if(command && typeof command === 'string' && command.length>0){
-        return db.any("select c.id as id, c.command, url, c.date_added, du.username as uploader from command c join discord_user du on c.user_id = du.discord_id where command=($1) and is_deleted = false order by c.date_added", [command]);
+        return db.any("select c.id as id, c.command, url, c.date_added, du.username as uploader from command c join discord_user du on c.user_id = du.discord_id where command=($1) and is_deleted = false order by c.date_added limit $2 offset $3", [command, limit, offset]);
     }else{
         log.info("type of command incorrect!");
         return [];
