@@ -12,7 +12,13 @@ log.addTarget('console').withFormatter(palin, {
     rootFolderName: currentDir
 });
 let timestamp = new Date().getTime();
-log.addTarget('file', {file:'log-'+timestamp+'.txt'}).withFormatter(palin, {
+const fs = require("fs");
+try {
+    fs.mkdirSync('./logs');
+} catch(e) {
+    if ( e.code != 'EEXIST' ) throw e;
+}
+log.addTarget('file', {file:'./logs/log-'+timestamp+'.txt'}).withFormatter(palin, {
     rootFolderName: currentDir
 });
 const bodyParser = require("body-parser");
