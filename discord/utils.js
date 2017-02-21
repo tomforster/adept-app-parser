@@ -35,10 +35,7 @@ function getImage(command){
 }
 
 function sendImage(message, img, text){
-    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(result => {
-        messageCache.add(result, img);
-        return result;
-    });
+    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text);
 }
 
 function getFileSize(url) {
@@ -53,45 +50,9 @@ function getFileSize(url) {
         return size <= MAX_SIZE;
     });
 }
-
-class MessageCache {
-    constructor() {
-        this.cache = [];
-    }
-
-    add(message, img){
-        if(Object.keys(this.cache).length > 1000){
-            Object.keys(this.cache).sort((key1, key2) => this.cache[key1].time - this.cache[key2].time).slice(500).forEach(key => delete this.cache[key]);
-        }
-        this.cache[message.id] = {img:img, time:new Date().getTime()};
-    };
-
-    find(id){
-        if(this.cache.hasOwnProperty(id)){
-            return (messageCache[id]);
-        }
-        else{
-            return null;
-        }
-    }
-
-    remove(id){
-        if(this.cache.hasOwnProperty(id)){
-            delete this.cache[id];
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-}
-
-let messageCache = new MessageCache();
-
 module.exports = {
     getFileSize,
     sendImage,
     allowable_extensions,
-    getImage,
-    messageCache,
+    getImage
 };

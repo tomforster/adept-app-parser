@@ -113,10 +113,15 @@ exports.logCharacterStatsAudit = function(character){
     }
 };
 
-exports.logCommandAudit = function(userId, channelId, command, params){
+exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId){
     log.info("saving command to audit");
-    if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array) {
-        return db.one("insert into audit (type, user_id, channel_id, date, command, params) values ($1, $2, $3, $4, $5, $6) RETURNING id;", ['command', userId, channelId, moment().unix(), command, params.join(',')]);
+    if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array && messageId && typeof messageId === 'string' && messageId.length>0) {
+        return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image) values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId]);
     }
     return Promise.reject("Invalid Argument");
+};
+
+exports.findCommandByMessageId = function(id){
+    return db.oneOrNone("select image from audit where type = 'command' and message_reply_id = $1 limit 1", [id])
+        .then(result => result && result.image || null);
 };

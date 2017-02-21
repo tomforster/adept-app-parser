@@ -43,3 +43,13 @@ exports.safeDelete = function(command, id){
     log.info("deleting", id);
     return db.result("update command set is_deleted = true where id = $1 and command = $2", [id, command]).then(result => result.rowCount);
 };
+
+exports.downvote = function(id){
+    log.info("attempting to adding downvote to", id);
+    return db.one("update command set downvotes = downvotes + 1 where id = $1 returning downvotes", [id]).then(result => result.downvotes);
+};
+
+exports.upvote = function(id){
+    log.info("attempting to add upvote to", id);
+    return db.oneOrNone("update command set downvotes = downvotes - 1 where id = $1 and downvotes > 0  returning downvotes", [id]).then(result => result ? result.downvotes : null);
+};

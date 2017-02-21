@@ -8,7 +8,7 @@ function run(message, params, keyword){
     if(keyword && typeof keyword === 'string' && keyword.length > 0){
         return utils.getImage(keyword.toLowerCase()).then(img => {
             message.react("✅");
-            return utils.sendImage(message, img)
+            return utils.sendImage(message, img).then(message => {message.__imageId = img.id; return message});
         });
     }
     return Promise.resolve();
