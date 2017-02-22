@@ -7,7 +7,7 @@ const config = require(path.join(__dirname, '../config/config.json'))[env];
 const phantomScripts = require('./../phantomScripts');
 const log = require('bristol');
 
-const commandRepository = require('./../repositories/commandRepository');
+const commandRepository = require('./../repositories/imageRepository');
 const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
 
