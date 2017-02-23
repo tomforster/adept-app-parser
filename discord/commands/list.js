@@ -8,7 +8,7 @@ const log = require('bristol');
 const PAGE_SIZE = 10;
 
 function run(message, params) {
-    if (params.length < 3) {
+    if (params && params.length > 0 && params.length < 3) {
         let commandParam = params[0].toLowerCase();
         let pageParam = 1;
         if (params.length == 2 && !isNaN(params[1]) && params[1] > 0) pageParam = Math.floor(params[1]);
