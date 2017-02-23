@@ -170,7 +170,7 @@ bot.login(config.discordToken).catch(error => log.error(error));
 
 let getParams = function(messageString, command) {
     let words = messageString.split(' ');
-    let commandIndex = words.indexOf('!'+command);
+    let commandIndex = words.map(word=>word.toLowerCase()).indexOf('!'+command.toLowerCase());
     if (commandIndex == (words.length - 1) || commandIndex < 0) {
         return [];
     }
