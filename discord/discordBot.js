@@ -133,7 +133,7 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
                                 return voteRepository.getVotes(image.id).then(votes => {
                                     let totalDownvotes = 0;
                                     votes.forEach(vote => {
-                                        if(vote.is_upvote && totalDownvotes > 0){
+                                        if(vote.is_upvote){
                                             totalDownvotes--;
                                         }else if(!vote.is_upvote){
                                             totalDownvotes++;
