@@ -53,7 +53,7 @@ function getCharacterStats(guild, realm){
         return rp(createGuildUri(guild, realm))
             .then(guildInfo => {
                 let promises = [];
-                let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 3).map(member => member.character);
+                let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
                 filteredMembers.forEach(member => {
                     let name = member.name;
                     let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};

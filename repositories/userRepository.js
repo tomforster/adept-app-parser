@@ -7,12 +7,11 @@ const moment = require('../node_modules/moment');
 const log = require('bristol');
 
 exports.fetchAll = function(id){
-    log.info("fetching", id);
     return db.oneOrNone("select id, discord_id, username, date_added from discord_user where id=($1)", [id]);
 };
 
 exports.fetchByDiscordId = function(discordId){
-    log.info("fetching by discord id", discordId);
+    // log.info("fetching by discord id", discordId);
     if(discordId && typeof discordId === 'string' && discordId.length>0){
         return db.oneOrNone("select id, discord_id, username, date_added from discord_user where discord_id=($1)", [discordId]);
     }else{
