@@ -89,7 +89,7 @@ function updateImageCaches(ws){
 }
 
 function updateImageCache(camera, ws){
-    log.info(`Checking if any updated images for ${camera.name}`);
+    // log.info(`Checking if any updated images for ${camera.name}`);
     var imageCache = camera.recentImages;
     var dir = camera.directory;
     var requestStr = `/images/${camera.name}/`;
