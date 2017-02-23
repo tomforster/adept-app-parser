@@ -7,9 +7,10 @@ const config = require(path.join(__dirname, '../config/config.json'))[env];
 const phantomScripts = require('./../phantomScripts');
 const log = require('bristol');
 
-const commandRepository = require('./../repositories/commandRepository');
+const imageRepository = require('./../repositories/imageRepository');
 const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
+const voteRepository = require('./../repositories/voteRepository');
 
 const commands = require('./commandList');
 const bot = new Discord.Client();
@@ -78,6 +79,20 @@ function clearOwnReactions(message){
     return Promise.all(message.reactions.findAll('me', true).map(reaction => reaction.remove(bot.user))).catch(error => log.error(error));
 }
 
+function setNumberReaction(message, number){
+    if(number > 4 || number < 0) throw "unknown number";
+    clearOwnReactions(message);
+    switch(number){
+        case 1: message.react('1⃣');
+            break;
+        case 2: message.react('2⃣');
+            break;
+        case 3: message.react('3⃣');
+            break;
+        case 4: message.react('4⃣');
+    }
+}
+
 bot.on("messageReactionAdd", (messageReaction, user) => {
     if(!user || !messageReaction){
         return;
@@ -87,73 +102,63 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
 
     let id = message.id;
 
+    let downvoteReact = messageReaction.emoji.name === "⬇";
+    let upvoteReact = messageReaction.emoji.name === "⬆";
+
     let guildUser = message.guild.members.get(user.id);
-    if(messageReaction.emoji.name === "❎"){
-        if(!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
+    if(messageReaction.emoji.name === "❎") {
+        if (!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
         log.info("admin attempting to delete an image", message.author.username);
-        return auditRepository.findCommandByMessageId(id).then(imageId => {
-            if(imageId) {
-                return commandRepository.delete(imageId).then(() => message.delete())
+        return auditRepository.findImageByMessageId(id).then(image => {
+            if (image) {
+                return imageRepository.delete(image.id).then(() => message.delete())
             }
         });
-    }//else if(messageReaction.emoji.name === "⬆"){
-    //     if(!guildUser || guildUser.roles.size == 0) return;
-    //     return auditRepository.findCommandByMessageId(id).then(imageId => {
-    //         if(imageId) {
-    //             return commandRepository.upvote(imageId).then(downvotes => {
-    //                 switch(downvotes){
-    //                     case 0: clearOwnReactions(message);
-    //                         break;
-    //                     case 1:
-    //                         clearOwnReactions(message);
-    //                         message.react('1⃣');
-    //                         break;
-    //                     case 2:
-    //                         clearOwnReactions(message);
-    //                         message.react('2⃣');
-    //                         break;
-    //                     case 3:
-    //                         clearOwnReactions(message);
-    //                         message.react('3⃣');
-    //                         break;
-    //                     case 4:
-    //                         clearOwnReactions(message);
-    //                         message.react('4⃣');
-    //                 }
-    //             })
-    //         }
-    //     });
-    // }else if(messageReaction.emoji.name === "⬇"){
-    //     if(!guildUser || guildUser.roles.size == 0) return;
-    //     return auditRepository.findCommandByMessageId(id).then(imageId => {
-    //         if(imageId) {
-    //             return commandRepository.downvote(imageId).then(downvotes => {
-    //                 switch(downvotes){
-    //                     case 0: log.error("downvoted from negative or downvote not counted correctly!", imageId);
-    //                         break;
-    //                     case 1:
-    //                         clearOwnReactions(message);
-    //                         message.react('1⃣');
-    //                         break;
-    //                     case 2:
-    //                         clearOwnReactions(message);
-    //                         message.react('2⃣');
-    //                         break;
-    //                     case 3:
-    //                         clearOwnReactions(message);
-    //                         message.react('3⃣');
-    //                         break;
-    //                     case 4:
-    //                         clearOwnReactions(message);
-    //                         message.react('4⃣');
-    //                         break;
-    //                     case 5:
-    //                         return commandRepository.delete(imageId).then((deletedImage) => message.delete()).then(() => message.channel.sendMessage("Deleted image due to downvotes."));
-    //                 }
-    //             })
-    //         }
-    //     });
-    // }
+    }
+
+    if(downvoteReact || upvoteReact){
+        if(!guildUser || guildUser.roles.size == 0) return;
+        return auditRepository.findImageByMessageId(id).then(image => {
+            if (image) {
+                return userRepository.fetchByDiscordId(user.id).then(user => {
+                    if (user) {
+                        let votePromise;
+                        if(downvoteReact){
+                            votePromise = voteRepository.downvote(image.id, user.id)
+                        }else{
+                            votePromise = voteRepository.upvote(image.id, user.id)
+                        }
+                        return votePromise.then(added => {
+                            if (added) {
+                                return voteRepository.getVotes(image.id).then(votes => {
+                                    let totalDownvotes = 0;
+                                    votes.forEach(vote => {
+                                        if(vote.is_upvote && totalDownvotes > 0){
+                                            totalDownvotes--;
+                                        }else if(!vote.is_upvote){
+                                            totalDownvotes++;
+                                        }
+                                    });
+                                    if (totalDownvotes > 4) {
+                                        return imageRepository.delete(image.id).then((count) => {
+                                            if (count) {
+                                                return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.");
+                                            }
+                                        });
+                                    }else if(totalDownvotes > 0){
+                                        setNumberReaction(message, totalDownvotes);
+                                    }else{
+                                        clearOwnReactions(message);
+                                    }
+                                })
+                            }
+                        })
+
+                    }
+                })
+            }
+        })
+    }
 });
 
 bot.on("disconnect", (closeEvent)=> {

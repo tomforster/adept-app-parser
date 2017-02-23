@@ -4,7 +4,7 @@
  */
 
 const log = require('bristol');
-const commandRepository = require('./../repositories/commandRepository');
+const commandRepository = require('./../repositories/imageRepository');
 const rp = require('request-promise');
 
 const MAX_SIZE = 5000000;

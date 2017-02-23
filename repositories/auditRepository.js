@@ -121,7 +121,6 @@ exports.logCommandAudit = function(userId, channelId, messageId, command, params
     return Promise.reject("Invalid Argument");
 };
 
-exports.findCommandByMessageId = function(id){
-    return db.oneOrNone("select image from audit where type = 'command' and message_reply_id = $1 limit 1", [id])
-        .then(result => result && result.image || null);
+exports.findImageByMessageId = function(id){
+    return db.oneOrNone("select i.* from audit join image i on i.id = audit.image where audit.type = 'command' and message_reply_id = $1 limit 1", [id]);
 };
