@@ -36,7 +36,7 @@ exports.save = function(command, url, user_id){
 
 exports.delete = function(id){
     log.info("deleting", id);
-    return db.result("update image set is_deleted = true where id = $1", [id]).then(result => result.rowCount);
+    return db.result("update image set is_deleted = true where id = $1 and not is_deleted", [id]).then(result => result.rowCount);
 };
 
 exports.safeDelete = function(command, id){

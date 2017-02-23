@@ -142,7 +142,8 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
                                     if (totalDownvotes > 4) {
                                         return imageRepository.delete(image.id).then((count) => {
                                             if (count) {
-                                                return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.");
+                                                return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.").then(() => message.delete());
+                                                //todo: also delete any other instance of the image in the current cache
                                             }
                                         });
                                     }else if(totalDownvotes > 0){
