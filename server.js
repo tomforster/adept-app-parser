@@ -3,8 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const env = process.env.NODE_ENV || "development";
-const config = require(path.join(__dirname,'config/config.json'))[env];
+const config = require('./config');
 const log = require('bristol');
 const palin = require('palin');
 const currentDir = __dirname.split("/").length > 1 ? __dirname.split("/").pop() : __dirname.split("\\").pop();

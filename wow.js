@@ -2,16 +2,14 @@
  * Created by Tom on 28/06/2016.
  */
 
-var mailin = require('mailin');
-var appParser = require('./appParser.js');
-var phantomScripts = require('./phantomScripts.js');
-var applicationRepository = require('./repositories/applicationRepository');
-var path = require('path');
-var env = process.env.NODE_ENV || "development";
-var config = require(path.join(__dirname,'config/config.json'))[env];
+const mailin = require('mailin');
+const appParser = require('./appParser.js');
+const phantomScripts = require('./phantomScripts.js');
+const applicationRepository = require('./repositories/applicationRepository');
+const config = require('./config');
 const log = require('bristol');
 
-var router = require('express').Router();
+const router = require('express').Router();
 
 module.exports = function(startBot, startMail){
     router.get('/', function(req, res) {
@@ -19,7 +17,7 @@ module.exports = function(startBot, startMail){
         res.sendFile(path.join(__dirname,'/public/parser.html'));
     });
 
-    var discordBot = null;
+    let discordBot = null;
     if(startBot){
         discordBot = require('./discord/discordBot.js');
     }

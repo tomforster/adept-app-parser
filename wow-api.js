@@ -6,8 +6,7 @@
 "use strict";
 const log = require('bristol');
 const rp = require('request-promise').defaults({json:true});
-const path = require('path');
-const config = require(path.join(__dirname,'config/config.json'))[process.env.NODE_ENV || "development"];
+const config = require('./config');
 const auditRepository = require('./repositories/auditRepository');
 const stringHash = require('string-hash');
 const cron = require("node-cron");
