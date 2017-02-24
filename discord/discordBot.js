@@ -1,9 +1,7 @@
 "use strict";
 
 const Discord = require("discord.js");
-const path = require("path");
-const env = process.env.NODE_ENV || "development";
-const config = require(path.join(__dirname, '../config/config.json'))[env];
+const config = require('../config');
 const phantomScripts = require('./../phantomScripts');
 const log = require('bristol');
 
@@ -135,7 +133,7 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
                                 return voteRepository.getVotes(image.id).then(votes => {
                                     let totalDownvotes = 0;
                                     votes.forEach(vote => {
-                                        if(vote.is_upvote && totalDownvotes > 0){
+                                        if(vote.is_upvote){
                                             totalDownvotes--;
                                         }else if(!vote.is_upvote){
                                             totalDownvotes++;
@@ -172,7 +170,7 @@ bot.login(config.discordToken).catch(error => log.error(error));
 
 let getParams = function(messageString, command) {
     let words = messageString.split(' ');
-    let commandIndex = words.indexOf('!'+command);
+    let commandIndex = words.map(word=>word.toLowerCase()).indexOf('!'+command.toLowerCase());
     if (commandIndex == (words.length - 1) || commandIndex < 0) {
         return [];
     }

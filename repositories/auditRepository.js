@@ -9,7 +9,7 @@ const log = require('bristol');
 
 exports.logMessageAudit = function(userId, channelId, isBotMessage){
     isBotMessage = !!isBotMessage;
-    log.info("saving message to audit");
+    // log.info("saving message to audit");
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
         return db.one("insert into audit (type, user_id, channel_id, date, is_bot_message) values ($1, $2, $3, $4, $5) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix(), isBotMessage])
     }
@@ -105,7 +105,7 @@ limit 10;`, [channelIds])
 };
 
 exports.logCharacterStatsAudit = function(character){
-    log.info("saving character stat request to audit");
+    // log.info("saving character stat request to audit");
     if(typeof character === "object" && character.constructor !== Array) {
         return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), moment().unix()]);
     }else{
@@ -114,7 +114,7 @@ exports.logCharacterStatsAudit = function(character){
 };
 
 exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId){
-    log.info("saving command to audit");
+    // log.info("saving command to audit");
     if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array && messageId && typeof messageId === 'string' && messageId.length>0) {
         return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image) values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId]);
     }

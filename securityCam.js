@@ -4,17 +4,15 @@
 
 'use strict';
 
-var path = require('path');
-var env = process.env.NODE_ENV || "development";
-var config = require(path.join(__dirname,'config/config.json'))[env];
-var fs = require('fs');
-var _ = require('underscore');
-var exec = require('child_process').exec;
+const config = require('./config');
+const fs = require('fs');
+const _ = require('underscore');
+const exec = require('child_process').exec;
 const log = require('bristol');
-var router = require('express').Router();
-var IMAGE_CACHE_SIZE = 64;
+const router = require('express').Router();
+const IMAGE_CACHE_SIZE = 64;
 
-var cameras = [
+const cameras = [
     { name: 'livingroom', directory: '/home/node/security/', recentImages: [], default:true, displayName: "Living Room Camera"},
     { name: 'kitchen', directory: '/home/node/security2/', recentImages: [], default:false, displayName: "Kitchen Camera"},
     { name: 'bedroom', directory: '/home/node/security3/', recentImages: [], default:false, displayName: "Bedroom Camera"}
@@ -91,7 +89,7 @@ function updateImageCaches(ws){
 }
 
 function updateImageCache(camera, ws){
-    log.info(`Checking if any updated images for ${camera.name}`);
+    // log.info(`Checking if any updated images for ${camera.name}`);
     var imageCache = camera.recentImages;
     var dir = camera.directory;
     var requestStr = `/images/${camera.name}/`;

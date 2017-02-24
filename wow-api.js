@@ -6,8 +6,7 @@
 "use strict";
 const log = require('bristol');
 const rp = require('request-promise').defaults({json:true});
-const path = require('path');
-const config = require(path.join(__dirname,'config/config.json'))[process.env.NODE_ENV || "development"];
+const config = require('./config');
 const auditRepository = require('./repositories/auditRepository');
 const stringHash = require('string-hash');
 const cron = require("node-cron");
@@ -54,7 +53,7 @@ function getCharacterStats(guild, realm){
         return rp(createGuildUri(guild, realm))
             .then(guildInfo => {
                 let promises = [];
-                let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 3).map(member => member.character);
+                let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
                 filteredMembers.forEach(member => {
                     let name = member.name;
                     let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
