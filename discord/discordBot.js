@@ -49,6 +49,7 @@ bot.on("message", (message) => {
 
         log.info("running command, user, id",keyword,message.author.username,message.author.id);
         bot.clearTimeout(typingTimeout);
+        log.debug("starting typing");
         message.channel.startTyping();
         let commandPromise = command.run(message, params, keyword);
         Promise.all([userDetailsPromise, commandPromise])
@@ -56,7 +57,7 @@ bot.on("message", (message) => {
                 typingTimeout = bot.setTimeout(() => {
                     message.channel.stopTyping();
                     log.debug("stopping typing");
-                }, 500);
+                }, 1000);
                 if(!result[1]) return;
                 return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
             }).catch(err => {
