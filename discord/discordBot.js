@@ -13,8 +13,6 @@ const voteRepository = require('./../repositories/voteRepository');
 const commands = require('./commandList');
 const bot = new Discord.Client();
 
-let typingTimeout = null;
-
 bot.on("message", (message) => {
 
     //increment message count
@@ -48,16 +46,12 @@ bot.on("message", (message) => {
         }
 
         log.info("running command, user, id",keyword,message.author.username,message.author.id);
-        bot.clearTimeout(typingTimeout);
-        log.debug("starting typing");
         message.channel.startTyping();
         let commandPromise = command.run(message, params, keyword);
         Promise.all([userDetailsPromise, commandPromise])
             .then(result => {
-                typingTimeout = bot.setTimeout(() => {
-                    message.channel.stopTyping();
-                    log.debug("stopping typing");
-                }, 1000);
+                //message.channel.stopTyping();
+                log.debug("stopping typing");
                 if(!result[1]) return;
                 return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
             }).catch(err => {
