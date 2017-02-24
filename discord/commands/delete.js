@@ -16,7 +16,6 @@ function run(message, params){
         if (commandParam && typeof commandParam === 'string' && commandParam.length > 1 && idParam && !isNaN(idParam)) {
             if (commandParam.charAt(0) === '!')
                 commandParam = commandParam.slice(1);
-            message.react("✅");
             return commandRepository.safeDelete(commandParam, idParam).then((result) => {
                 if (result && result > 0) {
                     return message.reply("successfully deleted image for command " + commandParam + ".");
