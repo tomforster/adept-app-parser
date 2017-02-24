@@ -50,7 +50,7 @@ bot.on("message", (message) => {
         let commandPromise = command.run(message, params, keyword);
         Promise.all([userDetailsPromise, commandPromise])
             .then(result => {
-                //message.channel.stopTyping();
+                message.channel.stopTyping();
                 log.debug("stopping typing");
                 if(!result[1]) return;
                 return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
