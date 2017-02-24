@@ -34,16 +34,20 @@ function getImage(command){
         throw "Unknown image";
     }).then(img => {
         voteRepository.getVotes(img.id).then(votes => {
-            let dv = 0;
-            let uv = 0;
-            if(votes && votes.length > 0) {
-                let dv = votes.filter(vote => !vote.is_upvote).length;
-                let uv = votes.filter(vote => !vote.is_upvote).length;
-            }
-            img.comment = `**${uv-dv}** (${uv}|${dv}) !${command}`;
+            img.comment = getImageCommentString(votes, command)
             return img
         })
     });
+}
+
+function getImageCommentString(votes, command){
+    let dv = 0;
+    let uv = 0;
+    if(votes && votes.length > 0) {
+        let dv = votes.filter(vote => !vote.is_upvote).length;
+        let uv = votes.filter(vote => !vote.is_upvote).length;
+    }
+    return `**${uv-dv}** (${uv}|${dv}) !${command}`;
 }
 
 function sendImage(message, img, text){
@@ -66,5 +70,6 @@ module.exports = {
     getFileSize,
     sendImage,
     allowable_extensions,
-    getImage
+    getImage,
+    getImageCommentString
 };

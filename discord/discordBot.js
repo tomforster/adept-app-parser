@@ -10,6 +10,8 @@ const userRepository = require('./../repositories/userRepository');
 const auditRepository = require('./../repositories/auditRepository');
 const voteRepository = require('./../repositories/voteRepository');
 
+const utils = require('./utils');
+
 const commands = require('./commandList');
 const bot = new Discord.Client();
 
@@ -79,22 +81,8 @@ bot.on("presence", (oldUser, discordUser) => {
     logUserDetails(discordUser);
 });
 
-function clearOwnReactions(message){
-    return Promise.all(message.reactions.findAll('me', true).map(reaction => reaction.remove(bot.user))).catch(error => log.error(error));
-}
-
-function setNumberReaction(message, number){
-    if(number > 4 || number < 0) throw "unknown number";
-    clearOwnReactions(message);
-    switch(number){
-        case 1: message.react('1⃣');
-            break;
-        case 2: message.react('2⃣');
-            break;
-        case 3: message.react('3⃣');
-            break;
-        case 4: message.react('4⃣');
-    }
+function updateVotesForImage(message, votes, command){
+    return message.edit(utils.getImageCommentString(votes, command));
 }
 
 bot.on("messageReactionAdd", (messageReaction, user) => {
@@ -151,9 +139,7 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
                                             }
                                         });
                                     }else if(totalDownvotes > 0){
-                                        setNumberReaction(message, totalDownvotes);
-                                    }else{
-                                        clearOwnReactions(message);
+                                        return updateVotesForImage(message, votes, image.command);
                                     }
                                 })
                             }
