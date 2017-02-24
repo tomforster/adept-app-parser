@@ -15,11 +15,11 @@ exports.downvote = function(imageId, userId){
 };
 
 exports.deleteUpvote = function(imageId, userId){
-    return db.result("delete from vote where imageId = $1 and userId = $2 and is_upvote", [imageId, userId]).then(result => result.rowCount > 0).catch(err => false);
+    return db.result("delete from vote where image = $1 and user_id = $2 and is_upvote", [imageId, userId]).then(result => result.rowCount > 0).catch(err => false);
 };
 
 exports.deleteDownvote = function(imageId, userId){
-    return db.result("delete from vote where imageId = $1 and userId = $2 and not is_upvote", [imageId, userId]).then(result => result.rowCount > 0).catch(err => false);
+    return db.result("delete from vote where image = $1 and user_id = $2 and not is_upvote", [imageId, userId]).then(result => result.rowCount > 0).catch(err => false);
 };
 
 exports.getVotes = function(imageId){
