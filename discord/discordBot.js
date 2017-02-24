@@ -151,6 +151,63 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
     }
 });
 
+// bot.on("messageReactionRemove", (messageReaction, user) => {
+//     if(!user || !messageReaction){
+//         return;
+//     }
+//     let message = messageReaction.message;
+//     if(!message.author.equals(bot.user)) return;
+//
+//     let id = message.id;
+//
+//     let downvoteReact = messageReaction.emoji.name === "⬇";
+//     let upvoteReact = messageReaction.emoji.name === "⬆";
+//
+//     let guildUser = message.guild.members.get(user.id);
+//     if(downvoteReact || upvoteReact){
+//         if(!guildUser || guildUser.roles.size == 0) return;
+//         return auditRepository.findImageByMessageId(id).then(image => {
+//             if (image) {
+//                 return userRepository.fetchByDiscordId(user.id).then(user => {
+//                     if (user) {
+//                         let votePromise;
+//                         if(downvoteReact){
+//                             votePromise = voteRepository.deleteDownvote(image.id, user.id)
+//                         }else{
+//                             votePromise = voteRepository.deleteUpvote(image.id, user.id)
+//                         }
+//                         return votePromise.then(removed => {
+//                             if (removed) {
+//                                 return voteRepository.getVotes(image.id).then(votes => {
+//                                     let totalDownvotes = 0;
+//                                     votes.forEach(vote => {
+//                                         if(vote.is_upvote){
+//                                             totalDownvotes--;
+//                                         }else if(!vote.is_upvote){
+//                                             totalDownvotes++;
+//                                         }
+//                                     });
+//                                     if (totalDownvotes > 4) {
+//                                         return imageRepository.delete(image.id).then((count) => {
+//                                             if (count) {
+//                                                 return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.").then(() => message.delete());
+//                                                 //todo: also delete any other instance of the image in the current cache
+//                                             }
+//                                         });
+//                                     }
+//                                     return updateVotesForImage(message, votes, image);
+//                                 })
+//                             }
+//                         })
+//
+//                     }
+//                 })
+//             }
+//         })
+//     }
+// });
+
+
 bot.on("disconnect", (closeEvent)=> {
     log.info("Bot disconnected", closeEvent);
 });

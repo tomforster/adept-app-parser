@@ -47,7 +47,7 @@ function getImageCommentString(votes, img){
         dv = votes.filter(vote => !vote.is_upvote).length;
         uv = votes.filter(vote => vote.is_upvote).length;
     }
-    return `***!${img.command}***\t|\tVotes: **${uv-dv}**  [ 🡑 ${uv} | 🡓 ${dv} ]`;
+    return `**!${img.command}**\t|\tVotes: __**${uv-dv}**__  [ 🡑 ${uv} | 🡓 ${dv} ]`;
 }
 
 function sendImage(message, img, text){
