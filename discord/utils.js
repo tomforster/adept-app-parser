@@ -33,21 +33,21 @@ function getImage(command){
         }
         throw "Unknown image";
     }).then(img => {
-        voteRepository.getVotes(img.id).then(votes => {
-            img.comment = getImageCommentString(votes, command)
+        return voteRepository.getVotes(img.id).then(votes => {
+            img.comment = getImageCommentString(votes, img);
             return img
         })
     });
 }
 
-function getImageCommentString(votes, command){
+function getImageCommentString(votes, img){
     let dv = 0;
     let uv = 0;
     if(votes && votes.length > 0) {
-        let dv = votes.filter(vote => !vote.is_upvote).length;
-        let uv = votes.filter(vote => !vote.is_upvote).length;
+        dv = votes.filter(vote => !vote.is_upvote).length;
+        uv = votes.filter(vote => vote.is_upvote).length;
     }
-    return `**${uv-dv}** (${uv}|${dv}) !${command}`;
+    return `***!${img.command}***\t|\tVotes: **${uv-dv}**  [ 🡑 ${uv} | 🡓 ${dv} ]`;
 }
 
 function sendImage(message, img, text){

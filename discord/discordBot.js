@@ -81,8 +81,8 @@ bot.on("presence", (oldUser, discordUser) => {
     logUserDetails(discordUser);
 });
 
-function updateVotesForImage(message, votes, command){
-    return message.edit(utils.getImageCommentString(votes, command));
+function updateVotesForImage(message, votes, img){
+    return message.edit(utils.getImageCommentString(votes, img));
 }
 
 bot.on("messageReactionAdd", (messageReaction, user) => {
@@ -138,9 +138,8 @@ bot.on("messageReactionAdd", (messageReaction, user) => {
                                                 //todo: also delete any other instance of the image in the current cache
                                             }
                                         });
-                                    }else if(totalDownvotes > 0){
-                                        return updateVotesForImage(message, votes, image.command);
                                     }
+                                    return updateVotesForImage(message, votes, image);
                                 })
                             }
                         })
