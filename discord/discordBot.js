@@ -51,7 +51,8 @@ bot.on("message", (message) => {
         Promise.all([userDetailsPromise, commandPromise])
             .then(result => {
                 message.channel.stopTyping();
-                return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1] && result[1].id || null, keyword, params, result[1] && result[1].__imageId || null)
+                if(!result[1]) return;
+                return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
             }).catch(err => log.error(err));
     }
 
