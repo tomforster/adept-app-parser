@@ -51,10 +51,10 @@ bot.on("message", (message) => {
         Promise.all([userDetailsPromise, commandPromise])
             .then(result => {
                 message.channel.stopTyping();
-                log.debug("stopping typing");
                 if(!result[1]) return;
                 return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
             }).catch(err => {
+                message.channel.stopTyping();
                 log.error(err);
             });
     }
