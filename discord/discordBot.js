@@ -53,7 +53,10 @@ bot.on("message", (message) => {
                 message.channel.stopTyping();
                 if(!result[1]) return;
                 return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
-            }).catch(err => log.error(err));
+            }).catch(err => {
+                message.channel.stopTyping();
+                log.error(err);
+            });
     }
 
 });
