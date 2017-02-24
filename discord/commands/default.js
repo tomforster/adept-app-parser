@@ -7,7 +7,7 @@ const utils = require("../utils");
 function run(message, params, keyword){
     if(keyword && typeof keyword === 'string' && keyword.length > 0){
         return utils.getImage(keyword.toLowerCase()).then(img => {
-            return utils.sendImage(message, img).then(message => {message.__imageId = img.id; return message});
+            return utils.sendImage(message, img, img.comment).then(message => {message.__imageId = img.id; return message});
         });
     }
     return Promise.resolve();

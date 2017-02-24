@@ -5,6 +5,7 @@
 
 const log = require('bristol');
 const commandRepository = require('./../repositories/imageRepository');
+const voteRepository = require('./../repositories/voteRepository');
 const rp = require('request-promise');
 
 const MAX_SIZE = 5000000;
@@ -31,6 +32,17 @@ function getImage(command){
             return getImage(command)
         }
         throw "Unknown image";
+    }).then(img => {
+        voteRepository.getVotes(img.id).then(votes => {
+            let dv = 0;
+            let uv = 0;
+            if(votes && votes.length > 0) {
+                let dv = votes.filter(vote => !vote.is_upvote).length;
+                let uv = votes.filter(vote => !vote.is_upvote).length;
+            }
+            img.comment = `**${uv-dv}** (${uv}|${dv}) !${command}`;
+            return img
+        })
     });
 }
 
