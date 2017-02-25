@@ -136,6 +136,17 @@ function reactionChange(messageReaction, user, isRemove){
             })
             .catch(log.error);
     }
+
+    if(!isRemove && messageReaction.emoji.name === "❎") {
+        if (!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
+        log.info("admin attempting to delete an image", message.author.username);
+        //todo: delete all current instances
+        return auditRepository.findImageByMessageId(message.id).then(image => {
+            if (image) {
+                return imageRepository.delete(image.id).then(() => message.delete())
+            }
+        });
+    }
 }
 
 function deleteVote(downvoteReact, image, user){
