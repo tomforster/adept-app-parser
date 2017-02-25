@@ -65,148 +65,135 @@ bot.on("message", (message) => {
 
 bot.on("ready", () => {
     log.info("Bot started up!");
-    bot.users.forEach((discordUser) => {
-        logUserDetails(discordUser);
-    });
-    bot.user.setAvatar("./avatar.jpg").catch(error => console.log(error));
+    bot.users.forEach(discordUser => logUserDetails(discordUser).catch(log.error));
+    bot.user.setAvatar("./avatar.jpg")
+        .catch(log.error);
+    auditRepository.getRecentImageMessageAudits()
+        .then(audits => {
+            let messagesPromises = [];
+            audits.forEach( audit => {
+                if (bot.channels.has(audit.channel_id)) {
+                    messagesPromises.push(bot.channels.get(audit.channel_id).fetchMessage(audit.message_reply_id).catch(() => Promise.resolve()));
+                }
+            });
+            return Promise.all(messagesPromises).then(messages => messages.filter(message => !!message));
+        })
+        .catch(log.error);
 });
 
 bot.on("serverNewMember", (server, discordUser) => {
     log.info("Saving details on new member", discordUser.username);
-    logUserDetails(discordUser);
+    logUserDetails(discordUser)
+        .catch(log.error);
 });
 
 bot.on("presence", (oldUser, discordUser) => {
     log.info("Member presence updated!", discordUser.username);
-    logUserDetails(discordUser);
+    logUserDetails(discordUser)
+        .catch(log.error);
 });
 
-function updateVotesForImage(message, votes, img){
-    return message.edit(utils.getImageCommentString(votes, img));
+bot.on("messageReactionAdd", reactionChange);
+bot.on("messageReactionRemove", (messageReaction, user) => reactionChange(messageReaction, user, true));
+
+function reactionChange(messageReaction, user, isRemove){
+    if(!user || !messageReaction){
+        return;
+    }
+
+    let message = messageReaction.message;
+    if(!message.author.equals(bot.user)) return;
+
+    let guildUser = message.guild && message.guild.members.get(user.id);
+    if(!guildUser || guildUser.roles.size == 0) return;
+
+    let downvoteReact = messageReaction.emoji.name === "⬇";
+    let upvoteReact = messageReaction.emoji.name === "⬆";
+
+    if(downvoteReact || upvoteReact){
+        return auditRepository.findImageByMessageId(message.id)
+            .then(image => {
+                if (image) {
+                    return userRepository.fetchByDiscordId(user.id)
+                        .then(user => {
+                            if (user) {
+                                if(isRemove) {
+                                    return deleteVote(downvoteReact, image, user, message);
+                                } else {
+                                    return createVote(downvoteReact, image, user, message);
+                                }
+                            }
+                            throw `Discord user not found for id ${user.id}`;
+                        })
+                        .then(changed => {
+                            if(changed){
+                                return updateVotesForImage(image, message.channel);
+                            }
+                            return Promise.resolve();
+                        })
+                }
+                throw `Image not found for message ${message.id}`;
+            })
+            .catch(log.error);
+    }
 }
 
-bot.on("messageReactionAdd", (messageReaction, user) => {
-    if(!user || !messageReaction){
-        return;
-    }
-    let message = messageReaction.message;
-    if(!message.author.equals(bot.user)) return;
+function deleteVote(downvoteReact, image, user){
+    return downvoteReact ?
+        voteRepository.deleteDownvote(image.id, user.id) :
+        voteRepository.deleteUpvote(image.id, user.id);
+}
 
-    let id = message.id;
+function createVote(downvoteReact, image, user){
+    return downvoteReact ?
+        voteRepository.downvote(image.id, user.id) :
+        voteRepository.upvote(image.id, user.id);
+}
 
-    let downvoteReact = messageReaction.emoji.name === "⬇";
-    let upvoteReact = messageReaction.emoji.name === "⬆";
-
-    let guildUser = message.guild.members.get(user.id);
-    if(messageReaction.emoji.name === "❎") {
-        if (!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
-        log.info("admin attempting to delete an image", message.author.username);
-        return auditRepository.findImageByMessageId(id).then(image => {
-            if (image) {
-                return imageRepository.delete(image.id).then(() => message.delete())
-            }
-        });
-    }
-
-    if(downvoteReact || upvoteReact){
-        if(!guildUser || guildUser.roles.size == 0) return;
-        return auditRepository.findImageByMessageId(id).then(image => {
-            if (image) {
-                return userRepository.fetchByDiscordId(user.id).then(user => {
-                    if (user) {
-                        let votePromise;
-                        if(downvoteReact){
-                            votePromise = voteRepository.downvote(image.id, user.id)
-                        }else{
-                            votePromise = voteRepository.upvote(image.id, user.id)
-                        }
-                        return votePromise.then(added => {
-                            if (added) {
-                                return voteRepository.getVotes(image.id).then(votes => {
-                                    let totalDownvotes = 0;
-                                    votes.forEach(vote => {
-                                        if(vote.is_upvote){
-                                            totalDownvotes--;
-                                        }else if(!vote.is_upvote){
-                                            totalDownvotes++;
-                                        }
-                                    });
-                                    if (totalDownvotes > 4) {
-                                        return imageRepository.delete(image.id).then((count) => {
-                                            if (count) {
-                                                return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.").then(() => message.delete());
-                                                //todo: also delete any other instance of the image in the current cache
-                                            }
-                                        });
-                                    }
-                                    return updateVotesForImage(message, votes, image);
-                                })
-                            }
+function updateVotesForImage(image, channel){
+    return voteRepository.getVotes(image.id).then(votes => {
+        let dv = 0, uv = 0;
+        if(votes && votes.length > 0) {
+            dv = votes.filter(vote => !vote.is_upvote).length;
+            uv = votes.filter(vote => vote.is_upvote).length;
+        }
+        if (uv-dv < -4) {
+            return imageRepository.delete(image.id).then((count) => {
+                if (count) {
+                    return getMessagesForImage(image)
+                        .then(messages => {
+                            let deletionPromises = [];
+                            messages.forEach(message => {
+                                deletionPromises.push(message.delete());
+                            });
+                            return Promise.all(deletionPromises);
                         })
+                        .then(() => channel.sendMessage("Deleted image for command " + image.command + " due to downvotes."));
+                }
+            });
+        }
+        return getMessagesForImage(image)
+            .then(messages => {
+                let editPromises = [];
+                messages.forEach(message => {
+                    editPromises.push(message.edit(utils.getImageCommentString(votes, image)));
+                });
+                return Promise.all(editPromises);
+            });
+    })
+}
 
-                    }
-                })
-            }
-        })
-    }
-});
-
-bot.on("messageReactionRemove", (messageReaction, user) => {
-    if(!user || !messageReaction){
-        return;
-    }
-    let message = messageReaction.message;
-    if(!message.author.equals(bot.user)) return;
-
-    let id = message.id;
-
-    let downvoteReact = messageReaction.emoji.name === "⬇";
-    let upvoteReact = messageReaction.emoji.name === "⬆";
-
-    let guildUser = message.guild.members.get(user.id);
-    if(downvoteReact || upvoteReact){
-        if(!guildUser || guildUser.roles.size == 0) return;
-        return auditRepository.findImageByMessageId(id).then(image => {
-            if (image) {
-                return userRepository.fetchByDiscordId(user.id).then(user => {
-                    if (user) {
-                        let votePromise;
-                        if(downvoteReact){
-                            votePromise = voteRepository.deleteDownvote(image.id, user.id)
-                        }else{
-                            votePromise = voteRepository.deleteUpvote(image.id, user.id)
-                        }
-                        return votePromise.then(removed => {
-                            if (removed) {
-                                return voteRepository.getVotes(image.id).then(votes => {
-                                    let totalDownvotes = 0;
-                                    votes.forEach(vote => {
-                                        if(vote.is_upvote){
-                                            totalDownvotes--;
-                                        }else if(!vote.is_upvote){
-                                            totalDownvotes++;
-                                        }
-                                    });
-                                    if (totalDownvotes > 4) {
-                                        return imageRepository.delete(image.id).then((count) => {
-                                            if (count) {
-                                                return message.channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.").then(() => message.delete());
-                                                //todo: also delete any other instance of the image in the current cache
-                                            }
-                                        });
-                                    }
-                                    return updateVotesForImage(message, votes, image);
-                                })
-                            }
-                        })
-
-                    }
-                })
-            }
-        })
-    }
-});
-
+function getMessagesForImage(image){
+    let messagesPromises = [];
+    image.messages.forEach( (messageId, i) => {
+        let messageChannelId = image.message_channels[i];
+        if (bot.channels.has(messageChannelId)) {
+            messagesPromises.push(bot.channels.get(messageChannelId).fetchMessage(messageId).catch(() => Promise.resolve()));
+        }
+    });
+    return Promise.all(messagesPromises)
+        .then(messages => messages.filter(message => !!message));
+}
 
 bot.on("disconnect", (closeEvent)=> {
     log.info("Bot disconnected", closeEvent);
@@ -240,7 +227,7 @@ function logUserDetails(discordUser){
             }
             return user;
         }
-    }).catch(error => log.error(error));
+    })
 }
 
 module.exports.newAppMessage = function(title,url){

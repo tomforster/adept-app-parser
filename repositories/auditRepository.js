@@ -105,7 +105,6 @@ limit 10;`, [channelIds])
 };
 
 exports.logCharacterStatsAudit = function(character){
-    // log.info("saving character stat request to audit");
     if(typeof character === "object" && character.constructor !== Array) {
         return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), moment().unix()]);
     }else{
@@ -114,7 +113,6 @@ exports.logCharacterStatsAudit = function(character){
 };
 
 exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId){
-    // log.info("saving command to audit");
     if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array && messageId && typeof messageId === 'string' && messageId.length>0) {
         return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image) values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId]);
     }
@@ -122,5 +120,11 @@ exports.logCommandAudit = function(userId, channelId, messageId, command, params
 };
 
 exports.findImageByMessageId = function(id){
-    return db.oneOrNone("select i.* from audit join image i on i.id = audit.image where audit.type = 'command' and message_reply_id = $1 limit 1", [id]);
+    return db.oneOrNone("with image as (select i.* from audit join image i on i.id = audit.image where audit.type = 'command' and message_reply_id = $1 limit 1) " +
+        "select i.id, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted, array_agg(a.message_reply_id) as messages, array_agg(a.channel_id) as message_channels " +
+        "from image i join audit a on a.image = i.id where a.date > $2 group by i.id, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted;", [id, moment().subtract(1,'days').unix()]);
+};
+
+exports.getRecentImageMessageAudits = function(){
+    return db.manyOrNone("select id, date, channel_id, message_reply_id, image from audit where date > $1 and type = 'command' order by date desc limit 100", [moment().subtract(1, 'days').unix()]);
 };
