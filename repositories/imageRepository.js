@@ -13,7 +13,7 @@ exports.fetchAll = function (command, limit, offset){
     if(!offset) offset = 0;
     log.info("fetching", command);
     if(command && typeof command === 'string' && command.length>0){
-        return db.any("select i.id as id, i.command, url, i.date_added, du.username as uploader from image i join discord_user du on i.user_id = du.discord_id where command=($1) and is_deleted = false order by i.date_added limit $2 offset $3", [command, limit, offset]);
+        return db.any("select i.id as id, i.command, url, i.date_added, du.username as author from image i join discord_user du on i.user_id = du.id where command=($1) and is_deleted = false order by i.date_added limit $2 offset $3", [command, limit, offset]);
     }else{
         log.info("type of command incorrect!");
         return [];
@@ -23,9 +23,9 @@ exports.fetchAll = function (command, limit, offset){
 exports.random = function(command){
     log.info("fetching random");
     if(!command) {
-        return db.oneOrNone("SELECT count(*) from image where is_deleted = false").then(result => db.one("SELECT id, command, url, date_added FROM image where is_deleted = false OFFSET floor(random()*$1) LIMIT 1", [result.count]));
+        return db.oneOrNone("SELECT count(*) from image where is_deleted = false").then(result => db.one("SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i join discord_user du on i.user_id = du.id where is_deleted = false OFFSET floor(random()*$1) LIMIT 1", [result.count]));
     }else{
-        return db.oneOrNone("SELECT count(*) from image where command=($1) and is_deleted = false", [command]).then(result => db.one("SELECT id, command, url, date_added FROM image where is_deleted = false and command=$2 OFFSET floor(random()*$1) LIMIT 1", [result.count, command]));
+        return db.oneOrNone("SELECT count(*) from image where command=($1) and is_deleted = false", [command]).then(result => db.one("SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i join discord_user du on i.user_id = du.id where is_deleted = false and command=$2 OFFSET floor(random()*$1) LIMIT 1", [result.count, command]));
     }
 };
 

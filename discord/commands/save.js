@@ -7,7 +7,7 @@ const validUrl = require('valid-url');
 const utils = require('../utils');
 const commandRepository = require("../../repositories/imageRepository.js");
 
-function run(message, params){
+function run(message, params, keyword, user){
     if (params.length === 2) {
         let commandParam = params[0].toLowerCase();
         if(commandParam.indexOf('@') > -1){
@@ -31,7 +31,7 @@ function run(message, params){
                     return message.reply("the image is too large :(");
                 } else {
                     return commandRepository
-                        .save(commandParam, uriParam, message.author.id)
+                        .save(commandParam, uriParam, user.id)
                         .then(() => message.reply("new command: " + commandParam + " has been added successfully."))
                 }
             }).catch(() => {

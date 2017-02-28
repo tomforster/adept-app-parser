@@ -47,18 +47,19 @@ bot.on("message", (message) => {
             command = commands[commandIndex];
         }
 
-        log.info("running command, user, id",keyword,message.author.username,message.author.id);
+        log.info("running command, user, id", keyword, message.author.username, message.author.id);
         message.channel.startTyping();
-        let commandPromise = command.run(message, params, keyword);
-        Promise.all([userDetailsPromise, commandPromise])
-            .then(result => {
-                message.channel.stopTyping();
-                if(!result[1]) return;
-                return auditRepository.logCommandAudit(result[0].id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
-            }).catch(err => {
-                message.channel.stopTyping();
-                log.error(err);
-            });
+        userDetailsPromise.then(user => {
+            return command.run(message, params, keyword, user)
+                .then(result => {
+                    message.channel.stopTyping();
+                    if(!result[1]) return;
+                    return auditRepository.logCommandAudit(user.id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
+                }).catch(err => {
+                    message.channel.stopTyping();
+                    log.error(err);
+                });
+        });
     }
 
 });

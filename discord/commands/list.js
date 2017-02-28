@@ -28,7 +28,7 @@ function run(message, params) {
                     opMessage += pageCount > 1 ? " (Page " + pageParam + "/" + pageCount + "):\n" : ":\n";
                     let count = 1 + PAGE_SIZE*(pageParam-1);
                     results.forEach(img => {
-                        opMessage += "\n" + count + ": <" + img.url + "> (" + img.id + ") [" + img.uploader + "]";
+                        opMessage += "\n" + count + ": <" + img.url + "> (" + img.id + ") [" + img.author + "]";
                         count++;
                     });
                     if(pageCount > 1){
