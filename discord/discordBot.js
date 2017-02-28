@@ -53,8 +53,8 @@ bot.on("message", (message) => {
             return command.run(message, params, keyword, user)
                 .then(result => {
                     message.channel.stopTyping();
-                    if(!result[1]) return;
-                    return auditRepository.logCommandAudit(user.id, message.channel.id, result[1].id, keyword, params, result[1].__imageId)
+                    if(!result) return;
+                    return auditRepository.logCommandAudit(user.id, message.channel.id, result.id, keyword, params, result.__imageId)
                 }).catch(err => {
                     message.channel.stopTyping();
                     log.error(err);
