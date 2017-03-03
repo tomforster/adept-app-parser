@@ -157,6 +157,7 @@ var parseText = function (text) {
     appInfo.specsHC = buildRolesString(appInfo,true);
     appInfo.specsSC = buildRolesString(appInfo,false,true);
     appInfo.wol = buildWOLString(appInfo);
+    appInfo.rawMessage = text;
 
     return ({title: buildTitle(appInfo), body: buildForm(appInfo), raw:appInfo});
 };

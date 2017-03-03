@@ -8,16 +8,22 @@ const phantomScripts = require('./phantomScripts.js');
 const applicationRepository = require('./repositories/applicationRepository');
 const config = require('./config');
 const log = require('bristol');
+const fs = require('fs');
 
 const router = require('express').Router();
+let discordBot = null;
 
 module.exports = function(startBot, startMail){
+
+    let mail = fs.readFileSync('mail.txt', 'utf-8');
+    let mailObj = parseMail(mail);
+    log.info(mailObj);
+
     router.get('/', function(req, res) {
         log.info('Parser request');
         res.sendFile(path.join(__dirname,'/public/parser.html'));
     });
 
-    let discordBot = null;
     if(startBot){
         discordBot = require('./discord/discordBot.js');
     }
@@ -35,43 +41,40 @@ module.exports = function(startBot, startMail){
             log.info(JSON.stringify(connection));
         });
 
-        mailin.on('message', function (connection, data, content) {
+        mailin.on('message', (connection, data, content) => {
             if(connection.envelope.rcptTo.filter(function(rcpt){
                     return rcpt.address == config.appEmail
                 }).length < 1){
                 log.info('bad email: '+JSON.stringify(connection.envelope.rcptTp));
                 return;
             }
-            var cheerio = require('cheerio');
-            var $ = cheerio.load(data.html);
-            var str = "";
-            $('table table td').each(function (index, obj) {
-                var li = $(obj).find('li');
-                if (li.length > 0) {
-                    $(li).each(function (index, obj) {
-                        str += $(obj).text() + '\n';
-                    });
-                } else {
-                    if ($(obj).text().trim().length !== 0) {
-                        str += $(obj).text().trim() + '\n';
-                    }
-                }
-            });
-            str = str.replace(/\s{2,}/g, ' ');
-            var mailObj = appParser.parseText(str);
-            log.info('Title:'+mailObj.title);
-
-            phantomScripts.postApp(mailObj).then(function(url){
-                if(discordBot) {
-                    discordBot.newAppMessage(mailObj.title, url);
-                }
-            }).catch(function(err){
-                log.error(err);
-                log.error("Failed to save new application");
-            });
-
-            applicationRepository.save(mailObj.raw);
-        });
+            parseMail(data.html)
+        })
     }
     return router;
 };
+
+function parseMail(html) {
+
+    let cheerio = require('cheerio');
+    let $ = cheerio.load(html);
+    let str = "";
+
+    $('table table td').each(function (index, obj) {
+        str += $(obj).text();
+    });
+    // str = str.replace(/\s{2,}/g, ' ');
+    let mailObj = appParser.parseText(str);
+    log.info('Title:'+mailObj.title);
+
+    phantomScripts.postApp(mailObj).then(function(url){
+        if(discordBot) {
+            discordBot.newAppMessage(mailObj.title, url);
+        }
+    }).catch(function(err){
+        log.error(err);
+        log.error("Failed to save new application");
+    });
+
+    applicationRepository.save(mailObj.raw);
+}
