@@ -389,7 +389,7 @@ var questions = {
     "classSC": new Question("Why did you choose your class? What do you like most about it?", true),
     "addonsSC": new Question("What addons do you use and why do you like them?", true),
     "learningSC": new Question("How do you prefer learning tactics best (i.e. videos, descriptions, trying and wiping)?", true),
-    "legion": new Question("What are you most excited for in Legion?", false),
+    "legion": new Question("What do you like most about Legion?", false),
     "net": new Question("What's your internet connection like?",true),
     "otherGames": new Question("Do you play any other games or have any other hobbies? What do you like about them?", true),
     "whyAccept": new Question("Why should we accept your application?", true),
