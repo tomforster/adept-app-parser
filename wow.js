@@ -108,6 +108,7 @@ function postApplicationsFromQueue(applicationQueue) {
     if (applicationQueue.length > 0) {
         let application = applicationQueue.pop();
         phantomScripts.postApp(application.processed_app).then(url => {
+            log.info("posted app", application.processed_app.title);
             applicationRepository.markApplicationAsPosted(application.id, url).catch(log.error);
             if (discordBot) {
                 return discordBot.newAppMessage(application.processed_app.title, url);

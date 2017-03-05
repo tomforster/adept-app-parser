@@ -27,11 +27,11 @@ const postApp = function(mailObj){
         }).then(function(){
             log.info("loaded post page");
             return nightmare.insert('#subject', mailObj.title)
-            .insert('#message', mailObj.body)
-            .wait(2000)
-            .click('[type=submit][name=post]')
-            .wait('.postbody')
-            .url()
+                .insert('#message', mailObj.body)
+                .wait(2000)
+                .click('[type=submit][name=post]')
+                .wait('.postbody')
+                .url()
         })
 };
 
