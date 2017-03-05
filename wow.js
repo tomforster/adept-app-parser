@@ -110,7 +110,7 @@ function postApplicationsFromQueue(applicationQueue) {
         phantomScripts.postApp(application.processed_app).then(url => {
             applicationRepository.markApplicationAsPosted(application.id, url).catch(log.error);
             if (discordBot) {
-                return discordBot.newAppMessage(application.title, url);
+                return discordBot.newAppMessage(application.processed_app.title, url);
             }
             return postApplicationsFromQueue(applicationQueue);
         }).catch(log.error)
