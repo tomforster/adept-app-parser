@@ -41,11 +41,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 log.info("Bot:", config.enableDiscordBot);
-log.info("Mail:", config.enableMail);
 log.info("Cam:", config.enableCam);
 log.info("Api:", config.enableWOWApi);
 
-let wow = require('./wow')(config.enableDiscordBot, config.enableMail);
+let bot;
+if(config.enableDiscordBot){
+    bot = require('./discord/discordBot.js');
+}
+
+let wow = require('./wow')(bot);
+
 app.use('/parser', wow);
 
 if(config.enableWOWApi && config.guildName){
@@ -111,9 +116,6 @@ app.use((req, res, next) => {
     err.status = 404;
     next(err);
 });
-
-let appParser = require('./appParser.js');
-let phantomScripts = require('./phantomScripts.js');
 
 app.listen(config.port,function(){
 });

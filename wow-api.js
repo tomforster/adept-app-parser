@@ -34,15 +34,16 @@ const classColors = {
     12:	"#A330C9",
 };
 
-function retryWrapper(fun){
-    let numRetries = 5;
+function retryWrapper(fun, numRetries){
     return fun().catch(() => {
         if(numRetries === 0){
             log.error(error);
             throw('failed after 5 retries');
         }
         numRetries--;
-        return fun();
+        let timedPromise = new Promise();
+        setTimeout(() => timedPromise.resolve(), Math.random()*1000);
+        return timedPromise.then(() => retryWrapper(fun, numRetries));
     })
 }
 
@@ -68,7 +69,7 @@ function getCharacterStats(guild, realm){
                                 character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
                                 return character;
                             })
-                    }).catch(err => {
+                    }, 5).catch(err => {
                         log.error("failed on", name, err);
                         return character;
                     }));
