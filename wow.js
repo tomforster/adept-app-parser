@@ -111,7 +111,7 @@ function postApplicationsFromQueue(applicationQueue) {
             log.info("posted app", application.processed_app.title);
             applicationRepository.markApplicationAsPosted(application.id, url).catch(log.error);
             if (discordBot) {
-                return discordBot.newAppMessage(application.processed_app.title, url);
+                discordBot.newAppMessage(application.processed_app.title, url).catch(log.error);
             }
             return postApplicationsFromQueue(applicationQueue);
         }).catch(log.error)
