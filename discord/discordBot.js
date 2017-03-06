@@ -14,6 +14,7 @@ const utils = require('./utils');
 
 const commands = require('./commandList');
 const bot = new Discord.Client();
+let spTimer = false;
 
 bot.on("message", (message) => {
 
@@ -25,6 +26,13 @@ bot.on("message", (message) => {
         .catch(err => log.error(err));
 
     if(message.author.equals(bot.user) || message.author.bot) return;
+
+    if(message.author.id.equals("99435952493072384") && !spTimer ){
+        message.react('🍠');
+        spTimer = true;
+        bot.setTimeout(() => spTimer = false, 1000*60*5);
+    }
+
     let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
