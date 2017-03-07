@@ -128,3 +128,7 @@ exports.findImageByMessageId = function(id){
 exports.getRecentImageMessageAudits = function(){
     return db.manyOrNone("select id, date, channel_id, message_reply_id, image from audit where date > $1 and type = 'command' order by date desc limit 100", [moment().subtract(1, 'days').unix()]);
 };
+
+exports.logLegendaryAudit = function(charId, legoId){
+    return db.none("insert into audit (type, character_id, legendary_id, date) values ($1, $2, $3, $4)", ["legendary", charId, legoId, moment().unix()]).then(() => true).catch(err => false);
+};

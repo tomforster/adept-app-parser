@@ -258,7 +258,16 @@ module.exports.newAppMessage = function(title,url){
             return guildChannel.sendMessage("New Application Posted: "+ title + " " + url);
         }
     }
-    return Promise.resolve();
+};
+
+module.exports.newLegendaryMessage = function(name, legendary){
+    let adeptGuild = bot.guilds.find("name", "Adept");
+    if(adeptGuild){
+        let guildChannel = adeptGuild.channels.find("name", "guild");
+        if(guildChannel){
+            return guildChannel.sendMessage(`${name} just looted ${legendary.name}`);
+        }
+    }
 };
 
 module.exports.commands = commands;

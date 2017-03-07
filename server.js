@@ -53,7 +53,7 @@ let applicationService = require('./applicationService')(bot);
 app.use('/parser', applicationService);
 
 if(config.enableWOWApi && config.guildName){
-    require('./warcraftApiService')(config.guildName);
+    require('./warcraftApiService')(config.guildName, undefined, bot);
 }
 
 const bufferEq = require("buffer-equal-constant-time");

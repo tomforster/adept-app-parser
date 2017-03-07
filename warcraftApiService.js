@@ -33,21 +33,7 @@ const classColors = {
     11: "#FF7D0A",
     12:	"#A330C9",
 };
-const legendaryIds = [
-    132376, 137014, 140846, 132443, 137024, 137084, 137102, 132445, 132460, 137072, 137038, 132409, 144277, 137060, 144249,
-    144358, 137052, 133977, 137017, 144361, 137101, 137088, 137019, 137086, 137040, 133976, 137066, 144293, 132442, 133800,
-    132863, 144280, 144279, 137100, 137018, 132441, 137097, 137041, 137030, 137074, 137095, 137028, 137015, 137036, 137067,
-    137616, 132447, 137026, 132861, 137045, 137050, 132456, 144354, 137027, 137051, 138854, 137043, 137063, 137079, 144274,
-    137099, 137047, 137082, 137057, 132394, 144260, 137046, 137039, 137049, 137085, 137044, 137065, 137108, 144244, 137029,
-    132374, 137053, 144259, 138949, 132366, 132454, 144295, 132411, 133974, 137068, 144369, 137048, 137022, 137056, 132407,
-    141353, 138140, 132864, 137107, 144236, 144273, 137220, 132406, 144303, 137090, 132437, 132450, 132451, 137087, 137276,
-    137034, 137104, 132455, 144432, 137076, 132375, 137092, 138879, 132459, 137096, 132449, 132357, 132457, 137058, 137083,
-    137023, 132444, 144355, 137227, 137061, 144247, 132453, 144364, 132393, 132413, 137080, 132466, 137071, 132378, 137016,
-    144275, 137223, 132452, 132367, 132365, 137032, 132410, 144340, 141321, 132379, 132436, 144281, 137025, 144292, 138117,
-    137103, 132381, 137075, 137042, 137382, 137078, 137035, 137091, 137021, 137062, 144239, 132448, 144326, 137064, 133973,
-    137054, 137094, 137031, 137089, 143728, 132458, 137070, 137059, 137033, 143732, 137073, 137105, 137037, 144258, 144385,
-    137081, 137077, 137020, 132369, 137069, 132461, 137109, 144242, 133970, 144438, 133971, 137055, 137098, 143613
-];
+const legendaries = require("./legendaries")
 
 function retryWrapper(fun, numRetries){
     return fun().catch(() => {
@@ -88,10 +74,11 @@ function getCharacterStats(guild, realm){
                                 character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
                                 character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
                                 let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
+                                character.legosInFeed = [];
                                 feedItems.forEach(item => {
-                                    let legoId = legendaryIds.indexOf(item.itemId);
+                                    let legoId = legendaries.hasOwnProperty(item.itemId);
                                     if(legoId > -1){
-                                        log.info("legendary detected with id on character", legoId, character.name);
+                                        character.legosInFeed.push(legendaries[legoId]);
                                     }
                                 });
                                 return character;
@@ -129,9 +116,25 @@ let createGuildUri = function(guild, realm){
     throw "bad params"
 };
 
-module.exports = function(guild, realm){
+module.exports = function(guild, realm, bot){
     log.info("Adding scheduled task to retrieve guild stat info");
     cron.schedule('0 * * * *', () => {
-        getCharacterStats(guild, realm).then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character).catch(error => log.error(error)))).catch(error => log.error(error));
+        //lots of horrible catches, todo refactor this
+        let statsPromise = getCharacterStats(guild, realm);
+        statsPromise
+            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)).catch(log.error))
+            .catch(log.error);
+
+        statsPromise
+            .then(characters => characters
+                .forEach(character => character.legosInFeed
+                    .forEach(lego => {
+                        auditRepository.logLegendaryAudit(character.id, lego.id)
+                            .then(isNew => {
+                                if(isNew && bot) return bot.newLegendaryMessage(character.name, lego);
+                            }).catch(log.error)
+                    }))
+                .catch(log.error))
+            .catch(log.error);
     }, true);
 };
