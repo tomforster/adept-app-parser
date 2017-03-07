@@ -37,7 +37,7 @@ const legendaries = require("./legendaries");
 
 function retryWrapper(fun, numRetries){
     return fun().catch((err) => {
-        log.error(err);
+        log.error(err, numRetries);
         if(numRetries === 0){
             log.error(error);
             throw('failed after 5 retries');
