@@ -75,7 +75,7 @@ bot.on("message", (message) => {
 bot.on("ready", () => {
     log.info("Bot started up!");
     bot.users.forEach(discordUser => logUserDetails(discordUser).catch(log.error));
-    bot.user.setAvatar(path.join(__dirname, "avatar.jpg"));
+    bot.user.setAvatar(path.join(__dirname, "avatar.jpg"))
         .catch(log.error);
     auditRepository.getRecentImageMessageAudits()
         .then(audits => {
