@@ -77,7 +77,7 @@ function getCharacterStats(guild, realm){
                                 character.legosInFeed = [];
                                 feedItems.forEach(item => {
                                     if(legendaries.hasOwnProperty(item.itemId)){
-                                        character.legosInFeed.push(legendaries[item.itemId]);
+                                        character.legosInFeed.push({id:legendaries[item.itemId].id, name:legendaries[item.itemId].name, timestamp: item.timestamp});
                                     }
                                 });
                                 return character;

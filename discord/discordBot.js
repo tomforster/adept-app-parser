@@ -14,6 +14,7 @@ const utils = require('./utils');
 const commands = require('./commandList');
 const path = require('path');
 const bot = new Discord.Client();
+const humanizeDuration = require('humanize-duration');
 let spTimer = false;
 
 bot.on("message", (message) => {
@@ -261,12 +262,13 @@ module.exports.newAppMessage = function(title,url){
 };
 
 module.exports.newLegendaryMessage = function(name, legendary){
+    let duration = humanizeDuration(new Date().getTime() - legendary.timestamp, { largest: 1 });
+    log.info(`${name} looted [${legendary.name}] ${duration} ago!`);
     let adeptGuild = bot.guilds.find("name", "Adept");
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
-            log.info(`${name} just looted ${legendary.name}`);
-            //return guildChannel.sendMessage(`${name} just looted ${legendary.name}`);
+            return guildChannel.sendMessage(`${name} looted [${legendary.name}] ${duration} ago!`);
         }
     }
 };
