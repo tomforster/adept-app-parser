@@ -67,6 +67,7 @@ function getCharacterStats(guild, realm){
                                 }
                                 character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
                                 character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
+                                character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
                                 return character;
                             })
                     }, 5).catch(err => {
