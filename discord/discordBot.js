@@ -262,13 +262,20 @@ module.exports.newAppMessage = function(title,url){
 };
 
 module.exports.newLegendaryMessage = function(name, legendary){
-    let duration = humanizeDuration(new Date().getTime() - legendary.timestamp, { largest: 1 });
-    log.info(`${name} looted [${legendary.name}] ${duration} ago!`);
+    let output, duration = new Date().getTime() - legendary.timestamp;
+    if(duration < 1000*60*10){//last 10 minutes
+        output = `${name} just looted [${legendary.name}]!`;
+    }else{
+        let durationString = humanizeDuration(duration, { largest: 1 });
+        output = `${name} looted [${legendary.name}] ${durationString} ago!`;
+    }
+
+    log.info(output);
     let adeptGuild = bot.guilds.find("name", "Adept");
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
-            return guildChannel.sendMessage(`${name} looted [${legendary.name}] ${duration} ago!`);
+            return guildChannel.sendMessage(output);
         }
     }
 };
