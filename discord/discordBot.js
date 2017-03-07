@@ -265,7 +265,8 @@ module.exports.newLegendaryMessage = function(name, legendary){
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
-            return guildChannel.sendMessage(`${name} just looted ${legendary.name}`);
+            log.info(`${name} just looted ${legendary.name}`);
+            //return guildChannel.sendMessage(`${name} just looted ${legendary.name}`);
         }
     }
 };
