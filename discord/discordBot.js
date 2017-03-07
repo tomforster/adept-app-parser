@@ -2,7 +2,6 @@
 
 const Discord = require("discord.js");
 const config = require('../config');
-const phantomScripts = require('./../phantomScripts');
 const log = require('bristol');
 
 const imageRepository = require('././imageRepository');
