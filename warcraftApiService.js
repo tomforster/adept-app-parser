@@ -36,20 +36,21 @@ const classColors = {
 const legendaries = require("./legendaries");
 
 function retryWrapper(fun, numRetries){
+    log.trace(numRetries);
     return fun().catch((err) => {
         log.error(err, numRetries);
         if(numRetries === 0){
             log.error(error);
             throw('failed after 5 retries');
         }
-        let newNumRetries = numRetries - 1;
+        numRetries--;
         let timedPromise = new Promise((resolve, reject) => {
-            let waitTime = Math.random()*5000;
+            let waitTime = 1000 + Math.random()*4000;
             setTimeout(() => {
                 log.trace('waited', waitTime);
                 resolve()}, waitTime);
         });
-        return timedPromise.then(() => retryWrapper(fun, newNumRetries));
+        return timedPromise.then(() => retryWrapper(fun, numRetries));
     })
 }
 
@@ -65,9 +66,8 @@ function getCharacterStats(guild, realm){
             let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
             filteredMembers.forEach(member => {
                 let name = member.name;
-                log.trace(member);
-                let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
-                promises.push(retryWrapper(() => rp(createCharacterUri(name, realm), 5))
+                let character = {name: member.name, class: member.class, spec: member.spec && member.spec.order, id: stringHash(member.thumbnail)};
+                promises.push(retryWrapper(() => rp(createCharacterUri(name, realm)), 5)
                     .then(charInfo => {
                         let mainHand = charInfo.items.mainHand;
                         if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
@@ -122,7 +122,7 @@ let createGuildUri = function(guild, realm){
 };
 
 module.exports = function(guild, realm, bot){
-    let cronString = '*/10 * * * *';
+    let cronString = '*/5 * * * *';
     log.info("Adding scheduled task to retrieve guild stat info at", cronString);
     cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
