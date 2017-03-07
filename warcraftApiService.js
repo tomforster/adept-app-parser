@@ -33,7 +33,7 @@ const classColors = {
     11: "#FF7D0A",
     12:	"#A330C9",
 };
-const legendaries = require("./legendaries")
+const legendaries = require("./legendaries");
 
 function retryWrapper(fun, numRetries){
     return fun().catch(() => {
