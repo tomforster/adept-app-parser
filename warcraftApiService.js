@@ -67,6 +67,9 @@ function getCharacterStats(guild, realm){
                                 }
                                 character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
                                 character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
+                                character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
+                                character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
+                                character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
                                 character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
                                 return character;
                             })
@@ -88,7 +91,7 @@ let createCharacterUri = function(character, realm){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
         }
-        return apiUriPathStart + characterRequestUriPath + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=achievements,items&' + uriEnd;
+        return apiUriPathStart + characterRequestUriPath + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=achievements,items,feed&' + uriEnd;
     }
     throw "bad params"
 };
