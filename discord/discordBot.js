@@ -275,7 +275,7 @@ module.exports.newLegendaryMessage = function(name, legendary){
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
-            return guildChannel.sendMessage(output);
+            return guildChannel.sendMessage("```css\n" + output + "```");
         }
     }
 };
