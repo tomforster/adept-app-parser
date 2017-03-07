@@ -76,9 +76,8 @@ function getCharacterStats(guild, realm){
                                 let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
                                 character.legosInFeed = [];
                                 feedItems.forEach(item => {
-                                    let legoId = legendaries.hasOwnProperty(item.itemId);
-                                    if(legoId > -1){
-                                        character.legosInFeed.push(legendaries[legoId]);
+                                    if(legendaries.hasOwnProperty(item.itemId)){
+                                        character.legosInFeed.push(legendaries[item.itemId]);
                                     }
                                 });
                                 return character;
@@ -117,12 +116,13 @@ let createGuildUri = function(guild, realm){
 };
 
 module.exports = function(guild, realm, bot){
-    log.info("Adding scheduled task to retrieve guild stat info");
-    cron.schedule('0 * * * *', () => {
+    let cronString = '*/1 * * * *';
+    log.info("Adding scheduled task to retrieve guild stat info at", cronString);
+    cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
         let statsPromise = getCharacterStats(guild, realm);
         statsPromise
-            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)).catch(log.error))
+            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character).catch(log.error)))
             .catch(log.error);
 
         statsPromise

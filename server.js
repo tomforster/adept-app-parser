@@ -43,14 +43,17 @@ app.use(bodyParser.json());
 log.info("Bot:", config.enableDiscordBot);
 log.info("Cam:", config.enableCam);
 log.info("Api:", config.enableWOWApi);
+log.info("Apps:", config.enableApplications);
 
 let bot;
 if(config.enableDiscordBot){
     bot = require('./discord/discordBot.js');
 }
 
-let applicationService = require('./applicationService')(bot);
-app.use('/parser', applicationService);
+if(config.enableApplications) {
+    let applicationService = require('./applicationService')(bot);
+    app.use('/parser', applicationService);
+}
 
 if(config.enableWOWApi && config.guildName){
     require('./warcraftApiService')(config.guildName, undefined, bot);
