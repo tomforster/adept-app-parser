@@ -27,7 +27,7 @@ bot.on("message", (message) => {
 
     if(message.author.equals(bot.user) || message.author.bot) return;
 
-    if(message.author.id.equals("99435952493072384") && !spTimer ){
+    if(message.author.id === "99435952493072384" && !spTimer ){
         message.react('🍠');
         spTimer = true;
         bot.setTimeout(() => spTimer = false, 1000*60*5);
