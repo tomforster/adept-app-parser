@@ -56,8 +56,9 @@ function retryWrapper(fun, numRetries){
             throw('failed after 5 retries');
         }
         numRetries--;
-        let timedPromise = new Promise();
-        setTimeout(() => timedPromise.resolve(), Math.random()*1000);
+        let timedPromise = new Promise((resolve, reject) => {
+            setTimeout(() => resolve(), Math.random()*1000);
+        });
         return timedPromise.then(() => retryWrapper(fun, numRetries));
     })
 }
