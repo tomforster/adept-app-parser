@@ -36,7 +36,8 @@ const classColors = {
 const legendaries = require("./legendaries");
 
 function retryWrapper(fun, numRetries){
-    return fun().catch(() => {
+    return fun().catch((err) => {
+        log.error(err);
         if(numRetries === 0){
             log.error(error);
             throw('failed after 5 retries');
@@ -55,6 +56,7 @@ function getCharacterStats(guild, realm){
     return retryWrapper(() => {
         return rp(createGuildUri(guild, realm))
             .then(guildInfo => {
+                log.info("Got guild info");
                 let promises = [];
                 let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
                 filteredMembers.forEach(member => {
