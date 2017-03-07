@@ -42,11 +42,14 @@ function retryWrapper(fun, numRetries){
             log.error(error);
             throw('failed after 5 retries');
         }
-        numRetries--;
+        let newNumRetries = numRetries - 1;
         let timedPromise = new Promise((resolve, reject) => {
-            setTimeout(() => resolve(), Math.random()*1000);
+            let waitTime = Math.random()*5000;
+            setTimeout(() => {
+                log.trace('waited', waitTime);
+                resolve()}, waitTime);
         });
-        return timedPromise.then(() => retryWrapper(fun, numRetries));
+        return timedPromise.then(() => retryWrapper(fun, newNumRetries));
     })
 }
 
@@ -62,7 +65,7 @@ function getCharacterStats(guild, realm){
                 filteredMembers.forEach(member => {
                     let name = member.name;
                     log.trace(member);
-                    let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
+                    let character = {name: member.name, class: member.class, spec: member.spec && member.spec.order, id: stringHash(member.thumbnail)};
                     promises.push(retryWrapper(() => {
                         return rp(createCharacterUri(name, realm))
                             .then(charInfo => {
