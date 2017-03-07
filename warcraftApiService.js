@@ -65,7 +65,7 @@ function getCharacterStats(guild, realm){
                 filteredMembers.forEach(member => {
                     let name = member.name;
                     log.trace(member);
-                    let character = {name: member.name, class: member.class, spec: member.spec && member.spec.order, id: stringHash(member.thumbnail)};
+                    let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
                     promises.push(retryWrapper(() => {
                         return rp(createCharacterUri(name, realm))
                             .then(charInfo => {
