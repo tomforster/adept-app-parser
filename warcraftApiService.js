@@ -58,47 +58,47 @@ function getCharacterStats(guild, realm){
     log.info("Starting character stats run");
     return retryWrapper(() => {
         return rp(createGuildUri(guild, realm))
-            .then(guildInfo => {
-                log.info("Got guild info");
-                let promises = [];
-                let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
-                filteredMembers.forEach(member => {
-                    let name = member.name;
-                    log.trace(member);
-                    let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
-                    promises.push(retryWrapper(() => {
-                        return rp(createCharacterUri(name, realm))
-                            .then(charInfo => {
-                                let mainHand = charInfo.items.mainHand;
-                                if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
-                                    character.artifactTraits = mainHand.artifactTraits.reduce((acc, val) => acc + val.rank, 0);
-                                }
-                                character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
-                                character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
-                                character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
-                                character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
-                                character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
-                                character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
-                                let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
-                                character.legosInFeed = [];
-                                feedItems.forEach(item => {
-                                    if(legendaries.hasOwnProperty(item.itemId)){
-                                        character.legosInFeed.push({id:legendaries[item.itemId].id, name:legendaries[item.itemId].name, timestamp: item.timestamp});
-                                    }
-                                });
-                                return character;
-                            })
-                    }, 5).catch(err => {
+    }, 5)
+        .then(guildInfo => {
+            log.info("Got guild info");
+            let promises = [];
+            let filteredMembers = guildInfo.members.filter(member => member.character.level === 110 && member.rank < 6).map(member => member.character);
+            filteredMembers.forEach(member => {
+                let name = member.name;
+                log.trace(member);
+                let character = {name: member.name, class: member.class, spec: member.spec.order, id: stringHash(member.thumbnail)};
+                promises.push(retryWrapper(() => rp(createCharacterUri(name, realm), 5))
+                    .then(charInfo => {
+                        let mainHand = charInfo.items.mainHand;
+                        if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
+                            character.artifactTraits = mainHand.artifactTraits.reduce((acc, val) => acc + val.rank, 0);
+                        }
+                        character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
+                        character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
+                        character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
+                        character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
+                        character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
+                        character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
+                        let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
+                        character.legosInFeed = [];
+                        feedItems.forEach(item => {
+                            if(legendaries.hasOwnProperty(item.itemId)){
+                                character.legosInFeed.push({id:legendaries[item.itemId].id, name:legendaries[item.itemId].name, timestamp: item.timestamp});
+                            }
+                        });
+                        return character;
+                    })
+                    .catch(err => {
                         log.error("failed on", name, err);
                         return character;
-                    }));
-                });
-                return Promise.all(promises);
-            }).then(results => {
-                log.info("Completed character stats run, got stats for " + results.length + " characters");
-                return results.sort((a,b) => b.name - a.name);
-            })
-    });
+                    })
+                )//end of promise push
+            });
+            return Promise.all(promises);
+        }).then(results => {
+            log.info("Completed character stats run, got stats for " + results.length + " characters");
+            return results.sort((a,b) => b.name - a.name);
+        });
 }
 
 let createCharacterUri = function(character, realm){
