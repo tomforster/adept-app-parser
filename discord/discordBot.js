@@ -12,6 +12,7 @@ const voteRepository = require('../repositories/voteRepository');
 const utils = require('./utils');
 
 const commands = require('./commandList');
+const path = require('path');
 const bot = new Discord.Client();
 let spTimer = false;
 
@@ -74,7 +75,7 @@ bot.on("message", (message) => {
 bot.on("ready", () => {
     log.info("Bot started up!");
     bot.users.forEach(discordUser => logUserDetails(discordUser).catch(log.error));
-    bot.user.setAvatar("./avatar.jpg")
+    bot.user.setAvatar(path.join(__dirname, "avatar.jpg"));
         .catch(log.error);
     auditRepository.getRecentImageMessageAudits()
         .then(audits => {
