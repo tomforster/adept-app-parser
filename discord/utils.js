@@ -4,8 +4,8 @@
  */
 
 const log = require('bristol');
-const commandRepository = require('./../repositories/imageRepository');
-const voteRepository = require('./../repositories/voteRepository');
+const commandRepository = require('././imageRepository');
+const voteRepository = require('././voteRepository');
 const rp = require('request-promise');
 const humanizeDuration = require('humanize-duration');
 const moment = require('moment');

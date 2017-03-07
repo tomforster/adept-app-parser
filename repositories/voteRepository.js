@@ -2,8 +2,8 @@
  * Created by Tom on 22/02/2017.
  */
 
-const db = require('./../db.js').db;
-const moment = require('../node_modules/moment');
+const db = require('./db.js').db;
+const moment = require('moment');
 const log = require('bristol');
 
 exports.upvote = function(imageId, userId){

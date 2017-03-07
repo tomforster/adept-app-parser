@@ -5,7 +5,7 @@
 
 const validUrl = require('valid-url');
 const utils = require('../utils');
-const commandRepository = require("../../repositories/imageRepository.js");
+const commandRepository = require("./imageRepository.js");
 
 function run(message, params, keyword, user){
     if (params.length === 2) {

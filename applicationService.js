@@ -2,8 +2,7 @@
  * Created by Tom on 28/06/2016.
  */
 
-const appParser = require('./application.js');
-const phantomScripts = require('./phantomScripts.js');
+const appParser = require('./applicationParser.js');
 const applicationRepository = require('./repositories/applicationRepository');
 const config = require('./config');
 const log = require('bristol');
@@ -12,6 +11,8 @@ const rp = require('request-promise');
 const crypto = require("crypto");
 const moment = require("moment");
 const cron = require("node-cron");
+const Nightmare = require('nightmare');
+const nightmare = Nightmare({ images: false });
 
 const router = require('express').Router();
 let discordBot = null;
@@ -107,7 +108,7 @@ function postNewApplications(){
 function postApplicationsFromQueue(applicationQueue) {
     if (applicationQueue.length > 0) {
         let application = applicationQueue.pop();
-        phantomScripts.postApp(application.processed_app).then(url => {
+        postApp(application.processed_app).then(url => {
             log.info("posted app", application.processed_app.title);
             applicationRepository.markApplicationAsPosted(application.id, url).catch(log.error);
             if (discordBot) {
@@ -144,3 +145,35 @@ function getEntries(){
     return doGravityFormsRequest("forms/1/entries")
         .then(result => result.entries);
 }
+
+const postApp = function(mailObj){
+    log.info('Posting Adept App');
+    const username = config.forumUsername;
+    const password = config.forumPassword;
+    return nightmare
+        .goto(config.forumUrl)
+        .wait('#phpbb')
+        .evaluate(function() {
+            return document.querySelector('title')
+                .innerText;
+        })
+        .then(function(title){
+            log.info("loaded page", title);
+            if (title.indexOf('Login') > -1) {
+                return nightmare
+                    .insert('#username', username)
+                    .insert('#password', password)
+                    .wait(2000)
+                    .click('.button[name=login]')
+                    .wait('#subject')
+            }
+        }).then(function(){
+            log.info("loaded post page");
+            return nightmare.insert('#subject', mailObj.title)
+                .insert('#message', mailObj.body)
+                .wait(2000)
+                .click('[type=submit][name=post]')
+                .wait('.postbody')
+                .url()
+        })
+};

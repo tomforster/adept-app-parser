@@ -2,8 +2,8 @@
  * Created by Tom on 15/08/2016.
  */
 
-const db = require('./../db.js').db;
-const moment = require('../node_modules/moment');
+const db = require('./db.js').db;
+const moment = require('moment');
 
 const log = require('bristol');
 

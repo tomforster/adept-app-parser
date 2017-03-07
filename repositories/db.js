@@ -2,7 +2,7 @@
  * Created by Tom on 25/06/2016.
  */
 
-const config = require('./config');
+const config = require('./../config');
 const pgp = require('pg-promise')();
 
 exports.db = pgp({

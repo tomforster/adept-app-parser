@@ -4,8 +4,8 @@
 
 "use strict";
 
-const db = require('./../db.js').db;
-const moment = require('../node_modules/moment');
+const db = require('./db.js').db;
+const moment = require('moment');
 const log = require('bristol');
 
 exports.fetchAll = function (command, limit, offset){

@@ -49,12 +49,11 @@ if(config.enableDiscordBot){
     bot = require('./discord/discordBot.js');
 }
 
-let wow = require('./wow')(bot);
-
-app.use('/parser', wow);
+let applicationService = require('./applicationService')(bot);
+app.use('/parser', applicationService);
 
 if(config.enableWOWApi && config.guildName){
-    require('./wow-api')(config.guildName);
+    require('./warcraftApiService')(config.guildName);
 }
 
 const bufferEq = require("buffer-equal-constant-time");
@@ -63,6 +62,7 @@ function signData(secret, data) {
     return 'sha1=' + crypto.createHmac('sha1', secret).update(data).digest('hex');
 }
 
+//auto redeploy on master commit
 app.post('/github', function(req, res){
     log.info("Github webhook received");
     let sig = req.header("x-hub-signature");
