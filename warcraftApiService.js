@@ -134,7 +134,9 @@ module.exports = function(guild, realm, bot){
                                 if(isNew && bot) return bot.newLegendaryMessage(character.name, lego);
                             })
                             .catch(log.error)
-                    }))
+                    })
+                )
+            )
             .catch(log.error);
     }, true);
 };
