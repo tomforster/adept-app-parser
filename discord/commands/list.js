@@ -3,7 +3,7 @@
  *         Date: 10/02/2017
  */
 
-const commandRepository = require("./imageRepository");
+const commandRepository = require("../../repositories/imageRepository");
 const log = require('bristol');
 const PAGE_SIZE = 10;
 

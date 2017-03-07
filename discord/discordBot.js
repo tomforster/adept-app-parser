@@ -4,10 +4,10 @@ const Discord = require("discord.js");
 const config = require('../config');
 const log = require('bristol');
 
-const imageRepository = require('././imageRepository');
-const userRepository = require('././userRepository');
-const auditRepository = require('././auditRepository');
-const voteRepository = require('././voteRepository');
+const imageRepository = require('../repositories/imageRepository');
+const userRepository = require('../repositories/userRepository');
+const auditRepository = require('../repositories/auditRepository');
+const voteRepository = require('../repositories/voteRepository');
 
 const utils = require('./utils');
 
