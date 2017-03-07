@@ -36,18 +36,15 @@ const classColors = {
 const legendaries = require("./legendaries");
 
 function retryWrapper(fun, numRetries){
-    log.trace(numRetries);
-    return fun().catch((err) => {
-        log.error(err, numRetries);
+    return fun().catch(err => {
         if(numRetries === 0){
-            log.error(error);
+            log.error(err);
             throw('failed after 5 retries');
         }
         numRetries--;
         let timedPromise = new Promise((resolve, reject) => {
             let waitTime = 1000 + Math.random()*4000;
             setTimeout(() => {
-                log.trace('waited', waitTime);
                 resolve()}, waitTime);
         });
         return timedPromise.then(() => retryWrapper(fun, numRetries));
