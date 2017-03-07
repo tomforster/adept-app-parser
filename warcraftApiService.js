@@ -132,9 +132,9 @@ module.exports = function(guild, realm, bot){
                         auditRepository.logLegendaryAudit(character.id, lego.id)
                             .then(isNew => {
                                 if(isNew && bot) return bot.newLegendaryMessage(character.name, lego);
-                            }).catch(log.error)
+                            })
+                            .catch(log.error)
                     }))
-                .catch(log.error))
             .catch(log.error);
     }, true);
 };
