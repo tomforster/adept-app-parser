@@ -1,5 +1,5 @@
 /**
- * @author Tom Forster <tom.forster@mpec.co.uk>
+ * @author Tom Forster
  *         Date: 07/03/2017
  */
 

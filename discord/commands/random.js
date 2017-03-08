@@ -1,5 +1,5 @@
 /**
- * @author Tom Forster <tom.forster@mpec.co.uk>
+ * @author Tom Forster
  *         Date: 10/02/2017
  */
 const utils = require("../utils.js");
