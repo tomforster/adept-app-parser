@@ -275,6 +275,9 @@ module.exports.newLegendaryMessage = function(name, legendary){
     if(adeptGuild){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
+            if(legendary.id === 132452){
+                return guildChannel.sendFile("https://media.giphy.com/media/joXaEWqp3HWbS/giphy.gif", "image.gif", "```css\n" + output + "```");
+            }
             return guildChannel.sendMessage("```css\n" + output + "```");
         }
     }
