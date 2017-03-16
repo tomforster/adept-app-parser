@@ -218,9 +218,19 @@ function getMessagesForImage(image){
 
 bot.on("disconnect", (closeEvent)=> {
     log.info("Bot disconnected", closeEvent);
+    try {
+        log.info("Bot disconnected", closeEvent.target.WebSocket._events.message);
+    }catch(e){
+
+    }
+    bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
 });
 
-bot.login(config.discordToken).catch(error => log.error(error));
+bot.on("debug", (event) => {
+    log.trace("djs debug", event);
+});
+
+bot.login(config.discordToken).catch(log.error);
 
 let getParams = function(messageString, command) {
     let words = messageString.split(' ');
