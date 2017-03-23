@@ -59,7 +59,7 @@ if(config.enableWOWApi && config.guildName){
     require('./warcraftApiService')(config.guildName, undefined, bot);
 }
 
-router.get('/chart', function(req, res){
+ app.get('/chart', function(req, res){
     res.sendFile(path.join(__dirname,'/public/chart.html'));
 });
 
