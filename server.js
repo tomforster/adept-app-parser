@@ -59,6 +59,10 @@ if(config.enableWOWApi && config.guildName){
     require('./warcraftApiService')(config.guildName, undefined, bot);
 }
 
+router.get('/chart', function(req, res){
+    res.send(res.sendFile(path.join(__dirname,'/public/chart.html')));
+});
+
 const bufferEq = require("buffer-equal-constant-time");
 const crypto = require("crypto");
 function signData(secret, data) {
