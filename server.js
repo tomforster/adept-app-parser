@@ -60,7 +60,7 @@ if(config.enableWOWApi && config.guildName){
 }
 
 router.get('/chart', function(req, res){
-    res.send(res.sendFile(path.join(__dirname,'/public/chart.html')));
+    res.sendFile(path.join(__dirname,'/public/chart.html'));
 });
 
 const bufferEq = require("buffer-equal-constant-time");
