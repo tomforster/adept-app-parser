@@ -2823,6 +2823,7 @@ document.onreadystatechange = function () {
                 datasets: dataSet
             },
             options: {
+                maintainAspectRatio: true,
                 title:{
                     text: "AP Gains"
                 },
