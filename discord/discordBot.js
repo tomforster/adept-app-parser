@@ -224,7 +224,9 @@ bot.on("disconnect", (closeEvent)=> {
     }catch(e){
 
     }
-    bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
+    if(closeEvent.code === 1000) {
+        bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
+    }
 });
 
 bot.on("debug", (event) => {
