@@ -53,7 +53,10 @@ function getImageCommentString(votes, img){
 }
 
 function sendImage(message, img, text){
-    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text);
+    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(message => {
+        message.react("⬆").then(message.react("⬇"));
+        return message;
+    });
 }
 
 function getFileSize(url) {
