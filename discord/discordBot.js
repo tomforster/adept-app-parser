@@ -113,6 +113,7 @@ function reactionChange(messageReaction, user, isRemove){
 
     let message = messageReaction.message;
     if(!message.author.equals(bot.user)) return;
+    if(user.equals(bot.user)) return;
 
     let guildUser = message.guild && message.guild.members.get(user.id);
     if(!guildUser || guildUser.roles.size == 0) return;
