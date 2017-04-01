@@ -15,7 +15,7 @@ const commands = require('./commandList');
 const path = require('path');
 const bot = new Discord.Client();
 const humanizeDuration = require('humanize-duration');
-let spTimer = false;
+// let spTimer = false;
 
 bot.on("message", (message) => {
 
@@ -28,11 +28,11 @@ bot.on("message", (message) => {
 
     if(message.author.equals(bot.user) || message.author.bot) return;
 
-    if(message.author.id === "99435952493072384" && !spTimer ){
-        message.react('🍠');
-        spTimer = true;
-        bot.setTimeout(() => spTimer = false, 1000*60*5);
-    }
+    // if(message.author.id === "99435952493072384" && !spTimer ){
+    //     message.react('🍠');
+    //     spTimer = true;
+    //     bot.setTimeout(() => spTimer = false, 1000*60*5);
+    // }
 
     let matches = message.cleanContent.match(/!(\w+)/);
     if(matches && matches.length == 2){
