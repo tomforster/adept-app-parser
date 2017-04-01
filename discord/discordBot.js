@@ -35,7 +35,7 @@ bot.on("message", (message) => {
     // }
 
     let matches = message.cleanContent.match(/!(\w+)/);
-    if(matches && matches.length == 2){
+    if(matches && matches.length === 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
         if(keyword.length > 50){
             log.warn("command:", keyword, "too long");
@@ -116,7 +116,7 @@ function reactionChange(messageReaction, user, isRemove){
     if(user.equals(bot.user)) return;
 
     let guildUser = message.guild && message.guild.members.get(user.id);
-    if(!guildUser || guildUser.roles.size == 0) return;
+    if(!guildUser || guildUser.roles.size === 0) return;
 
     let downvoteReact = messageReaction.emoji.name === "⬇";
     let upvoteReact = messageReaction.emoji.name === "⬆";
@@ -179,7 +179,7 @@ function updateVotesForImage(image, channel){
             dv = votes.filter(vote => !vote.is_upvote).length;
             uv = votes.filter(vote => vote.is_upvote).length;
         }
-        if (uv-dv < -4) {
+        if (uv-dv <= -20) {
             return imageRepository.delete(image.id).then((count) => {
                 if (count) {
                     return getMessagesForImage(image)
@@ -238,7 +238,7 @@ bot.login(config.discordToken).catch(log.error);
 let getParams = function(messageString, command) {
     let words = messageString.split(' ');
     let commandIndex = words.map(word=>word.toLowerCase()).indexOf('!'+command.toLowerCase());
-    if (commandIndex == (words.length - 1) || commandIndex < 0) {
+    if (commandIndex === (words.length - 1) || commandIndex < 0) {
         return [];
     }
     let results = [];
