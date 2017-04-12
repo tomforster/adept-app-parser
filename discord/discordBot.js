@@ -35,7 +35,6 @@ bot.on("message", (message) => {
     // }
 
     let matches = message.cleanContent.match(/!([\uD83C-\uDBFF\uDC00-\uDFFF\w]+)/);
-    log.trace(message.cleanContent);
     if(matches && matches.length === 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
         if(keyword.length > 50){
