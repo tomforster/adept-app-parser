@@ -34,7 +34,7 @@ bot.on("message", (message) => {
     //     bot.setTimeout(() => spTimer = false, 1000*60*5);
     // }
 
-    let matches = message.cleanContent.match(/!(\w+)/);
+    let matches = message.cleanContent.match(/!([\uD83C-\uDBFF\uDC00-\uDFFF\w]+)/);
     if(matches && matches.length === 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
         if(keyword.length > 50){
