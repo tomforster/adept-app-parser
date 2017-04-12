@@ -13,6 +13,9 @@ function run(message, params, keyword, user){
         if(commandParam.indexOf('@') > -1){
             return message.reply("you cant add images for commands containing @ symbols.")
         }
+        if(commandParam.indexOf('<') > -1){
+            return message.reply("you cant add images for commands containing custom emoji.")
+        }
         let uriParam = params[1];
         if (commandParam && typeof commandParam === 'string' && commandParam.length > 0 && validUrl.is_uri(uriParam)) {
             if (commandParam.indexOf('!') >= 0) {
