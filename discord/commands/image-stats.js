@@ -48,7 +48,7 @@ function run(message) {
             output += "\n";
         }
 
-        return message.channel.sendMessage("```css\n" + output + "```");
+        return message.channel.sendMessage(output);
     })
 }
 
