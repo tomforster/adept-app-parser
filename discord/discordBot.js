@@ -231,9 +231,9 @@ bot.on("disconnect", (closeEvent)=> {
     }
 });
 
-bot.on("debug", (event) => {
-    log.trace("djs debug", event);
-});
+// bot.on("debug", (event) => {
+//     log.trace("djs debug", event);
+// });
 
 bot.login(config.discordToken).catch(log.error);
 
