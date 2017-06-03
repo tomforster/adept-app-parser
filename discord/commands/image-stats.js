@@ -12,10 +12,11 @@ function run(message) {
 
     return Promise.all([highestAvgPromise, lowestAvgPromise, highestTotalPromise, lowestTotalPromise]).then(result =>
     {
-        const highestAvg = voteRepository.getUsersWithHighestAverageScore(3);
-        const lowestAvg = voteRepository.getUsersWithLowestAverageScore(3);
-        const highestTotal = voteRepository.getUsersWithHighestScore(3);
-        const lowestTotal = voteRepository.getUsersWithLowestScore(3);
+        if(!result || result.length !== 4) return;
+        const highestAvg = result[0];
+        const lowestAvg = result[1];
+        const highestTotal = result[2];
+        const lowestTotal = result[3];
 
         let output = "";
         if(highestAvg && highestAvg.length > 0){
