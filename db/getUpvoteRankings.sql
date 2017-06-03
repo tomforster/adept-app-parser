@@ -1,0 +1,1 @@
+select i.*, sum(case when vote.is_upvote then 1 ELSE -1 end) from vote join discord_user on discord_user.id = vote.user_id join image i on i.id = vote.image group by i.id order by sum desc;

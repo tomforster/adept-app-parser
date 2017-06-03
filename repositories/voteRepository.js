@@ -37,3 +37,71 @@ exports.deleteDownvote = function(imageId, userId){
 exports.getVotes = function(imageId){
     return db.manyOrNone("select * from vote join discord_user on discord_user.id = vote.user_id where image = $1 order by date", imageId);
 };
+//language=PostgreSQL
+exports.getUsersWithHighestScore = (limit) => {
+    return db.manyOrNone(`
+      SELECT
+        u.username,
+        sum(CASE WHEN v.is_upvote
+          THEN 1
+            ELSE -1 END) AS total
+      FROM discord_user u
+        JOIN vote v ON v.user_id = u.id
+      GROUP BY u.id
+      ORDER BY total DESC
+      LIMIT $1
+    `, limit);
+};
+//language=PostgreSQL
+exports.getUsersWithLowestScore = (limit) => {
+    return db.manyOrNone(`
+      SELECT
+        u.username,
+        sum(CASE WHEN v.is_upvote
+          THEN 1
+            ELSE -1 END) AS total
+      FROM discord_user u
+        JOIN vote v ON v.user_id = u.id
+      GROUP BY u.id
+      ORDER BY total ASC
+      LIMIT $1
+    `, limit);
+};
+//language=PostgreSQL
+exports.getUsersWithHighestAverageScore = (limit) => {
+    return db.manyOrNone(`
+      SELECT u.username, avg(total) as average from (
+          SELECT
+           i.*,
+           sum(CASE WHEN v.is_upvote
+             THEN 1
+               ELSE -1 END) AS total
+         FROM image i
+           JOIN vote v ON v.image = i.id
+         GROUP BY i.id
+         ORDER BY total ASC) as votes_per_image
+        JOIN discord_user u on votes_per_image.user_id = u.id
+      GROUP BY username
+      order by average DESC
+      LIMIT $1
+    `, limit);
+};
+//language=PostgreSQL
+exports.getUsersWithLowestAverageScore = (limit) => {
+    return db.manyOrNone(`
+      SELECT u.username, avg(total) as average from (
+              SELECT
+               i.*,
+               sum(CASE WHEN v.is_upvote
+                 THEN 1
+                   ELSE -1 END) AS total
+             FROM image i
+               JOIN vote v ON v.image = i.id
+             GROUP BY i.id
+             ORDER BY total ASC) as votes_per_image
+        JOIN discord_user u on votes_per_image.user_id = u.id
+      GROUP BY username
+      ORDER BY average ASC
+      LIMIT $1
+    `, limit);
+};
