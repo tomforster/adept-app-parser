@@ -120,9 +120,37 @@ exports.logCommandAudit = function(userId, channelId, messageId, command, params
 };
 
 exports.findImageByMessageId = function(id){
-    return db.oneOrNone("with img as (select i.*, du.username as author from audit join image i on i.id = audit.image join discord_user du on du.id=i.user_id where audit.type = 'command' and message_reply_id = $1 limit 1) " +
-        "select i.id, i.author, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted, array_agg(a.message_reply_id) as messages, array_agg(a.channel_id) as message_channels " +
-        "from img i join audit a on a.image = i.id where a.date > $2 group by i.id, i.author, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted;", [id, moment().subtract(1,'days').unix()]);
+
+    return db.oneOrNone(
+        //language=PostgreSQL
+        `
+          WITH img AS (
+              SELECT
+                i.*,
+                du.username AS author,
+                du.discord_id
+              FROM audit
+                JOIN image i ON i.id = audit.image
+                JOIN discord_user du ON du.id = i.user_id
+              WHERE audit.type = 'command' AND message_reply_id = $1
+              LIMIT 1)
+          SELECT
+            i.id,
+            i.author,
+            i.type,
+            i.command,
+            i.url,
+            i.user_id,
+            i.date_added,
+            i.is_deleted,
+            i.discord_id,
+            array_agg(a.message_reply_id) AS messages,
+            array_agg(a.channel_id) AS message_channels
+          FROM img i
+            JOIN audit a ON a.image = i.id
+          WHERE a.date > $2
+          GROUP BY i.id, i.author, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted, i.discord_id;`,
+        [id, moment().subtract(1, 'days').unix()]);
 };
 
 exports.getRecentImageMessageAudits = function(){

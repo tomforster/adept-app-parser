@@ -149,12 +149,14 @@ function reactionChange(messageReaction, user, isRemove){
     }
 
     if(!isRemove && messageReaction.emoji.name === "❎") {
-        if (!guildUser || !guildUser.hasPermission("ADMINISTRATOR")) return;
-        log.info("admin attempting to delete an image", message.author.username);
+        log.info("user attempting to delete an image", message.author.username);
         //todo: delete all current instances
         return auditRepository.findImageByMessageId(message.id).then(image => {
             if (image) {
-                return imageRepository.delete(image.id).then(() => message.delete())
+                if (!guildUser || !guildUser.id) return;
+                if(guildUser.hasPermission("ADMINISTRATOR") || guildUser.id === image.discord_id){
+                    return imageRepository.delete(image.id).then(() => message.delete())
+                }
             }
         });
     }
