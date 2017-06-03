@@ -40,14 +40,18 @@ exports.getVotes = function(imageId){
 //language=PostgreSQL
 exports.getUsersWithHighestScore = (limit) => {
     return db.manyOrNone(`
-      SELECT
-        u.username,
-        sum(CASE WHEN v.is_upvote
-          THEN 1
-            ELSE -1 END) AS total
-      FROM discord_user u
-        JOIN vote v ON v.user_id = u.id
-      GROUP BY u.id
+      SELECT u.username, sum(total) as total from (
+                                                    SELECT
+                                                      i.*,
+                                                      sum(CASE WHEN v.is_upvote
+                                                        THEN 1
+                                                          ELSE -1 END) AS total
+                                                    FROM image i
+                                                      JOIN vote v ON v.image = i.id
+                                                    GROUP BY i.id
+                                                    ORDER BY total ASC) as votes_per_image
+        JOIN discord_user u on votes_per_image.user_id = u.id
+      GROUP BY username
       ORDER BY total DESC
       LIMIT $1
     `, limit);
@@ -55,14 +59,18 @@ exports.getUsersWithHighestScore = (limit) => {
 //language=PostgreSQL
 exports.getUsersWithLowestScore = (limit) => {
     return db.manyOrNone(`
-      SELECT
-        u.username,
-        sum(CASE WHEN v.is_upvote
-          THEN 1
-            ELSE -1 END) AS total
-      FROM discord_user u
-        JOIN vote v ON v.user_id = u.id
-      GROUP BY u.id
+      SELECT u.username, sum(total) as total from (
+                                                    SELECT
+                                                      i.*,
+                                                      sum(CASE WHEN v.is_upvote
+                                                        THEN 1
+                                                          ELSE -1 END) AS total
+                                                    FROM image i
+                                                      JOIN vote v ON v.image = i.id
+                                                    GROUP BY i.id
+                                                    ORDER BY total ASC) as votes_per_image
+        JOIN discord_user u on votes_per_image.user_id = u.id
+      GROUP BY username
       ORDER BY total ASC
       LIMIT $1
     `, limit);
