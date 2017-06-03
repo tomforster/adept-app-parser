@@ -22,28 +22,28 @@ function run(message) {
         if(highestTotal && highestTotal.length > 0){
             output += "**Top 3 users by image score:**\n";
             highestTotal.forEach((user, index) => {
-                output += index + ": " + user.username + " [" + user.total + "]\n"
+                output += (index+1) + ": " + user.username + " [" + user.total + "]\n"
             });
             output += "\n";
         }
         if(lowestTotal && lowestTotal.length > 0){
             output += "**Bottom 3 users by image score:**\n";
             lowestTotal.forEach((user, index) => {
-                output += index + ": " + user.username + " [" + user.total + "]\n"
+                output += (index+1) + ": " + user.username + " [" + user.total + "]\n"
             });
             output += "\n";
         }
         if(highestAvg && highestAvg.length > 0){
             output += "**Top 3 users by average image score:**\n";
             highestAvg.forEach((user, index) => {
-                output += index + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
+                output += (index+1) + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
             });
             output += "\n";
         }
         if(lowestAvg && lowestAvg.length > 0){
             output += "**Bottom 3 users by average image score:**\n";
             lowestAvg.forEach((user, index) => {
-                output += index + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
+                output += (index+1) + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
             });
             output += "\n";
         }
