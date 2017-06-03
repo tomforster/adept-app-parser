@@ -20,35 +20,35 @@ function run(message) {
 
         let output = "";
         if(highestTotal && highestTotal.length > 0){
-            output += "**Top 3 users by image score:**\n";
+            output += "Top 3 users by image score:\n";
             highestTotal.forEach((user, index) => {
                 output += (index+1) + ": " + user.username + " [" + user.total + "]\n"
             });
             output += "\n";
         }
         if(lowestTotal && lowestTotal.length > 0){
-            output += "**Bottom 3 users by image score:**\n";
+            output += "Bottom 3 users by image score:\n";
             lowestTotal.forEach((user, index) => {
                 output += (index+1) + ": " + user.username + " [" + user.total + "]\n"
             });
             output += "\n";
         }
         if(highestAvg && highestAvg.length > 0){
-            output += "**Top 3 users by average image score:**\n";
+            output += "Top 3 users by average image score:\n";
             highestAvg.forEach((user, index) => {
                 output += (index+1) + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
             });
             output += "\n";
         }
         if(lowestAvg && lowestAvg.length > 0){
-            output += "**Bottom 3 users by average image score:**\n";
+            output += "Bottom 3 users by average image score:\n";
             lowestAvg.forEach((user, index) => {
                 output += (index+1) + ": " + user.username + " [" + (Math.round(user.average * 100) / 100) + "]\n"
             });
             output += "\n";
         }
 
-        return message.channel.sendMessage(output);
+        return message.channel.sendMessage("```css\n" + output + "```");
     })
 }
 
