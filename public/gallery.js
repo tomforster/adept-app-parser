@@ -1,17 +1,22 @@
 angular.module('pics',[])
 
-.controller('ctrl',["$http", '$window', function($http, $window){
+.controller('ctrl',["$scope", "$http", '$window', function($scope, $http, $window){
     
     var self = this;
+
+    var pathArr = $window.location.pathname.split("/");
+    pathArr.pop();
+    var path = pathArr.join('/');
     
     this.snapshot = function(){
         $http({
             method: 'POST',
-            url: '/snapshot/livingroom'});
+            url: path+'/snapshot/livingroom'});
         self.snapshotInProgress = true;
         setTimeout(function(){
             self.snapshotInProgress = false;
-        }, 20000);
+            $scope.$apply();
+        }, 10000);
     };
     
     this.snapshotInProgress = false;
@@ -22,7 +27,8 @@ angular.module('pics',[])
     } else {
         new_uri = "ws:";
     }
-    new_uri += "//" + $window.location.host + '/socket';
+
+    new_uri += "//" + $window.location.host +  path + '/socket';
 
     var ws = new WebSocket(new_uri);
 
