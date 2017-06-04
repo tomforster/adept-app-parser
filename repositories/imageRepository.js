@@ -23,9 +23,26 @@ exports.fetchAll = function (command, limit, offset){
 exports.random = function(command){
     log.info("fetching random");
     if(!command) {
-        return db.oneOrNone("SELECT count(*) from image where is_deleted = false").then(result => db.one("SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i join discord_user du on i.user_id = du.id where is_deleted = false OFFSET floor(random()*$1) LIMIT 1", [result.count]));
+        return db.one("SELECT count(*) from image where is_deleted = false")
+            .then(result => db.oneOrNone(
+                `SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i 
+                join discord_user du on i.user_id = du.id 
+                where is_deleted = false 
+                OFFSET floor(random()*$1) 
+                LIMIT 1`, [result.count]));
     }else{
-        return db.oneOrNone("SELECT count(*) from image where command=($1) and is_deleted = false", [command]).then(result => db.one("SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i join discord_user du on i.user_id = du.id where is_deleted = false and command=$2 OFFSET floor(random()*$1) LIMIT 1", [result.count, command]));
+        return db.one("SELECT count(*) from image where command=($1) and is_deleted = false", [command])
+            .then(result =>
+            {
+                if(!result.count) return;
+
+                return db.oneOrNone(
+                `SELECT i.id, i.command, i.url, i.date_added, du.username as author FROM image i 
+                join discord_user du on i.user_id = du.id 
+                where is_deleted = false and command=$2 
+                OFFSET floor(random()*$1) 
+                LIMIT 1`, [result.count, command])
+            });
     }
 };
 
