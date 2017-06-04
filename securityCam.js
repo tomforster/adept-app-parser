@@ -26,28 +26,34 @@ module.exports = function(ws){
     }, 30000);
 
     router.get('/images/:camera/:tagId', function(req,res) {
-        var cameraName = req.params["camera"];
+        let cameraName = req.params["camera"];
         log.info(`Cat camera ${cameraName} image request.`);
-        var camera = getCameraByName(cameraName);
+        let camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
         }
         res.sendFile(camera.directory + req.params["tagId"]);
     });
 
-    router.get('/cams/:camera?/:numberImgs?', function(req,res) {
-        var cameraName = req.params["camera"];
-        var number = req.params["numberImgs"];
+    router.get('/:camera?/:numberImgs?', function(req,res) {
+        let cameraName = req.params["camera"];
+        let number = req.params["numberImgs"];
         number = number && number.match(/^\d+$/) ? Number(number) : 16;
         number = Math.min(number, IMAGE_CACHE_SIZE);
         number = Math.max(1, number);
         log.info(`Cat camera ${cameraName} page request.`);
-        var camera = getCameraByName(cameraName);
+        let camera = getCameraByName(cameraName);
         if(!camera){
             camera = getDefaultCamera()
         }
         log.info(camera.displayName);
-        res.render('gallery.pug', {title: camera.displayName, images : camera.recentImages.slice(0,number)});
+        res.render('gallery.pug', {
+            title: camera.displayName,
+            images : camera.recentImages.slice(0,number).map(image => {
+                image.url = req.baseUrl + image.url;
+                return image;
+            })
+        });
     });
 
     router.post('/snapshot/livingroom/',function(req,res){
@@ -75,7 +81,7 @@ module.exports = function(ws){
 };
 
 function getDefaultCamera(){
-    var camera = cameras.find(camera => camera.default);
+    let camera = cameras.find(camera => camera.default);
     if(!camera) throw "No default camera found!";
     return camera;
 }
@@ -90,24 +96,24 @@ function updateImageCaches(ws){
 
 function updateImageCache(camera, ws){
     // log.info(`Checking if any updated images for ${camera.name}`);
-    var imageCache = camera.recentImages;
-    var dir = camera.directory;
-    var requestStr = `/images/${camera.name}/`;
+    let imageCache = camera.recentImages;
+    let dir = camera.directory;
+    let requestStr = `/images/${camera.name}/`;
 
-    var files_ = [];
-    var files = fs.readdirSync(dir);
+    let files_ = [];
+    let files = fs.readdirSync(dir);
     files = files.filter(function(file){return file !== 'lastsnap.jpg' && file.charAt(0) !== '.'});
     files.sort(function(a, b) {
         return fs.statSync(dir + b).mtime.getTime() -
             fs.statSync(dir + a).mtime.getTime();
     });
     files.forEach(function(file){
-        var name = dir + '/' + file;
+        let name = dir + '/' + file;
         if (!(fs.statSync(name).isDirectory() || getExtension(file) !== 'jpg' || file === 'lastsnap.jpg')) {
             files_.push({url: requestStr + file, time: getImageTime(file), date: getImageDate(file), type: getImageType(file)});
         }
     });
-    var newImageCache = files_.slice(0,IMAGE_CACHE_SIZE);
+    let newImageCache = files_.slice(0,IMAGE_CACHE_SIZE);
     if(_.isEqual(imageCache, newImageCache)) return;
     log.info("New images found, image cache updated.");
     camera.recentImages = newImageCache;
@@ -125,21 +131,21 @@ function broadcastRefresh(ws){
 }
 
 function getImageTime(str){
-    var splitstr = str.split(/[-_]/);
+    let splitstr = str.split(/[-_]/);
     if(splitstr.length < 7) return "";
     splitstr = splitstr.slice(3,6);
     return splitstr.join(':');
 }
 
 function getImageDate(str){
-    var splitstr = str.split(/[-_]/);
+    let splitstr = str.split(/[-_]/);
     if(splitstr.length < 7) return "";
     splitstr = splitstr.slice(0,3);
     return splitstr.join('/');
 }
 
 function getImageType(str){
-    var matches = str.match(/best/);
+    let matches = str.match(/best/);
     if(matches){
         return "best"
     }

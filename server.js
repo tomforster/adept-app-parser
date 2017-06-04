@@ -112,7 +112,7 @@ app.use(auth.connect(basic));
 
 if(config.enableCam){
     let securityCam = require('./securityCam')(ws);
-    app.use('/', securityCam);
+    app.use('/cams', securityCam);
 }
 
 app.use('/', router);
