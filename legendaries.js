@@ -195,7 +195,7 @@ module.exports = {132376: {id:132376, name:"Acherus Drapes"},
 144438: {id:144438, name:"Zeks Exterminatus"},
 133971: {id:133971, name:"Zenk'aram, Iridi's Anadem"},
 137055: {id:137055, name:"Zevrim's Hunger"},
-137098: {id:137098, name:"Zoldyck Family Training Shackles"}
+137098: {id:137098, name:"Zoldyck Family Training Shackles"},
 
 //7.2.5
 151799: {id:151799, name:"Oblivion's Embrace"},
