@@ -137,7 +137,6 @@ exports.findImageByMessageId = function(id){
           SELECT
             i.id,
             i.author,
-            i.type,
             i.command,
             i.url,
             i.user_id,
@@ -149,7 +148,7 @@ exports.findImageByMessageId = function(id){
           FROM img i
             JOIN audit a ON a.image = i.id
           WHERE a.date > $2
-          GROUP BY i.id, i.author, i.type, i.command, i.url, i.user_id, i.date_added, i.is_deleted, i.discord_id;`,
+          GROUP BY i.id, i.author, i.command, i.url, i.user_id, i.date_added, i.is_deleted, i.discord_id;`,
         [id, moment().subtract(1, 'days').unix()]);
 };
 

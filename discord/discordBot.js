@@ -158,7 +158,7 @@ function reactionChange(messageReaction, user, isRemove){
                     return imageRepository.delete(image.id).then(() => message.delete())
                 }
             }
-        });
+        }).catch(log.error);
     }
 }
 

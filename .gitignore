@@ -1,6 +1,7 @@
 config.json
-config/
-node_modules/
-.idea
-/adept-app-parser.iml
-logs*
+     config/
+     node_modules/
+     .idea
+     /adept-app-parser.iml
+     logs*
+adept.bak

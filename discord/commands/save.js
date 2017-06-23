@@ -6,6 +6,7 @@
 const validUrl = require('valid-url');
 const utils = require('../utils');
 const commandRepository = require("../../repositories/imageRepository.js");
+const log = require('bristol');
 
 function run(message, params, keyword, user){
     if (params.length === 2) {
@@ -37,7 +38,8 @@ function run(message, params, keyword, user){
                         .save(commandParam, uriParam, user.id)
                         .then(() => message.reply("new command: " + commandParam + " has been added successfully."))
                 }
-            }).catch(() => {
+            }).catch(err => {
+                log.error(err);
                 return message.reply("bad url or something ¯\\_(ツ)_/¯");
             });
         }
