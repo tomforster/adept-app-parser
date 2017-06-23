@@ -48,7 +48,7 @@ exports.random = function(command){
 
 exports.save = function(command, url, user_id){
     log.info("saving", command);
-    return db.none("insert into image(command, url, date_added, user_id) values ($1, $2, $3, $4, $5)", [command, url, moment().unix(), user_id]);
+    return db.none("insert into image(command, url, date_added, user_id) values ($1, $2, $3, $4)", [command, url, moment().unix(), user_id]);
 };
 
 exports.delete = function(id){
