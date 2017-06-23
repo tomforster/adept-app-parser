@@ -87,6 +87,7 @@ function getCharacterStats(guild, realm){
                     })
                     .catch(err => {
                         log.error("failed on", name, err);
+                        character.legosInFeed = [];
                         return character;
                     })
                 )//end of promise push
@@ -119,13 +120,14 @@ let createGuildUri = function(guild, realm){
 };
 
 module.exports = function(guild, realm, bot){
-    let cronString = '*/5 * * * *';
+    let cronString = '*/1 * * * *';
     log.info("Adding scheduled task to retrieve guild stat info at", cronString);
     cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
         let statsPromise = getCharacterStats(guild, realm);
         statsPromise
-            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character).catch(log.error)))
+            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)
+                .catch(log.error)))
             .catch(log.error);
 
         statsPromise
