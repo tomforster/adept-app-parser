@@ -50,8 +50,9 @@ module.exports = function(ws){
         res.render('gallery.pug', {
             title: camera.displayName,
             images : camera.recentImages.slice(0,number).map(image => {
-                image.url = req.baseUrl + image.url;
-                return image;
+                const newImage = Object.assign({}, image);
+                newImage.url = req.baseUrl + newImage.url;
+                return newImage;
             })
         });
     });
@@ -126,7 +127,7 @@ function broadcastRefresh(ws){
     log.info("Sending refresh");
     ws.getWss('/socket').clients.forEach(function (client) {
         log.info("Refreshing "+client.toString());
-        client.send('refresh');
+        client.send('refresh', () => log.error);
     });
 }
 
