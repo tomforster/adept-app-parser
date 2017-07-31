@@ -1,7 +1,6 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
 const path = require('path');
 const config = require('./config');
 const log = require('bristol');
@@ -59,10 +58,6 @@ if(config.enableWOWApi && config.guildName){
     require('./warcraftApiService')(config.guildName, undefined, bot);
 }
 
- app.get('/chart', function(req, res){
-    res.sendFile(path.join(__dirname,'/public/chart.html'));
-});
-
 const bufferEq = require("buffer-equal-constant-time");
 const crypto = require("crypto");
 function signData(secret, data) {
@@ -115,13 +110,10 @@ if(config.enableCam){
     app.use('/cams', securityCam);
 }
 
-app.use('/', router);
-
-// no match from router -> 404
-app.use((req, res, next) => {
-    const err = new Error(req.url + ' not found');
-    err.status = 404;
-    next(err);
+app.use(function(req, res, next){
+    res.status(404);
+    // default to plain-text. send()
+    res.type('txt').send('Not found');
 });
 
 app.listen(config.port,function(){
