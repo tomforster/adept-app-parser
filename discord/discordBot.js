@@ -77,7 +77,7 @@ bot.on("ready", () => {
     log.info("Bot started up!");
     bot.users.forEach(discordUser => logUserDetails(discordUser).catch(log.error));
     bot.user.setAvatar(path.join(__dirname, "avatar.jpg"))
-        .catch(log.error);
+        .catch();
     auditRepository.getRecentImageMessageAudits()
         .then(audits => {
             let messagesPromises = [];
@@ -219,17 +219,17 @@ function getMessagesForImage(image){
         .then(messages => messages.filter(message => !!message));
 }
 
-bot.on("disconnect", (closeEvent)=> {
-    log.info("Bot disconnected", closeEvent);
-    try {
-        log.info("Bot disconnected", closeEvent.target.WebSocket._events.message);
-    }catch(e){
-
-    }
-    if(closeEvent.code === 1000) {
-        bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
-    }
-});
+// bot.on("disconnect", (closeEvent)=> {
+//     log.info("Bot disconnected", closeEvent);
+//     try {
+//         log.info("Bot disconnected", closeEvent.target.WebSocket._events.message);
+//     }catch(e){
+//
+//     }
+//     if(closeEvent.code === 1000) {
+//         bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
+//     }
+// });
 
 // bot.on("debug", (event) => {
 //     log.trace("djs debug", event);
@@ -291,7 +291,7 @@ module.exports.newLegendaryMessage = function(name, legendary){
         let guildChannel = adeptGuild.channels.find("name", "guild");
         if(guildChannel){
             if(legendary.id === 132452){
-                return guildChannel.sendFile("https://media.giphy.com/media/joXaEWqp3HWbS/giphy.gif", "image.gif", "```css\n" + output + "```");
+                return guildChannel.sendFile("```css\n" + output + "```", {files:[{attachment:"https://media.giphy.com/media/joXaEWqp3HWbS/giphy.gif", name:"image.gif"}]});
             }
             return guildChannel.sendMessage("```css\n" + output + "```");
         }

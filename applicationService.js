@@ -11,8 +11,6 @@ const rp = require('request-promise');
 const crypto = require("crypto");
 const moment = require("moment");
 const cron = require("node-cron");
-const Nightmare = require('nightmare');
-const nightmare = Nightmare({ images: false });
 
 const router = require('express').Router();
 let discordBot = null;
@@ -30,7 +28,7 @@ module.exports = function(bot){
     }, true);
 
     log.info("Adding scheduled task to post applications");
-    cron.schedule('*/5 * * * *', () => {
+    cron.schedule('*/1 * * * *', () => {
         postNewApplications().catch(log.error);
     }, true);
 
@@ -146,34 +144,40 @@ function getEntries(){
         .then(result => result.entries);
 }
 
-const postApp = function(mailObj){
+const puppeteer = require('puppeteer');
+
+const postApp = async function(mailObj){
     log.info('Posting Adept App');
     const username = config.forumUsername;
     const password = config.forumPassword;
-    return nightmare
-        .goto(config.forumUrl)
-        .wait('#phpbb')
-        .evaluate(function() {
-            return document.querySelector('title')
-                .innerText;
-        })
-        .then(function(title){
-            log.info("loaded page", title);
-            if (title.indexOf('Login') > -1) {
-                return nightmare
-                    .insert('#username', username)
-                    .insert('#password', password)
-                    .wait(2000)
-                    .click('.button[name=login]')
-                    .wait('#subject')
-            }
-        }).then(function(){
-            log.info("loaded post page");
-            return nightmare.insert('#subject', mailObj.title)
-                .insert('#message', mailObj.body)
-                .wait(2000)
-                .click('[type=submit][name=post]')
-                .wait('.postbody')
-                .url()
-        })
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    try {
+        await page.goto(config.forumUrl, {waitUntil: 'networkidle'});
+        const title = await page.evaluate(() => document.querySelector('title').innerText);
+        if (title.indexOf('Login') > -1) {
+            log.info("logging in");
+            await page.focus('#username');
+            await page.type(username);
+            await page.focus('#password');
+            await page.type(password);
+            await page.click('.button[name=login]', {delay: 2000});
+            await page.waitForSelector('#subject', {waitUntil: 'networkidle'});
+        }
+        log.info("saving");
+        await page.focus('#subject');
+        await page.type(mailObj.title);
+        await page.evaluate(body => {
+            document.querySelector('#message').innerText = body;
+        }, mailObj.body);
+        await page.click('[type=submit][name=post]', {delay: 2000});
+        await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
+    } catch (error){
+        page.screenshot({path: 'fail.png'});
+        throw "failed to post";
+    }
+    log.info("saved");
+    return await page.url();
 };

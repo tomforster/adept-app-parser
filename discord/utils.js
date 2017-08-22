@@ -52,11 +52,11 @@ function getImageCommentString(votes, img){
     return `**!${img.command}**\t|\tVotes: __**${uv-dv}**__  [ ⇧ ${uv} | ⇩ ${dv} ]\t|\t*Added by ${img.author} ${humanizeDuration((moment().unix() - Number(img.date_added))*1000, { largest: 1 })} ago*`;
 }
 
-function sendImage(message, img, text){
-    return message.channel.sendFile(img.url, "image." + img.url.split('.').pop(), text).then(message => {
-        message.react("⬆").then(setTimeout(() => message.react("⬇"), 500));
-        return message;
-    });
+async function sendImage(message, img, text){
+    const messageResponse = await message.channel.send(text, {files:[{attachment:img.url, name:"image." + img.url.split('.').pop()}]})
+    await messageResponse.react("⬆");
+    setTimeout(() => messageResponse.react("⬇"), 300);
+    return messageResponse;
 }
 
 function getFileSize(url) {
