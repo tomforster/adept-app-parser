@@ -3,40 +3,24 @@
  *         Date: 27/08/2017
  */
 
-const rp = require('request-promise');
-// https://strawpoll.me/api/v2/polls
-// {
-//     "title": "This is a test poll.",
-//     "options": [
-//     "Option #1",
-//     "Option #2"
-// ],
-//     "multi": true
-// }
+const utils = require('../utils');
+const pollRepository = require('../../repositories/pollRepository');
 
-async function run(message, params) {
+async function run(message, params, command, user) {
     const commands = params.join(' ').split('|').map(x => x.trim());
     if(commands.length > 2) {
+        if(commands.length > 10) {
+            return message.reply("Add up to 9 options.");
+        }
         const title = commands[0];
         const options = commands.slice(1);
-
-        try {
-            const poll = await rp({
-                uri: "https://www.strawpoll.me/api/v2/polls",
-                method: "POST",
-                json: true,
-                body: {
-                    title,
-                    options
-                }
-            });
-            return message.channel.send(`New poll "${title}" created by ${message.author.username}. Vote at <https://www.strawpoll.me/${poll.id}>`);
+        await pollRepository.save(title, options, user.id);
+        const pollMessage = await message.channel.send(utils.makePollMessage({title, options, author:user.username}, []));
+        for(let i = 0; i < options.length; i++){
+            await pollMessage.react(utils.numberEmojis[i])
         }
-        catch(e){
-            console.log(e);
-        }
+        return pollMessage;
     }
-
     return message.reply("Add some poll options.");
 }
 

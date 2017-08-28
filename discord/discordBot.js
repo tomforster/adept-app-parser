@@ -2,20 +2,19 @@
 
 const Discord = require("discord.js");
 const config = require('../config');
-const log = require('bristol');
+const log = require("bristol");
 
 const imageRepository = require('../repositories/imageRepository');
 const userRepository = require('../repositories/userRepository');
 const auditRepository = require('../repositories/auditRepository');
 const voteRepository = require('../repositories/voteRepository');
+const pollRepository = require('../repositories/pollRepository');
 
 const utils = require('./utils');
 
 const commands = require('./commandList');
-const path = require('path');
 const bot = new Discord.Client();
 const humanizeDuration = require('humanize-duration');
-// let spTimer = false;
 
 bot.on("message", (message) => {
 
@@ -28,12 +27,6 @@ bot.on("message", (message) => {
 
     if(message.author.equals(bot.user) || message.author.bot) return;
 
-    // if(message.author.id === "99435952493072384" && !spTimer ){
-    //     message.react('🍠');
-    //     spTimer = true;
-    //     bot.setTimeout(() => spTimer = false, 1000*60*5);
-    // }
-
     let matches = message.cleanContent.match(/!([\uD83C-\uDBFF\uDC00-\uDFFF\w]+)/);
     if(matches && matches.length === 2){
         let keyword= matches[1].toLowerCase(); //keyword without bang
@@ -42,7 +35,7 @@ bot.on("message", (message) => {
             return
         }
         log.info("Detected command:", keyword);
-        let params = getParams(message.content, keyword);
+        let params = utils.getParams(message.content, keyword);
         if(params.join(',').length > 500){
             log.warn("params list:", params.join(','), "too long");
             return
@@ -106,7 +99,7 @@ bot.on("presence", (oldUser, discordUser) => {
 bot.on("messageReactionAdd", reactionChange);
 bot.on("messageReactionRemove", (messageReaction, user) => reactionChange(messageReaction, user, true));
 
-function reactionChange(messageReaction, user, isRemove){
+async function reactionChange(messageReaction, user, isRemove){
     if(!user || !messageReaction){
         return;
     }
@@ -118,26 +111,38 @@ function reactionChange(messageReaction, user, isRemove){
     let guildUser = message.guild && message.guild.members.get(user.id);
     if(!guildUser || guildUser.roles.size === 0) return;
 
-    let downvoteReact = messageReaction.emoji.name === "⬇";
-    let upvoteReact = messageReaction.emoji.name === "⬆";
+    let isDownvoteReact = messageReaction.emoji.name === "⬇";
+    let isUpvoteReact = messageReaction.emoji.name === "⬆";
 
-    if(downvoteReact || upvoteReact){
+    let pollVoteReact = utils.numberEmojis.indexOf(messageReaction.emoji.name) > -1;
+
+    if(isDownvoteReact || isUpvoteReact){
         return auditRepository.findImageByMessageId(message.id)
             .then(image => {
-                if (image) {
+                if (image)
+                {
                     return userRepository.fetchByDiscordId(user.id)
                         .then(user => {
-                            if (user) {
-                                if(isRemove) {
-                                    return deleteVote(downvoteReact, image, user, message);
-                                } else {
-                                    return createVote(downvoteReact, image, user, message);
+                            if (user)
+                            {
+                                if(isRemove)
+                                {
+                                    return isDownvoteReact ?
+                                        voteRepository.deleteDownvote(image.id, user.id) :
+                                        voteRepository.deleteUpvote(image.id, user.id);
+                                }
+                                else
+                                {
+                                    return isDownvoteReact ?
+                                        voteRepository.downvote(image.id, user.id) :
+                                        voteRepository.upvote(image.id, user.id);
                                 }
                             }
                             throw `Discord user not found for id ${user.id}`;
                         })
                         .then(changed => {
-                            if(changed){
+                            if(changed)
+                            {
                                 return updateVotesForImage(image, message.channel);
                             }
                             return Promise.resolve();
@@ -147,8 +152,36 @@ function reactionChange(messageReaction, user, isRemove){
             })
             .catch(log.error);
     }
+    else if(pollVoteReact)
+    {
+        const poll = await auditRepository.findPollByMessageId(message.id);
+        const option = numberEmojis.indexOf(messageReaction.emoji.name);
+        if(poll){
+            const user = await userRepository.fetchByDiscordId(user.id);
+            if(user){
+                let changed;
+                if(isRemove)
+                {
+                    changed = await pollRepository.removeVotePoll(poll.id, user.id, option);
+                }
+                else
+                {
+                    changed = await pollRepository.votePoll(poll.id, user.id, option);
 
-    if(!isRemove && messageReaction.emoji.name === "❎") {
+                }
+
+                if(changed)
+                {
+                    return updateVotesForPoll(poll, message.channel);
+                }
+                return;
+            }
+            throw "User not found";
+        }
+        throw "poll not found";
+    }
+    else if(!isRemove && messageReaction.emoji.name === "❎")
+    {
         log.info("user attempting to delete an image", message.author.username);
         //todo: delete all current instances
         return auditRepository.findImageByMessageId(message.id).then(image => {
@@ -162,16 +195,18 @@ function reactionChange(messageReaction, user, isRemove){
     }
 }
 
-function deleteVote(downvoteReact, image, user){
-    return downvoteReact ?
-        voteRepository.deleteDownvote(image.id, user.id) :
-        voteRepository.deleteUpvote(image.id, user.id);
-}
+bot.login(config.discordToken).catch(log.error);
 
-function createVote(downvoteReact, image, user){
-    return downvoteReact ?
-        voteRepository.downvote(image.id, user.id) :
-        voteRepository.upvote(image.id, user.id);
+async function updateVotesForPoll(poll){
+    const votes = await pollRepository.getPollVotes(poll.id);
+    //get message
+    const messages = await getMessagesForImage(poll);
+
+    let editPromises = [];
+    messages.forEach(message => {
+        editPromises.push(message.edit(utils.getImageCommentString(votes, image)));
+    });
+    return Promise.all(editPromises);
 }
 
 function updateVotesForImage(image, channel){
@@ -207,7 +242,7 @@ function updateVotesForImage(image, channel){
     })
 }
 
-function getMessagesForImage(image){
+async function getMessagesForImage(image){
     let messagesPromises = [];
     image.messages.forEach( (messageId, i) => {
         let messageChannelId = image.message_channels[i];
@@ -218,37 +253,6 @@ function getMessagesForImage(image){
     return Promise.all(messagesPromises)
         .then(messages => messages.filter(message => !!message));
 }
-
-// bot.on("disconnect", (closeEvent)=> {
-//     log.info("Bot disconnected", closeEvent);
-//     try {
-//         log.info("Bot disconnected", closeEvent.target.WebSocket._events.message);
-//     }catch(e){
-//
-//     }
-//     if(closeEvent.code === 1000) {
-//         bot.destroy().then(() => bot.login(config.discordToken)).catch(log.error);
-//     }
-// });
-
-// bot.on("debug", (event) => {
-//     log.trace("djs debug", event);
-// });
-
-bot.login(config.discordToken).catch(log.error);
-
-let getParams = function(messageString, command) {
-    let words = messageString.split(' ');
-    let commandIndex = words.map(word=>word.toLowerCase()).indexOf('!'+command.toLowerCase());
-    if (commandIndex === (words.length - 1) || commandIndex < 0) {
-        return [];
-    }
-    let results = [];
-    for (let i = commandIndex + 1; i < words.length; i++) {
-        results.push(words[i]);
-    }
-    return results;
-};
 
 function logUserDetails(discordUser){
     //is this user currently in the db?

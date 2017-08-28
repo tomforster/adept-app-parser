@@ -6,12 +6,15 @@
 const log = require('bristol');
 const commandRepository = require('../repositories/imageRepository');
 const voteRepository = require('../repositories/voteRepository');
+const imageRepository = require('../repositories/imageRepository');
+const pollRepository = require('../repositories/pollRepository');
 const rp = require('request-promise');
 const humanizeDuration = require('humanize-duration');
 const moment = require('moment');
 
 const MAX_SIZE = 5000000;
 const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
+const numberEmojis = ["1⃣","2⃣","3⃣","4⃣","5⃣","6⃣","7⃣","8⃣","9⃣"];
 
 function getImage(command){
     return commandRepository.random(command).then(img => {
@@ -71,10 +74,50 @@ function getFileSize(url) {
         return size <= MAX_SIZE;
     });
 }
+
+let getParams = function(messageString, command) {
+    let words = messageString.split(' ');
+    let commandIndex = words.map(word=>word.toLowerCase()).indexOf('!'+command.toLowerCase());
+    if (commandIndex === (words.length - 1) || commandIndex < 0) {
+        return [];
+    }
+    let results = [];
+    for (let i = commandIndex + 1; i < words.length; i++) {
+        results.push(words[i]);
+    }
+    return results;
+};
+
+function makeProgressBar(value, total){
+    const segments = 50;
+    let progressBar = "[";
+    for(let i = 0; i < segments; i++){
+        if(total/i < value){
+            progressBar += '|';
+        }else{
+            progressBar += '-';
+        }
+    }
+    return progressBar + ']';
+}
+
+function makePollMessage(poll, votes){
+    const title = poll.title;
+    const options = poll.options;
+    const total = votes.reduce((a,b) => a+b,0);
+    const optionsText = options.map((c,i) => c ?
+        `${i+1}. ${c}
+        \`${makeProgressBar(votes[i], total)}\`` : "");
+    return `Poll: "${title}" (Created by ${poll.author})\n\n${optionsText.join("\n\n")}`;
+}
+
 module.exports = {
     getFileSize,
     sendImage,
     allowable_extensions,
     getImage,
-    getImageCommentString
+    getImageCommentString,
+    getParams,
+    makePollMessage,
+    numberEmojis
 };

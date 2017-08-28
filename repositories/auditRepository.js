@@ -119,12 +119,11 @@ exports.logCommandAudit = function(userId, channelId, messageId, command, params
     return Promise.reject("Invalid Argument");
 };
 
-exports.findImageByMessageId = function(id){
-
+exports.findImageByMessageId = function(id)
+{
     return db.oneOrNone(
         //language=PostgreSQL
-        `
-          WITH img AS (
+        `WITH img AS (
               SELECT
                 i.*,
                 du.username AS author,
@@ -150,6 +149,34 @@ exports.findImageByMessageId = function(id){
           WHERE a.date > $2
           GROUP BY i.id, i.author, i.command, i.url, i.user_id, i.date_added, i.is_deleted, i.discord_id;`,
         [id, moment().subtract(1, 'days').unix()]);
+};
+
+exports.findPollByMessageId = function(id)
+{
+    return db.one(
+        //language=PostgreSQL
+        `WITH poll AS (
+              SELECT
+                p.*,
+                du.username AS author,
+                du.discord_id
+              FROM audit au
+                JOIN poll p ON p.id = au.poll
+                JOIN discord_user du ON du.id = p.user_id
+              WHERE audit.type = 'command' AND message_reply_id = $1
+              LIMIT 1)
+          SELECT
+            p.*,
+            array_agg(a.message_reply_id) AS messages,
+            array_agg(a.channel_id) AS message_channels
+          FROM poll p
+            JOIN audit a ON a.image = p.id
+          WHERE a.date > $2
+          GROUP BY p.id`,
+        [id, moment().subtract(1, 'days').unix()]).map(raw => {
+            raw.options = [raw.option1, raw.option2, raw.option3, raw.option4, raw.option5, raw.option6, raw.option7, raw.option8, raw.option9];
+            return raw;
+    });
 };
 
 exports.getRecentImageMessageAudits = function(){
