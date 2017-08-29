@@ -14,8 +14,9 @@ async function run(message, params, command, user) {
         }
         const title = commands[0];
         const options = commands.slice(1);
-        await pollRepository.save(title, options, user.id);
+        const poll = await pollRepository.save(title, options, user.id);
         const pollMessage = await message.channel.send(utils.makePollMessage({title, options, author:user.username}, []));
+        pollMessage.__pollId = poll.id;
         for(let i = 0; i < options.length; i++){
             await pollMessage.react(utils.numberEmojis[i])
         }

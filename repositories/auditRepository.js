@@ -112,9 +112,9 @@ exports.logCharacterStatsAudit = function(character){
     }
 };
 
-exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId){
+exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId, pollId){
     if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array && messageId && typeof messageId === 'string' && messageId.length>0) {
-        return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image) values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId]);
+        return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image, poll) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId, pollId]);
     }
     return Promise.reject("Invalid Argument");
 };
@@ -151,32 +151,33 @@ exports.findImageByMessageId = function(id)
         [id, moment().subtract(1, 'days').unix()]);
 };
 
-exports.findPollByMessageId = function(id)
+exports.findPollByMessageId = async function(id)
 {
-    return db.one(
+    const raw = await db.one(
         //language=PostgreSQL
-        `WITH poll AS (
-              SELECT
-                p.*,
-                du.username AS author,
-                du.discord_id
-              FROM audit au
-                JOIN poll p ON p.id = au.poll
-                JOIN discord_user du ON du.id = p.user_id
-              WHERE audit.type = 'command' AND message_reply_id = $1
-              LIMIT 1)
-          SELECT
-            p.*,
-            array_agg(a.message_reply_id) AS messages,
-            array_agg(a.channel_id) AS message_channels
-          FROM poll p
-            JOIN audit a ON a.image = p.id
-          WHERE a.date > $2
-          GROUP BY p.id`,
-        [id, moment().subtract(1, 'days').unix()]).map(raw => {
-            raw.options = [raw.option1, raw.option2, raw.option3, raw.option4, raw.option5, raw.option6, raw.option7, raw.option8, raw.option9];
-            return raw;
-    });
+        `WITH cp AS (
+            SELECT
+              p.*,
+              du.username AS author,
+              du.discord_id
+            FROM audit au
+              JOIN poll p ON p.id = au.poll
+              JOIN discord_user du ON du.id = p.user_id
+            WHERE au.type = 'command' AND message_reply_id = $1
+            LIMIT 1)
+        SELECT
+          p.id, p.title, p.date_added, p.author, p.discord_id, p.option1, p.option2, p.option3,
+          p.option4, p.option5, p.option6, p.option7, p.option8,p.option9,
+          array_agg(a.message_reply_id) AS messages,
+          array_agg(a.channel_id) AS message_channels
+        FROM cp p
+          JOIN audit a ON a.poll = p.id
+        WHERE a.date > $2
+        GROUP BY p.id, p.title, p.date_added, p.author, p.discord_id, p.discord_id, p.option1, p.option2, p.option3,
+          p.option4, p.option5, p.option6, p.option7, p.option8,p.option9`,
+        [id, moment().subtract(1, 'days').unix()]);
+    raw.options = [raw.option1, raw.option2, raw.option3, raw.option4, raw.option5, raw.option6, raw.option7, raw.option8, raw.option9];
+    return raw;
 };
 
 exports.getRecentImageMessageAudits = function(){

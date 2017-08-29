@@ -56,7 +56,7 @@ bot.on("message", (message) => {
                 .then(result => {
                     message.channel.stopTyping();
                     if(!result) return;
-                    return auditRepository.logCommandAudit(user.id, message.channel.id, result.id, keyword, params, result.__imageId)
+                    return auditRepository.logCommandAudit(user.id, message.channel.id, result.id, keyword, params, result.__imageId, result.__pollId)
                 }).catch(err => {
                     message.channel.stopTyping();
                     log.error(err);
@@ -99,16 +99,16 @@ bot.on("presence", (oldUser, discordUser) => {
 bot.on("messageReactionAdd", reactionChange);
 bot.on("messageReactionRemove", (messageReaction, user) => reactionChange(messageReaction, user, true));
 
-async function reactionChange(messageReaction, user, isRemove){
-    if(!user || !messageReaction){
+async function reactionChange(messageReaction, discordUser, isRemove){
+    if(!discordUser || !messageReaction){
         return;
     }
 
     let message = messageReaction.message;
     if(!message.author.equals(bot.user)) return;
-    if(user.equals(bot.user)) return;
+    if(discordUser.equals(bot.user)) return;
 
-    let guildUser = message.guild && message.guild.members.get(user.id);
+    let guildUser = message.guild && message.guild.members.get(discordUser.id);
     if(!guildUser || guildUser.roles.size === 0) return;
 
     let isDownvoteReact = messageReaction.emoji.name === "⬇";
@@ -121,7 +121,7 @@ async function reactionChange(messageReaction, user, isRemove){
             .then(image => {
                 if (image)
                 {
-                    return userRepository.fetchByDiscordId(user.id)
+                    return userRepository.fetchByDiscordId(discordUser.id)
                         .then(user => {
                             if (user)
                             {
@@ -155,9 +155,9 @@ async function reactionChange(messageReaction, user, isRemove){
     else if(pollVoteReact)
     {
         const poll = await auditRepository.findPollByMessageId(message.id);
-        const option = numberEmojis.indexOf(messageReaction.emoji.name);
+        const option = utils.numberEmojis.indexOf(messageReaction.emoji.name);
         if(poll){
-            const user = await userRepository.fetchByDiscordId(user.id);
+            const user = await userRepository.fetchByDiscordId(discordUser.id);
             if(user){
                 let changed;
                 if(isRemove)
@@ -167,7 +167,6 @@ async function reactionChange(messageReaction, user, isRemove){
                 else
                 {
                     changed = await pollRepository.votePoll(poll.id, user.id, option);
-
                 }
 
                 if(changed)
@@ -204,7 +203,7 @@ async function updateVotesForPoll(poll){
 
     let editPromises = [];
     messages.forEach(message => {
-        editPromises.push(message.edit(utils.getImageCommentString(votes, image)));
+        editPromises.push(message.edit(utils.makePollMessage(poll, votes)));
     });
     return Promise.all(editPromises);
 }
