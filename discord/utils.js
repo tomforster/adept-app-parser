@@ -98,17 +98,16 @@ function makeProgressBar(value, total){
             progressBar += '-';
         }
     }
-    return progressBar + ']';
+    return progressBar + `]`;
 }
 
 function makePollMessage(poll, votes){
     const title = poll.title;
     const options = poll.options;
     const total = votes.reduce((a,b) => a+b,0);
-    const optionsText = options.map((c,i) => c ?
-        `${i+1}. ${c}
-        \`${makeProgressBar(votes[i], total)}\`` : "");
-    return `Poll: "${title}" (Created by ${poll.author})\n\n${optionsText.join("\n\n")}`;
+    const optionsText = options.map((c,i) =>
+        `${i+1}. ${c} \`${makeProgressBar(votes[i], total)}\` ${votes[i]} Votes (${votes[i]/total*100 || 0}%)`);
+    return `Poll: "${title}" (Created by ${poll.author})\n\n${optionsText.join("\n\n")}\n\nDisplaying ${total} votes.`;
 }
 
 module.exports = {
