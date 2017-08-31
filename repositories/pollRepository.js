@@ -35,7 +35,7 @@ exports.removeVotePoll = async function(pollId, userId, option){
 
 exports.getPollVotes = async function(pollId){
     const results = await db.manyOrNone("select * from poll_vote where poll = $1", [pollId]);
-    const votes = [];
-    results.forEach(result => votes[result.option] = votes[result.option]+1 || 1);
+    const votes = [0,0,0,0,0,0,0,0,0];
+    results.forEach(result => votes[result.option] = votes[result.option]+1);
     return votes;
 };

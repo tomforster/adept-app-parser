@@ -11,6 +11,7 @@ const pollRepository = require('../repositories/pollRepository');
 const rp = require('request-promise');
 const humanizeDuration = require('humanize-duration');
 const moment = require('moment');
+const bot = require('./bot');
 
 const MAX_SIZE = 5000000;
 const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
@@ -88,26 +89,15 @@ let getParams = function(messageString, command) {
     return results;
 };
 
-function makeProgressBar(value, total){
-    const segments = 50;
-    let progressBar = "[";
-    for(let i = 0; i < segments; i++){
-        if(total/i < value){
-            progressBar += '|';
-        }else{
-            progressBar += '-';
+async function getMessagesByIds(messageIds){
+    let messagesPromises = [];
+    messageIds.forEach( messageInfo => {
+        if (bot.channels.has(messageInfo.channelId)) {
+            messagesPromises.push(bot.channels.get(messageInfo.channelId).fetchMessage(messageInfo.id).catch(() => Promise.resolve()));
         }
-    }
-    return progressBar + `]`;
-}
-
-function makePollMessage(poll, votes){
-    const title = poll.title;
-    const options = poll.options;
-    const total = votes.reduce((a,b) => a+b,0);
-    const optionsText = options.map((c,i) =>
-        `${i+1}. ${c} \`${makeProgressBar(votes[i], total)}\` ${votes[i]} Votes (${votes[i]/total*100 || 0}%)`);
-    return `Poll: "${title}" (Created by ${poll.author})\n\n${optionsText.join("\n\n")}\n\nDisplaying ${total} votes.`;
+    });
+    return Promise.all(messagesPromises)
+        .then(messages => messages.filter(message => !!message));
 }
 
 module.exports = {
@@ -117,6 +107,6 @@ module.exports = {
     getImage,
     getImageCommentString,
     getParams,
-    makePollMessage,
+    getMessagesByIds,
     numberEmojis
 };

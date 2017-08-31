@@ -1,6 +1,5 @@
 "use strict";
 
-const Discord = require("discord.js");
 const config = require('../config');
 const log = require("bristol");
 
@@ -8,15 +7,14 @@ const imageRepository = require('../repositories/imageRepository');
 const userRepository = require('../repositories/userRepository');
 const auditRepository = require('../repositories/auditRepository');
 const voteRepository = require('../repositories/voteRepository');
-const pollRepository = require('../repositories/pollRepository');
 
 const utils = require('./utils');
 
 const commands = require('./commandList');
-const bot = new Discord.Client();
+const bot = require('./bot');
 const humanizeDuration = require('humanize-duration');
 
-bot.on("message", (message) => {
+bot.on("message", message => {
 
     //increment message count
     let userDetailsPromise = logUserDetails(message.author);
@@ -97,6 +95,7 @@ bot.on("presence", (oldUser, discordUser) => {
 });
 
 bot.on("messageReactionAdd", reactionChange);
+
 bot.on("messageReactionRemove", (messageReaction, user) => reactionChange(messageReaction, user, true));
 
 async function reactionChange(messageReaction, discordUser, isRemove){
@@ -111,10 +110,10 @@ async function reactionChange(messageReaction, discordUser, isRemove){
     let guildUser = message.guild && message.guild.members.get(discordUser.id);
     if(!guildUser || guildUser.roles.size === 0) return;
 
-    let isDownvoteReact = messageReaction.emoji.name === "⬇";
-    let isUpvoteReact = messageReaction.emoji.name === "⬆";
+    const emoji = messageReaction.emoji.name;
 
-    let pollVoteReact = utils.numberEmojis.indexOf(messageReaction.emoji.name) > -1;
+    let isDownvoteReact =emoji === "⬇";
+    let isUpvoteReact = emoji === "⬆";
 
     if(isDownvoteReact || isUpvoteReact){
         return auditRepository.findImageByMessageId(message.id)
@@ -152,34 +151,7 @@ async function reactionChange(messageReaction, discordUser, isRemove){
             })
             .catch(log.error);
     }
-    else if(pollVoteReact)
-    {
-        const poll = await auditRepository.findPollByMessageId(message.id);
-        const option = utils.numberEmojis.indexOf(messageReaction.emoji.name);
-        if(poll){
-            const user = await userRepository.fetchByDiscordId(discordUser.id);
-            if(user){
-                let changed;
-                if(isRemove)
-                {
-                    changed = await pollRepository.removeVotePoll(poll.id, user.id, option);
-                }
-                else
-                {
-                    changed = await pollRepository.votePoll(poll.id, user.id, option);
-                }
-
-                if(changed)
-                {
-                    return updateVotesForPoll(poll, message.channel);
-                }
-                return;
-            }
-            throw "User not found";
-        }
-        throw "poll not found";
-    }
-    else if(!isRemove && messageReaction.emoji.name === "❎")
+    else if(!isRemove && emoji === "❎")
     {
         log.info("user attempting to delete an image", message.author.username);
         //todo: delete all current instances
@@ -191,66 +163,54 @@ async function reactionChange(messageReaction, discordUser, isRemove){
                 }
             }
         }).catch(log.error);
+    }else{
+        let command, commandIndex = Object.keys(commands).find(commandKey => {
+            return commands[commandKey].reactions && commands[commandKey].onReact && commands[commandKey].reactions.indexOf(emoji) >= 0
+        });
+        if(!commandIndex){
+            return;
+        }else{
+            command = commands[commandIndex];
+        }
+        const user = await userRepository.fetchByDiscordId(discordUser.id);
+        if(!user) throw `user not found for id ${discordUser.id}`;
+        command.onReact(messageReaction, user, isRemove);
     }
 }
 
 bot.login(config.discordToken).catch(log.error);
 
-async function updateVotesForPoll(poll){
-    const votes = await pollRepository.getPollVotes(poll.id);
-    //get message
-    const messages = await getMessagesForImage(poll);
+async function updateVotesForImage(image, channel){
+    const votes = await voteRepository.getVotes(image.id)
+    let dv = 0, uv = 0;
+    if (votes && votes.length > 0) {
+        dv = votes.filter(vote => !vote.is_upvote).length;
+        uv = votes.filter(vote => vote.is_upvote).length;
+    }
+    if (uv - dv <= -20) {
+        const count = await imageRepository.delete(image.id);
+        if (count) {
+            const messages = await getMessagesForEntity(image)
+            let deletionPromises = [];
+            messages.forEach(message => {
+                deletionPromises.push(message.delete());
+            });
+            await Promise.all(deletionPromises);
+            return channel.sendMessage("Deleted image for command " + image.command + " due to downvotes.");
+        }
+    }
 
+    const messageIds = [];
+    image.messages.forEach((messageId, i) => {
+        messageIds.push({id: messageId, channelId: image.message_channels[i]})
+    });
+    const messages = await
+    utils.getMessagesByIds(messageIds);
     let editPromises = [];
     messages.forEach(message => {
-        editPromises.push(message.edit(utils.makePollMessage(poll, votes)));
+        editPromises.push(message.edit(utils.getImageCommentString(votes, image)));
     });
     return Promise.all(editPromises);
-}
-
-function updateVotesForImage(image, channel){
-    return voteRepository.getVotes(image.id).then(votes => {
-        let dv = 0, uv = 0;
-        if(votes && votes.length > 0) {
-            dv = votes.filter(vote => !vote.is_upvote).length;
-            uv = votes.filter(vote => vote.is_upvote).length;
-        }
-        if (uv-dv <= -20) {
-            return imageRepository.delete(image.id).then((count) => {
-                if (count) {
-                    return getMessagesForImage(image)
-                        .then(messages => {
-                            let deletionPromises = [];
-                            messages.forEach(message => {
-                                deletionPromises.push(message.delete());
-                            });
-                            return Promise.all(deletionPromises);
-                        })
-                        .then(() => channel.sendMessage("Deleted image for command " + image.command + " due to downvotes."));
-                }
-            });
-        }
-        return getMessagesForImage(image)
-            .then(messages => {
-                let editPromises = [];
-                messages.forEach(message => {
-                    editPromises.push(message.edit(utils.getImageCommentString(votes, image)));
-                });
-                return Promise.all(editPromises);
-            });
-    })
-}
-
-async function getMessagesForImage(image){
-    let messagesPromises = [];
-    image.messages.forEach( (messageId, i) => {
-        let messageChannelId = image.message_channels[i];
-        if (bot.channels.has(messageChannelId)) {
-            messagesPromises.push(bot.channels.get(messageChannelId).fetchMessage(messageId).catch(() => Promise.resolve()));
-        }
-    });
-    return Promise.all(messagesPromises)
-        .then(messages => messages.filter(message => !!message));
 }
 
 function logUserDetails(discordUser){
