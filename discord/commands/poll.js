@@ -29,7 +29,6 @@ async function run(message, params, command, user)
 
 async function onReact(reaction, user, isRemove)
 {
-    console.log("poll react", isRemove);
     const message = reaction.message;
     //this poll is augmented with the messages its in
     const poll = await auditRepository.findPollByMessageId(message.id);
@@ -37,7 +36,6 @@ async function onReact(reaction, user, isRemove)
     if(poll){
         if(user){
             const changed = isRemove ? await pollRepository.removeVotePoll(poll.id, user.id, option) : await pollRepository.votePoll(poll.id, user.id, option);
-            console.log(changed);
             if(changed)
             {
                 return updateVotesForPoll(poll, message.channel);
@@ -68,8 +66,8 @@ async function updateVotesForPoll(poll)
 function makeProgressBar(value, total){
     const segments = 50;
     let progressBar = "[";
-    for(let i = 0; i < segments; i++){
-        if(total/i < value){
+    for(let segment = 0; segment < segments; segment++){
+        if((total / segments * segment) < value){
             progressBar += '|';
         }else{
             progressBar += '-';
@@ -86,10 +84,10 @@ function makePollMessage(poll, votes){
     options.forEach((option,i) =>
     {
         if(option){
-            pollMessage += `\n\n${i+1}. ${option} \`${makeProgressBar(votes[i], total)}\` ${votes[i]} Votes (${votes[i]/total*100 || 0}%)`;
+            pollMessage += `\n\n${i+1}. ${option}\n\`${makeProgressBar(votes[i], total)}\` ${votes[i]} Votes (${votes[i]/total*100 || 0}%)`;
         }
     });
-    pollMessage += `\n\nDisplaying ${total} votes.`;
+    pollMessage += `\n\nTotal: ${total} vote${total !== 1 ? 's' : ''}`;
     return pollMessage;
 }
 
