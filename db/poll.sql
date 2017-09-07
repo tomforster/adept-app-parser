@@ -26,7 +26,7 @@ CREATE TABLE poll_vote
   option SMALLINT NOT NULL
 );
 
-CREATE INDEX poll_vote_poll_user_id_index ON poll_vote (poll, user_id);
+CREATE UNIQUE INDEX poll_vote_poll_user_id_index ON poll_vote (poll, user_id);
 
 ALTER TABLE audit
   ADD poll INT NULL,
