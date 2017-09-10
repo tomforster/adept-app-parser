@@ -143,10 +143,9 @@ const postApp = async function(mailObj){
     const username = config.forumUsername;
     const password = config.forumPassword;
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
     try {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
         await page.goto(config.forumUrl, {waitUntil: 'networkidle'});
         const title = await page.evaluate(() => document.querySelector('title').innerText);
         if (title.indexOf('Login') > -1) {
@@ -167,6 +166,7 @@ const postApp = async function(mailObj){
         await page.click('[type=submit][name=post]', {delay: 2000});
         await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
     } catch (error){
+        log.error(error);
         page.screenshot({path: 'fail.png'});
         throw "failed to post";
     }
