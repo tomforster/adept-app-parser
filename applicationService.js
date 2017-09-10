@@ -6,21 +6,15 @@ const appParser = require('./applicationParser.js');
 const applicationRepository = require('./repositories/applicationRepository');
 const config = require('./config');
 const log = require('bristol');
-const fs = require('fs');
 const rp = require('request-promise');
 const crypto = require("crypto");
 const moment = require("moment");
 const cron = require("node-cron");
 
-const router = require('express').Router();
 let discordBot = null;
 
 module.exports = function(bot){
     discordBot = bot;
-    router.get('/', function(req, res) {
-        log.info('Parser request');
-        res.sendFile(path.join(__dirname,'/public/parser.html'));
-    });
 
     log.info("Adding scheduled task to retrieve applications");
     cron.schedule('*/2 * * * *', () => {
@@ -31,8 +25,6 @@ module.exports = function(bot){
     cron.schedule('*/1 * * * *', () => {
         postNewApplications().catch(log.error);
     }, true);
-
-    return router;
 };
 
 function checkForNewApplications(){

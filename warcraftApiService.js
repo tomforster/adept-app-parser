@@ -66,16 +66,16 @@ function getCharacterStats(guild, realm){
                 let character = {name: member.name, class: member.class, spec: member.spec && member.spec.order, id: stringHash(member.thumbnail)};
                 promises.push(retryWrapper(() => rp(createCharacterUri(name, realm)), 5)
                     .then(charInfo => {
-                        let mainHand = charInfo.items.mainHand;
-                        if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
-                            character.artifactTraits = mainHand.artifactTraits.reduce((acc, val) => acc + val.rank, 0);
-                        }
-                        character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
-                        character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
-                        character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
-                        character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
-                        character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
-                        character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
+                        // let mainHand = charInfo.items.mainHand;
+                        // if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
+                        //     character.artifactTraits = mainHand.artifactTraits.reduce((acc, val) => acc + val.rank, 0);
+                        // }
+                        // character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
+                        // character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
+                        // character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
+                        // character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
+                        // character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
+                        // character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
                         let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
                         character.legosInFeed = [];
                         feedItems.forEach(item => {
@@ -104,7 +104,8 @@ let createCharacterUri = function(character, realm){
         if(!realm || realm.length < 3){
             realm = "Frostmane";
         }
-        return apiUriPathStart + characterRequestUriPath + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=achievements,items,feed&' + uriEnd;
+        // return apiUriPathStart + characterRequestUriPath + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=achievements,items,feed&' + uriEnd;
+        return apiUriPathStart + characterRequestUriPath + encodeURIComponent(realm) + '/' + encodeURIComponent(character) + '?fields=feed&' + uriEnd;
     }
     throw "bad params"
 };
@@ -124,11 +125,11 @@ module.exports = function(guild, realm, bot){
     log.info("Adding scheduled task to retrieve guild stat info at", cronString);
     cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
-        let statsPromise = getCharacterStats(guild, realm);
-        statsPromise
-            .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)
-                .catch(log.error)))
-            .catch(log.error);
+        // let statsPromise = getCharacterStats(guild, realm);
+        // statsPromise
+        //     .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)
+        //         .catch(log.error)))
+        //     .catch(log.error);
 
         statsPromise
             .then(characters => characters
@@ -136,7 +137,8 @@ module.exports = function(guild, realm, bot){
                     .forEach(lego => {
                         auditRepository.logLegendaryAudit(character.id, lego.id)
                             .then(isNew => {
-                                if(isNew && bot) return bot.newLegendaryMessage(character.name, lego);
+                                const duration = new Date().getTime() - lego.timestamp;
+                                if(isNew && bot && duration < 604800000) return bot.newLegendaryMessage(character.name, lego);
                             })
                             .catch(log.error)
                     })
