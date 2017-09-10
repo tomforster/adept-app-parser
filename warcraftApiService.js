@@ -125,7 +125,7 @@ module.exports = function(guild, realm, bot){
     log.info("Adding scheduled task to retrieve guild stat info at", cronString);
     cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
-        // let statsPromise = getCharacterStats(guild, realm);
+        let statsPromise = getCharacterStats(guild, realm);
         // statsPromise
         //     .then(characters => characters.forEach(character => auditRepository.logCharacterStatsAudit(character)
         //         .catch(log.error)))
