@@ -167,7 +167,7 @@ const postApp = async function(mailObj){
         await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
     } catch (error){
         log.error(error);
-        page.screenshot({path: 'fail.png'});
+        if(page) page.screenshot({path: 'fail.png'});
         throw "failed to post";
     }
     log.info("saved");
