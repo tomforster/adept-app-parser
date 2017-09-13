@@ -144,7 +144,7 @@ const postApp = async function(mailObj){
     const password = config.forumPassword;
 
     try {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
         await page.goto(config.forumUrl, {waitUntil: 'networkidle'});
         const title = await page.evaluate(() => document.querySelector('title').innerText);
