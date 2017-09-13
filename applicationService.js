@@ -142,6 +142,7 @@ const postApp = async function(mailObj){
     log.info('Posting Adept App');
     const username = config.forumUsername;
     const password = config.forumPassword;
+    let url = null;
 
     try {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
@@ -165,11 +166,12 @@ const postApp = async function(mailObj){
         }, mailObj.body);
         await page.click('[type=submit][name=post]', {delay: 2000});
         await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
+        url = await page.url();
     } catch (error){
         log.error(error);
         if(page) page.screenshot({path: 'fail.png'});
         throw "failed to post";
     }
     log.info("saved");
-    return await page.url();
+    return url;
 };
