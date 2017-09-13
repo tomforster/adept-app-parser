@@ -167,11 +167,11 @@ const postApp = async function(mailObj){
         await page.click('[type=submit][name=post]', {delay: 2000});
         await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
         url = await page.url();
+        log.info("saved");
     } catch (error){
         log.error(error);
         if(page) page.screenshot({path: 'fail.png'});
         throw "failed to post";
     }
-    log.info("saved");
     return url;
 };
