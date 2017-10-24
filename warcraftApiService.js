@@ -121,7 +121,7 @@ let createGuildUri = function(guild, realm){
 };
 
 module.exports = function(guild, realm, bot){
-    let cronString = '*/5 * * * *';
+    let cronString = '*/10 * * * *';
     log.info("Adding scheduled task to retrieve guild stat info at", cronString);
     cron.schedule(cronString, () => {
         //lots of horrible catches, todo refactor this
