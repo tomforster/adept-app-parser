@@ -147,7 +147,7 @@ const postApp = async function(mailObj){
     try {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
         const page = await browser.newPage();
-        await page.goto(config.forumUrl, {waitUntil: 'networkidle'});
+        await page.goto(config.forumUrl, {waitUntil: 'networkidle0'});
         const title = await page.evaluate(() => document.querySelector('title').innerText);
         if (title.indexOf('Login') > -1) {
             log.info("logging in");
@@ -156,7 +156,7 @@ const postApp = async function(mailObj){
             await page.focus('#password');
             await page.type(password);
             await page.click('.button[name=login]', {delay: 2000});
-            await page.waitForSelector('#subject', {waitUntil: 'networkidle'});
+            await page.waitForSelector('#subject', {waitUntil: 'networkidle0'});
         }
         log.info("saving");
         await page.focus('#subject');
@@ -165,7 +165,7 @@ const postApp = async function(mailObj){
             document.querySelector('#message').innerText = body;
         }, mailObj.body);
         await page.click('[type=submit][name=post]', {delay: 2000});
-        await page.waitForSelector('.postbody', {waitUntil: 'networkidle'});
+        await page.waitForSelector('.postbody', {waitUntil: 'networkidle0'});
         url = await page.url();
         log.info("saved");
     } catch (error){
