@@ -143,10 +143,11 @@ const postApp = async function(mailObj){
     const username = config.forumUsername;
     const password = config.forumPassword;
     let url = null;
+    let page;
 
     try {
         const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
-        const page = await browser.newPage();
+        page = await browser.newPage();
         await page.goto(config.forumUrl, {waitUntil: 'networkidle0'});
         const title = await page.evaluate(() => document.querySelector('title').innerText);
         if (title.indexOf('Login') > -1) {
@@ -169,6 +170,8 @@ const postApp = async function(mailObj){
         log.error(error);
         if(page) page.screenshot({path: 'fail.png'});
         throw "failed to post";
+    } finally {
+        if(page) page.close();
     }
     return url;
 };
