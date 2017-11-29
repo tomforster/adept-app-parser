@@ -151,16 +151,13 @@ const postApp = async function(mailObj){
         const title = await page.evaluate(() => document.querySelector('title').innerText);
         if (title.indexOf('Login') > -1) {
             log.info("logging in");
-            await page.focus('#username');
-            await page.type(username);
-            await page.focus('#password');
-            await page.type(password);
+            await page.type('#username', username);
+            await page.type('#password', password);
             await page.click('.button[name=login]', {delay: 2000});
             await page.waitForSelector('#subject', {waitUntil: 'networkidle0'});
         }
         log.info("saving");
-        await page.focus('#subject');
-        await page.type(mailObj.title);
+        await page.type('#subject', mailObj.title);
         await page.evaluate(body => {
             document.querySelector('#message').innerText = body;
         }, mailObj.body);
