@@ -242,5 +242,7 @@ module.exports = {132376: {id:132376, name:"Acherus Drapes"},
 151822: {id:151822, name:"Ararat's Bloodmirror"},
 151823: {id:151823, name:"The Great Storm's Eye"},
 151824: {id:151824, name:"Valarjar Berserkers"},
+
+//7.3.0
 154172: {id:154172, name:"Aman'Thul's Vision"}
 };
