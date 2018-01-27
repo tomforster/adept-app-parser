@@ -8,7 +8,6 @@ const config = require('./config');
 const log = require('bristol');
 const rp = require('request-promise');
 const crypto = require("crypto");
-const moment = require("moment");
 const cron = require("node-cron");
 
 let discordBot = null;
@@ -68,7 +67,7 @@ function checkForNewApplications(){
                         }
                     }
                 });
-                return {id: entry.id, date: moment.utc(entry.date_created, "YYYY-MM-DD HH:mm:ss").unix(), sections:sections.filter(section => section.questions.length > 0)};
+                return {id: entry.id, date: Math.floor(Date.parse(entry.date_created)/1000), sections:sections.filter(section => section.questions.length > 0)};
             });
         })
         .then(applications => {

@@ -8,7 +8,6 @@ const commandRepository = require('../repositories/imageRepository');
 const voteRepository = require('../repositories/voteRepository');
 const rp = require('request-promise');
 const humanizeDuration = require('humanize-duration');
-const moment = require('moment');
 const bot = require('./bot');
 
 const MAX_SIZE = 5000000;
@@ -51,7 +50,7 @@ function getImageCommentString(votes, img){
         dv = votes.filter(vote => !vote.is_upvote).length;
         uv = votes.filter(vote => vote.is_upvote).length;
     }
-    return `**!${img.command}**\t|\tVotes: __**${uv-dv}**__  [ ⇧ ${uv} | ⇩ ${dv} ]\t|\t*Added by ${img.author} ${humanizeDuration((moment().unix() - Number(img.date_added))*1000, { largest: 1 })} ago*`;
+    return `**!${img.command}**\t|\tVotes: __**${uv-dv}**__  [ ⇧ ${uv} | ⇩ ${dv} ]\t|\t*Added by ${img.author} ${humanizeDuration((Math.floor(Date.now()/1000) - Number(img.date_added))*1000, { largest: 1 })} ago*`;
 }
 
 async function sendImage(message, img, text){

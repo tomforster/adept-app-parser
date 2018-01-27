@@ -3,7 +3,6 @@
  */
 
 const db = require('./db.js').db;
-const moment = require('moment');
 const log = require('bristol');
 
 exports.fetchAll = function(id){
@@ -23,7 +22,7 @@ exports.fetchByDiscordId = function(discordId){
 exports.save = function(discordId, username){
     log.info("saving", username);
     if(discordId && typeof discordId === 'string' && discordId.length>0 && username && typeof username === 'string' && username.length>0) {
-        return db.one("insert into discord_user (discord_id, username, date_added) values ($1, $2, $3) RETURNING id, discord_id, username, date_added;", [discordId, username, moment().unix()]);
+        return db.one("insert into discord_user (discord_id, username, date_added) values ($1, $2, $3) RETURNING id, discord_id, username, date_added;", [discordId, username, Math.floor(Date.now()/1000)]);
     }
     throw "Invalid argument";
 };

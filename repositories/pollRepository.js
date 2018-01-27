@@ -1,11 +1,10 @@
 "use strict";
 
 const db = require('./db.js').db;
-const moment = require('moment');
 
 exports.save = async function(title, options, user_id){
     if(options.length > 9) throw "too many options";
-    const params = [title, user_id, moment().unix()];
+    const params = [title, user_id, Math.floor(Date.now()/1000)];
     [].push.apply(params, options);
     for(let i = 0; i < 12; i++){
         if(params[i] === undefined) params[i] = null;
@@ -25,7 +24,7 @@ exports.votePoll = async function(pollId, userId, option){
     return db.one(
         `insert into poll_vote (poll, user_id, date, option) values ($1, $2, $3, $4)
         on conflict (poll, user_id) do update set date = $3, option = $4 returning id 
-    `, [pollId, userId, moment().unix(), option]);
+    `, [pollId, userId, Math.floor(Date.now()/1000), option]);
 };
 
 exports.removeVotePoll = async function(pollId, userId, option){

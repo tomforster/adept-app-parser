@@ -3,7 +3,6 @@
  */
 
 const db = require('./db.js').db;
-const moment = require('moment');
 const log = require('bristol');
 
 exports.upvote = function(imageId, userId){
@@ -11,7 +10,7 @@ exports.upvote = function(imageId, userId){
     select $1, $2, $3, true 
     where not exists (
     select * from vote where image = $1 and user_id = $2 and is_upvote = true and date between $3 - 60*60*24 and $3
-    )`, [imageId, userId, moment().unix()])
+    )`, [imageId, userId, Math.floor(Date.now()/1000)])
         .then(result => result.rowCount > 0).catch(err => false);
 };
 
@@ -20,17 +19,17 @@ exports.downvote = function(imageId, userId){
     select $1, $2, $3 
     where not exists (
     select * from vote where image = $1 and user_id = $2 and is_upvote = false and date between $3 - 60*60*24 and $3
-    )`, [imageId, userId, moment().unix()])
+    )`, [imageId, userId, Math.floor(Date.now()/1000)])
         .then(result => result.rowCount > 0).catch(err => false);
 };
 
 exports.deleteUpvote = function(imageId, userId){
-    return db.result("delete from vote where image = $1 and user_id = $2 and is_upvote and date between $3 - 60*60*24 and $3", [imageId, userId, moment().unix()])
+    return db.result("delete from vote where image = $1 and user_id = $2 and is_upvote and date between $3 - 60*60*24 and $3", [imageId, userId, Math.floor(Date.now()/1000)])
         .then(result => result.rowCount > 0).catch(err => false);
 };
 
 exports.deleteDownvote = function(imageId, userId){
-    return db.result("delete from vote where image = $1 and user_id = $2 and not is_upvote and date between $3 - 60*60*24 and $3", [imageId, userId, moment().unix()])
+    return db.result("delete from vote where image = $1 and user_id = $2 and not is_upvote and date between $3 - 60*60*24 and $3", [imageId, userId, Math.floor(Date.now()/1000)])
         .then(result => result.rowCount > 0).catch(err => false);
 };
 

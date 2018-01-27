@@ -3,15 +3,14 @@
  */
 
 const db = require('./db.js').db;
-const moment = require('moment');
-
 const log = require('bristol');
+const msInOneDay = 1000*60*60*24;
 
 exports.logMessageAudit = function(userId, channelId, isBotMessage){
     isBotMessage = !!isBotMessage;
     // log.info("saving message to audit");
     if(channelId && typeof channelId === 'string' && channelId.length>0) {
-        return db.one("insert into audit (type, user_id, channel_id, date, is_bot_message) values ($1, $2, $3, $4, $5) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, moment().unix(), isBotMessage])
+        return db.one("insert into audit (type, user_id, channel_id, date, is_bot_message) values ($1, $2, $3, $4, $5) RETURNING id, user_id, channel_id, date;", ['message', userId, channelId, Math.floor(Date.now()/1000), isBotMessage])
     }
     return Promise.reject("Invalid Argument");
 };
@@ -20,7 +19,7 @@ exports.top10UsersForChannelByMessageCountWithDuplicateDetection = function(chan
     log.info("Fetching top 10 users by message count with dupe detection for channel", channelId);
     if (channelId && typeof channelId === 'string' && channelId.length > 0) {
         if(duration && duration > 0 && typeof duration === 'number'){
-            var start = moment().subtract(duration, 'milliseconds').unix();
+            const start = Math.floor((Date.now() - duration)/1000);
             return db.manyOrNone(`SELECT du.username, count(*) FROM
 (
     SELECT 
@@ -64,7 +63,7 @@ exports.top10UsersForServerByMessageCountWithDuplicateDetection = function(chann
     log.info("Fetching top 10 users by message count with dupe detection for channels", channelIds);
     if (channelIds && channelIds.length > 0) {
         if(duration && duration > 0 && typeof duration === 'number'){
-            var start = moment().subtract(duration, 'milliseconds').unix();
+            const start = Math.floor((Date.now() - duration)/1000);
             return db.manyOrNone(`SELECT du.username, count(*) FROM
 (
     SELECT 
@@ -106,7 +105,7 @@ limit 10;`, [channelIds])
 
 exports.logCharacterStatsAudit = function(character){
     if(typeof character === "object" && character.constructor !== Array) {
-        return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), moment().unix()]);
+        return db.one("insert into audit (type, character_id, character_stats, date) VALUES ($1, $2, $3, $4) returning id", ["character_stats", character.id, JSON.stringify(character), Math.floor(Date.now()/1000)]);
     }else{
         return Promise.reject("Invalid Argument");
     }
@@ -114,7 +113,7 @@ exports.logCharacterStatsAudit = function(character){
 
 exports.logCommandAudit = function(userId, channelId, messageId, command, params, imageId, pollId){
     if(channelId && typeof channelId === 'string' && channelId.length>0 && params.constructor === Array && messageId && typeof messageId === 'string' && messageId.length>0) {
-        return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image, poll) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;", ['command', userId, channelId, messageId, moment().unix(), command, params.join(','), imageId, pollId]);
+        return db.one("insert into audit (type, user_id, channel_id, message_reply_id, date, command, params, image, poll) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;", ['command', userId, channelId, messageId, Math.floor(Date.now()/1000), command, params.join(','), imageId, pollId]);
     }
     return Promise.reject("Invalid Argument");
 };
@@ -148,7 +147,7 @@ exports.findImageByMessageId = function(id)
             JOIN audit a ON a.image = i.id
           WHERE a.date > $2
           GROUP BY i.id, i.author, i.command, i.url, i.user_id, i.date_added, i.is_deleted, i.discord_id;`,
-        [id, moment().subtract(1, 'days').unix()]);
+        [id, Math.floor((Date.now() - msInOneDay)/1000)]);
 };
 
 exports.findPollByMessageId = async function(id)
@@ -175,15 +174,15 @@ exports.findPollByMessageId = async function(id)
         WHERE a.date > $2
         GROUP BY p.id, p.title, p.date_added, p.author, p.discord_id, p.discord_id, p.option1, p.option2, p.option3,
           p.option4, p.option5, p.option6, p.option7, p.option8,p.option9`,
-        [id, moment().subtract(1, 'days').unix()]);
+        [id,Math.floor((Date.now() - msInOneDay)/1000)]);
     raw.options = [raw.option1, raw.option2, raw.option3, raw.option4, raw.option5, raw.option6, raw.option7, raw.option8, raw.option9];
     return raw;
 };
 
 exports.getRecentImageMessageAudits = function(){
-    return db.manyOrNone("select id, date, channel_id, message_reply_id, image from audit where date > $1 and type = 'command' order by date desc limit 100", [moment().subtract(1, 'days').unix()]);
+    return db.manyOrNone("select id, date, channel_id, message_reply_id, image from audit where date > $1 and type = 'command' order by date desc limit 100", [Math.floor((Date.now() - msInOneDay)/1000)]);
 };
 
 exports.logLegendaryAudit = function(charId, legoId){
-    return db.none("insert into audit (type, character_id, legendary_id, date) values ($1, $2, $3, $4)", ["legendary", charId, legoId, moment().unix()]).then(() => true).catch(err => false);
+    return db.none("insert into audit (type, character_id, legendary_id, date) values ($1, $2, $3, $4)", ["legendary", charId, legoId, Math.floor(Date.now()/1000)]).then(() => true).catch(err => false);
 };

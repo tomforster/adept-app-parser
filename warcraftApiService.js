@@ -42,7 +42,7 @@ function retryWrapper(fun, numRetries){
             throw('failed after 5 retries');
         }
         numRetries--;
-        let timedPromise = new Promise((resolve, reject) => {
+        let timedPromise = new Promise(resolve => {
             let waitTime = 1000 + Math.random()*4000;
             setTimeout(() => {
                 resolve()}, waitTime);
@@ -66,16 +66,6 @@ function getCharacterStats(guild, realm){
                 let character = {name: member.name, class: member.class, spec: member.spec && member.spec.order, id: stringHash(member.thumbnail)};
                 promises.push(retryWrapper(() => rp(createCharacterUri(name, realm)), 5)
                     .then(charInfo => {
-                        // let mainHand = charInfo.items.mainHand;
-                        // if(mainHand.quality === 6 && mainHand.hasOwnProperty("artifactTraits")){
-                        //     character.artifactTraits = mainHand.artifactTraits.reduce((acc, val) => acc + val.rank, 0);
-                        // }
-                        // character.totalAP = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(30103)] || 0;
-                        // character.wQCompleted = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33094)] || 0;
-                        // character.mp2 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33096)] || 0;
-                        // character.mp5 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33097)] || 0;
-                        // character.mp10 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(33098)] || 0;
-                        // character.mp15 = charInfo.achievements.criteriaQuantity[charInfo.achievements.criteria.indexOf(32028)] || 0;
                         let feedItems = charInfo.feed.filter(feedItem => feedItem.type === "LOOT");
                         character.legosInFeed = [];
                         feedItems.forEach(item => {

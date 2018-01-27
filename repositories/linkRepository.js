@@ -5,7 +5,6 @@
 "use strict";
 
 const db = require('./db.js').db;
-const moment = require('moment');
 
 exports.getAuditLinks = () => {
     return db.manyOrNone(`
@@ -16,7 +15,7 @@ exports.getAuditLinks = () => {
 };
 
 exports.saveAuditLink = (name, url, user_id) => {
-    return db.none("insert into link(name, url, type, user_id, date_added) values ($1, $2, 'AUDIT', $4, $3)", [name, url, moment().unix(), user_id]);
+    return db.none("insert into link(name, url, type, user_id, date_added) values ($1, $2, 'AUDIT', $4, $3)", [name, url, Math.floor(Date.now()/1000), user_id]);
 };
 
 exports.delete = function(id){
