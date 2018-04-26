@@ -11,7 +11,7 @@ const humanizeDuration = require('humanize-duration');
 const bot = require('./bot');
 
 const MAX_SIZE = 5000000;
-const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif'];
+const allowable_extensions = ['jpeg', 'jpg', 'png', 'gif', 'gifv'];
 const numberEmojis = ["1⃣","2⃣","3⃣","4⃣","5⃣","6⃣","7⃣","8⃣","9⃣"];
 
 function getImage(command){
