@@ -171,7 +171,7 @@ const postApp = async function(mailObj){
         throw "failed to post";
     } finally {
         if(page) page.close();
-        if(browser) browser.disconnect();
+        if(browser) browser.close();
     }
     return url;
 };
