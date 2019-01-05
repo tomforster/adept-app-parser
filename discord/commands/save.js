@@ -9,6 +9,7 @@ const commandRepository = require("../../repositories/imageRepository.js");
 const log = require('bristol');
 
 function run(message, params, keyword, user){
+    if(!user) return Promise.resolve();
     if (params.length === 2) {
         let commandParam = params[0].toLowerCase();
         if(commandParam.indexOf('@') > -1){

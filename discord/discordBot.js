@@ -59,6 +59,15 @@ bot.on("message", message => {
                     message.channel.stopTyping();
                     log.error(err);
                 });
+        }).catch(err =>
+        {
+            return command.run(message, params, keyword, null)
+                .then(result => {
+                    message.channel.stopTyping();
+                }).catch(err => {
+                    message.channel.stopTyping();
+                    log.error(err);
+                });
         });
     }
 

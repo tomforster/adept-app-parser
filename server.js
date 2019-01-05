@@ -19,7 +19,7 @@ log.addTarget('file', {file:'./logs/log-'+timestamp+'.txt'}).withFormatter(palin
 });
 
 log.info("Bot:", config.enableDiscordBot);
-log.info("Api:", config.enableWOWApi);
+// log.info("Api:", config.enableWOWApi);
 log.info("Apps:", config.enableApplications);
 
 let bot;
@@ -31,6 +31,6 @@ if(config.enableApplications) {
     require('./applicationService')(bot);
 }
 
-if(config.enableWOWApi && config.guildName){
-    require('./warcraftApiService')(config.guildName, undefined, bot);
-}
+// if(config.enableWOWApi && config.guildName){
+//     require('./warcraftApiService')(config.guildName, undefined, bot);
+// }
