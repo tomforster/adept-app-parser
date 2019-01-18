@@ -159,7 +159,7 @@ const postApp = async function(mailObj){
         log.info("saving");
         await page.type('#subject', mailObj.title);
         await page.evaluate(body => {
-            document.querySelector('#message').innerText = body;
+            document.querySelector('#message').value = body;
         }, mailObj.body);
         await page.click('[type=submit][name=post]', {delay: 2000});
         await page.waitForSelector('.postbody', {waitUntil: 'networkidle0'});
