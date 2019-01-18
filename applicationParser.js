@@ -85,11 +85,11 @@ module.exports.process = function(sections){
         bbCode += '\n\r';
     });
 
-    if(character.isSocial || character.isHardcore) {
-        bbCode += '[b][i][size=150]Appbot Links[/size][/i][/b]\n\r\n\r';
-        bbCode += '[b]Warcraft Logs[/b]\n\r';
-        bbCode += getWCLString(character);
-    }
+    // if(character.isSocial || character.isHardcore) {
+    //     bbCode += '[b][i][size=150]Appbot Links[/size][/i][/b]\n\r\n\r';
+    //     bbCode += '[b]Warcraft Logs[/b]\n\r';
+    //     bbCode += getWCLString(character);
+    // }
     return {title: getTitle(character), body: bbCode, character:character};
 };
 
