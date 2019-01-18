@@ -67,27 +67,27 @@ module.exports.process = function(sections){
     let bbCode = "";
 
     sections.forEach(section => {
-        bbCode += '[b][i][size=150]' + section.label + '[/size][/i][/b]\n\n';
+        bbCode += '[b][i][size=150]' + section.label + '[/size][/i][/b]\n\r\n\r';
         section.questions.forEach(question => {
             //dont display emails
             if(question.label.toLowerCase().indexOf("mail") >= 0) {
                 return;
             }
-            bbCode += '[b]' + question.label + '[/b]\n';
+            bbCode += '[b]' + question.label + '[/b]\n\r';
             if(Array.isArray(question.answer)){
                 question.answer.forEach(answer => {
-                    bbCode += answer + '\n';
+                    bbCode += answer + '\n\r';
                 })
             }else {
-                bbCode += question.answer + '\n';
+                bbCode += question.answer + '\n\r';
             }
         });
-        bbCode += '\n';
+        bbCode += '\n\r';
     });
 
     if(character.isSocial || character.isHardcore) {
-        bbCode += '[b][i][size=150]Appbot Links[/size][/i][/b]\n\n';
-        bbCode += '[b]Warcraft Logs[/b]\n';
+        bbCode += '[b][i][size=150]Appbot Links[/size][/i][/b]\n\r\n\r';
+        bbCode += '[b]Warcraft Logs[/b]\n\r';
         bbCode += getWCLString(character);
     }
     return {title: getTitle(character), body: bbCode, character:character};
